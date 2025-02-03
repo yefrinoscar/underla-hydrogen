@@ -8,6 +8,11 @@
   --color-light: #fff;
 }
 
+body {
+  font-family: "Montserrat", serif;
+}
+
+
 img {
   border-radius: 4px;
 }
@@ -152,10 +157,10 @@ button.reset:hover:not(:has(> *)) {
   background: #fff;
   display: flex;
   height: var(--header-height);
-  padding: 0 1rem;
   position: sticky;
   top: 0;
   z-index: 1;
+  width: 100%;
 }
 
 .header-menu-mobile-toggle {

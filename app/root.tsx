@@ -1,5 +1,5 @@
-import {useNonce, getShopAnalytics, Analytics} from '@shopify/hydrogen';
-import {defer, type LoaderFunctionArgs} from '@shopify/remix-oxygen';
+import { useNonce, getShopAnalytics, Analytics } from '@shopify/hydrogen';
+import { defer, type LoaderFunctionArgs } from '@shopify/remix-oxygen';
 import {
   Links,
   Meta,
@@ -15,8 +15,8 @@ import favicon from '~/assets/favicon.svg';
 import resetStyles from '~/styles/reset.css?url';
 import appStyles from '~/styles/app.css?url';
 import tailwindCss from './styles/tailwind.css?url';
-import {PageLayout} from '~/components/PageLayout';
-import {FOOTER_QUERY, HEADER_QUERY} from '~/lib/fragments';
+import { PageLayout } from '~/components/PageLayout';
+import { FOOTER_QUERY, HEADER_QUERY } from '~/lib/fragments';
 
 export type RootLoader = typeof loader;
 
@@ -40,9 +40,9 @@ export const shouldRevalidate: ShouldRevalidateFunction = ({
 
 export function links() {
   return [
-    {rel: 'stylesheet', href: tailwindCss},
-    {rel: 'stylesheet', href: resetStyles},
-    {rel: 'stylesheet', href: appStyles},
+    { rel: 'stylesheet', href: tailwindCss },
+    { rel: 'stylesheet', href: resetStyles },
+    { rel: 'stylesheet', href: appStyles },
     {
       rel: 'preconnect',
       href: 'https://cdn.shopify.com',
@@ -51,7 +51,7 @@ export function links() {
       rel: 'preconnect',
       href: 'https://shop.app',
     },
-    {rel: 'icon', type: 'image/svg+xml', href: favicon},
+    { rel: 'icon', type: 'image/svg+xml', href: favicon },
   ];
 }
 
@@ -62,7 +62,7 @@ export async function loader(args: LoaderFunctionArgs) {
   // Await the critical data required to render initial state of the page
   const criticalData = await loadCriticalData(args);
 
-  const {storefront, env} = args.context;
+  const { storefront, env } = args.context;
 
   return defer({
     ...deferredData,
@@ -87,8 +87,8 @@ export async function loader(args: LoaderFunctionArgs) {
  * Load data necessary for rendering content above the fold. This is the critical data
  * needed to render the page. If it's unavailable, the whole page should 400 or 500 error.
  */
-async function loadCriticalData({context}: LoaderFunctionArgs) {
-  const {storefront} = context;
+async function loadCriticalData({ context }: LoaderFunctionArgs) {
+  const { storefront } = context;
 
   const [header] = await Promise.all([
     storefront.query(HEADER_QUERY, {
@@ -100,7 +100,7 @@ async function loadCriticalData({context}: LoaderFunctionArgs) {
     // Add other queries here, so that they are loaded in parallel
   ]);
 
-  return {header};
+  return { header };
 }
 
 /**
@@ -108,8 +108,8 @@ async function loadCriticalData({context}: LoaderFunctionArgs) {
  * fetched after the initial page load. If it's unavailable, the page should still 200.
  * Make sure to not throw any errors here, as it will cause the page to 500.
  */
-function loadDeferredData({context}: LoaderFunctionArgs) {
-  const {storefront, customerAccount, cart} = context;
+function loadDeferredData({ context }: LoaderFunctionArgs) {
+  const { storefront, customerAccount, cart } = context;
 
   // defer the footer query (below the fold)
   const footer = storefront
@@ -131,7 +131,7 @@ function loadDeferredData({context}: LoaderFunctionArgs) {
   };
 }
 
-export function Layout({children}: {children?: React.ReactNode}) {
+export function Layout({ children }: { children?: React.ReactNode }) {
   const nonce = useNonce();
   const data = useRouteLoaderData<RootLoader>('root');
 
@@ -142,6 +142,9 @@ export function Layout({children}: {children?: React.ReactNode}) {
         <meta name="viewport" content="width=device-width,initial-scale=1" />
         <Meta />
         <Links />
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="" />
+        <link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet" />
       </head>
       <body>
         {data ? (

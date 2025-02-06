@@ -58,9 +58,31 @@ function loadDeferredData({context}: LoaderFunctionArgs) {
 export default function Homepage() {
   const data = useLoaderData<typeof loader>();
   return (
-    <div className="home">
+    <div className="home px-8 max-w-7xl mx-auto">
+      <Banner collection={data.featuredCollection} />
       <FeaturedCollection collection={data.featuredCollection} />
       <RecommendedProducts products={data.recommendedProducts} />
+    </div>
+  );
+}
+
+function Banner({
+  collection,
+}: {
+  collection: FeaturedCollectionFragment;
+}) {
+  if (!collection) return null;
+  const image = collection?.image;
+  return (
+    <div className='grid grid-cols-2 gap-4 bg-'>
+      <div className='grid-cols-6'>
+        <h1>Todo lo que necesitas,
+        en un solo lugar</h1>
+      </div>
+
+      <div className='grid-cols-6'>
+        holitas
+      </div>
     </div>
   );
 }

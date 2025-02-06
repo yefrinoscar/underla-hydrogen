@@ -36,7 +36,7 @@ export function PageLayout({
     <Aside.Provider>
       <CartAside cart={cart} />
       <SearchAside />
-      <MobileMenuAside header={header} publicStoreDomain={publicStoreDomain} />
+      <MobileMenuAside cart={cart} header={header} publicStoreDomain={publicStoreDomain} />
       {header && (
         <Header
           header={header}
@@ -154,9 +154,11 @@ function SearchAside() {
 function MobileMenuAside({
   header,
   publicStoreDomain,
+  cart
 }: {
   header: PageLayoutProps['header'];
   publicStoreDomain: PageLayoutProps['publicStoreDomain'];
+  cart: PageLayoutProps['cart'];
 }) {
   return (
     header.menu &&
@@ -167,6 +169,7 @@ function MobileMenuAside({
           viewport="mobile"
           primaryDomainUrl={header.shop.primaryDomain.url}
           publicStoreDomain={publicStoreDomain}
+          cart={cart}
         />
       </Aside>
     )

@@ -1,14 +1,17 @@
-import {defer, type LoaderFunctionArgs} from '@shopify/remix-oxygen';
-import {Await, useLoaderData, Link, type MetaFunction} from '@remix-run/react';
-import {Suspense} from 'react';
-import {Image, Money} from '@shopify/hydrogen';
+import { defer, type LoaderFunctionArgs } from '@shopify/remix-oxygen';
+import { Await, useLoaderData, Link, type MetaFunction } from '@remix-run/react';
+import { Suspense } from 'react';
+import { Image, Money } from '@shopify/hydrogen';
 import type {
   FeaturedCollectionFragment,
+  FeaturedCollectionQuery,
   RecommendedProductsQuery,
 } from 'storefrontapi.generated';
+import type * as StorefrontAPI from '@shopify/hydrogen/storefront-api-types';
+import { Carrousel } from '~/components/Carrousel';
 
 export const meta: MetaFunction = () => {
-  return [{title: 'Hydrogen | Home'}];
+  return [{ title: 'Hydrogen | Home' }];
 };
 
 export async function loader(args: LoaderFunctionArgs) {
@@ -16,23 +19,24 @@ export async function loader(args: LoaderFunctionArgs) {
   const deferredData = loadDeferredData(args);
 
   // Await the critical data required to render initial state of the page
+  const homeProducts = await loadHomeProducts(args);
   const criticalData = await loadCriticalData(args);
 
-  return defer({...deferredData, ...criticalData});
+  return defer({ ...homeProducts, ...deferredData, ...criticalData });
 }
 
 /**
  * Load data necessary for rendering content above the fold. This is the critical data
  * needed to render the page. If it's unavailable, the whole page should 400 or 500 error.
  */
-async function loadCriticalData({context}: LoaderFunctionArgs) {
-  const [{collections}] = await Promise.all([
+async function loadCriticalData({ context }: LoaderFunctionArgs) {
+  const [collections] = await Promise.all([
     context.storefront.query(FEATURED_COLLECTION_QUERY),
     // Add other queries here, so that they are loaded in parallel
   ]);
 
   return {
-    featuredCollection: collections.nodes[0],
+    collections,
   };
 }
 
@@ -41,9 +45,11 @@ async function loadCriticalData({context}: LoaderFunctionArgs) {
  * fetched after the initial page load. If it's unavailable, the page should still 200.
  * Make sure to not throw any errors here, as it will cause the page to 500.
  */
-function loadDeferredData({context}: LoaderFunctionArgs) {
+function loadDeferredData({ context }: LoaderFunctionArgs) {
   const recommendedProducts = context.storefront
-    .query(RECOMMENDED_PRODUCTS_QUERY)
+    .query(RECOMMENDED_PRODUCTS_QUERY, {
+      variables: { query: 'tags:top-selling' }
+    })
     .catch((error) => {
       // Log query errors, but don't throw them so the page can still render
       console.error(error);
@@ -55,57 +61,151 @@ function loadDeferredData({context}: LoaderFunctionArgs) {
   };
 }
 
+function loadHomeProducts({ context }: LoaderFunctionArgs) {
+  const homeProducts = context.storefront
+    .query(HOME_PRODUCTS_QUERY, {
+      variables: { query: 'tags:Home' }
+    })
+    .catch((error) => {
+      // Log query errors, but don't throw them so the page can still render
+      console.error(error);
+      return null;
+    });
+
+  return {
+    homeProducts,
+  };
+}
+
 export default function Homepage() {
   const data = useLoaderData<typeof loader>();
   return (
-    <div className="home px-8 max-w-7xl mx-auto">
-      <Banner collection={data.featuredCollection} />
-      <FeaturedCollection collection={data.featuredCollection} />
+    <div className="mt-20">
+
+      <Banner products={data.homeProducts} />
       <RecommendedProducts products={data.recommendedProducts} />
+      <Promotions products={data.recommendedProducts} />
+      <FeaturedCollection collections={data.collections} />
     </div>
   );
 }
 
+
+const productItems = [
+  {
+    col: "col-span-6",
+    discount: 15 // 15% discount
+  },
+  {
+    col: "col-span-4",
+    discount: 25
+  },
+  {
+    col: "col-span-10",
+    discount: 0 // No discount
+  }
+];
+
+function getFirstPngImage(images: Array<Pick<StorefrontAPI.Image, 'id' | 'url' | 'altText' | 'width' | 'height'>>) {
+  for (const image of images) {
+    if (image && typeof image === 'object' && image.url) {
+      if (image.url.toLowerCase().endsWith('.png')) {
+        return image; // Found the first PNG image, return the object
+      }
+    }
+  }
+
+  return images[0]; // No PNG image found in the array
+}
+
 function Banner({
-  collection,
+  products,
 }: {
-  collection: FeaturedCollectionFragment;
+  products: Promise<RecommendedProductsQuery | null>;
 }) {
-  if (!collection) return null;
-  const image = collection?.image;
   return (
-    <div className='grid grid-cols-2 gap-4 bg-'>
-      <div className='grid-cols-6'>
-        <h1>Todo lo que necesitas,
-        en un solo lugar</h1>
+    <div className='px-8 max-w-7xl mx-auto grid grid-cols-2 gap-5  h-[500px]'>
+      <div className='grid-cols-6  flex items-center'>
+        <h1 className='font-bold text-5xl motion-preset-blur-down  motion-delay-300'>Todo lo que <br />
+          <span className='text-underla-yellow '>necesitas</span>, <br />
+          en un solo lugar</h1>
       </div>
 
-      <div className='grid-cols-6'>
-        holitas
+      <div className='grid grid-cols-10 grid-rows-2 gap-5 *:bg-underla-50 *:rounded-[49px]'>
+        <Suspense fallback={<div>Loading...</div>}>
+          <Await resolve={products}>
+            {
+              (response) => {
+                return response
+                  ? response.products.nodes.map((product, index) => {
+                    const className = `${productItems[index].col} relative flex justify-center items-center`;
+                    return <div key={index} className={className}>
+                      <span className='bg-underla-500 text-white text-xl font-medium absolute top-0 left-0 -translate-x-2.5 -translate-y-3.5 px-6 py-1 rounded-full'>{productItems[index].discount}% off</span>
+                      <Image
+                        data={getFirstPngImage(product.images.nodes)}
+                        className='object-contain h-2/3! absolute '
+                      />
+                    </div>
+                  }) : null
+              }
+
+            }
+          </Await>
+        </Suspense>
       </div>
     </div>
   );
 }
 
 function FeaturedCollection({
-  collection,
+  collections,
 }: {
-  collection: FeaturedCollectionFragment;
+  collections: Promise<FeaturedCollectionQuery | null>;
 }) {
-  if (!collection) return null;
-  const image = collection?.image;
   return (
-    <Link
-      className="featured-collection"
-      to={`/collections/${collection.handle}`}
-    >
-      {image && (
-        <div className="featured-collection-image">
-          <Image data={image} sizes="100vw" />
-        </div>
-      )}
-      <h1>{collection.title}</h1>
-    </Link>
+    <div className='px-8 max-w-7xl mx-auto pt-7 flex flex-col justify-center items-center gap-5'>
+      <h2 className='text-3xl font-bold'>Categorias</h2>
+      <div className='grid grid-cols-12 gap-5 w-full'>
+        <Suspense fallback={<div>Loading...</div>} >
+          <Await resolve={collections}>
+            {(response) => {
+              {
+                return response
+                  ? response.collections.nodes.map((collection) => (
+                    <Link
+                      key={collection.id}
+                      className='col-span-3 h-32 bg-neutral-50 rounded-[20px] flex justify-center items-center hover:bg-underla-500 group'
+                      to={`/collections/${collection.handle}`}
+                    >
+                      {
+                        collection.image && <Image
+                          data={collection?.image}
+                          aspectRatio="1/1"
+                          className='h-64! rounded-[20px]! mb-5'
+                        />
+                      }
+
+                      <h3 className='font-semibold text-neutral-700 text-3xl group-hover:text-white text-decoration-none'>{collection.title}</h3>
+                    </Link>
+                  ))
+                  : null
+              }
+            }}
+          </Await>
+        </Suspense>
+      </div>
+    </div>
+    // <Link
+    //   className="featured-collection"
+    //   to={`/collections/${collection.handle}`}
+    // >
+    //   {image && (
+    //     <div className="featured-collection-image">
+    //       <Image data={image} sizes="100vw" />
+    //     </div>
+    //   )}
+    //   <h1>{collection.title}</h1>
+    // </Link>
   );
 }
 
@@ -115,36 +215,63 @@ function RecommendedProducts({
   products: Promise<RecommendedProductsQuery | null>;
 }) {
   return (
-    <div className="recommended-products">
-      <h2>Recommended Products</h2>
-      <Suspense fallback={<div>Loading...</div>}>
+    <div className="px-8 max-w-7xl mx-auto  pt-16 grid grid-cols-12 gap-5">
+      <div style={{ backgroundSize: '150% 150%' }} className='bg-linear-to-br from-underla-500 to-gr-to animate-gradientAnimation col-span-3 p-6 rounded-[20px] flex items-end'>
+        <h2 className='text-[42px]/12 font-bold text-white'>Los <br />
+          mas  <br />
+          vendidos</h2>
+      </div>
+      <Suspense fallback={<div>Loading...</div>} >
         <Await resolve={products}>
           {(response) => (
-            <div className="recommended-products-grid">
-              {response
-                ? response.products.nodes.map((product) => (
+            <div className="col-span-9">
+              <Carrousel items={response?.products.nodes ?? []}>
+                {response
+                  ? response.products.nodes.map((product) => (
                     <Link
                       key={product.id}
-                      className="recommended-product"
+                      className="recommended-product w-[calc((100%-40px)/3)] flex-shrink-0 bg-neutral-100 rounded-[20px] p-5"
                       to={`/products/${product.handle}`}
                     >
                       <Image
                         data={product.images.nodes[0]}
                         aspectRatio="1/1"
-                        sizes="(min-width: 45em) 20vw, 50vw"
+                        className='h-64! rounded-[20px]! mb-5 '
                       />
-                      <h4>{product.title}</h4>
+                      <h4 className='font-medium text-neutral-800 text-ellipsis whitespace-nowrap overflow-hidden'>{product.title}</h4>
                       <small>
-                        <Money data={product.priceRange.minVariantPrice} />
+                        <Money data={product.priceRange.minVariantPrice} className='text-underla-500 font-semibold text-base' />
                       </small>
                     </Link>
                   ))
-                : null}
+                  : null}
+              </Carrousel>
             </div>
           )}
         </Await>
       </Suspense>
       <br />
+    </div>
+  );
+}
+
+function Promotions({
+  products,
+}: {
+  products: Promise<RecommendedProductsQuery | null>;
+}) {
+  return (
+    <div className="px-8 max-w-7xl mx-auto pt-16 grid grid-cols-12 gap-5 h-64 *:p-5 *:rounded-[20px] *:col-span-6">
+      <div className='bg-pink-600'>
+        <h3 className='text-[42px]/12 font-bold text-white'>
+          Hasta 50% off <br />
+          por el verano</h3>
+      </div>
+      <div className='bg-blue-600'>
+        <h3 className='text-[42px]/12 font-bold text-white'>Lo mejor en  <br />
+          zapatillas   <br />
+          de lujo</h3>
+      </div>
     </div>
   );
 }
@@ -164,7 +291,7 @@ const FEATURED_COLLECTION_QUERY = `#graphql
   }
   query FeaturedCollection($country: CountryCode, $language: LanguageCode)
     @inContext(country: $country, language: $language) {
-    collections(first: 1, sortKey: UPDATED_AT, reverse: true) {
+    collections(first: 8, sortKey: UPDATED_AT, reverse: true) {
       nodes {
         ...FeaturedCollection
       }
@@ -177,6 +304,7 @@ const RECOMMENDED_PRODUCTS_QUERY = `#graphql
     id
     title
     handle
+    tags
     priceRange {
       minVariantPrice {
         amount
@@ -193,12 +321,42 @@ const RECOMMENDED_PRODUCTS_QUERY = `#graphql
       }
     }
   }
-  query RecommendedProducts ($country: CountryCode, $language: LanguageCode)
-    @inContext(country: $country, language: $language) {
-    products(first: 4, sortKey: UPDATED_AT, reverse: true) {
+  query RecommendedProducts ($query: String!) {
+    products(first: 6, sortKey: UPDATED_AT, reverse: true, query: $query) {
       nodes {
         ...RecommendedProduct
       }
     }
+  }
+` as const;
+
+const HOME_PRODUCTS_QUERY = `#graphql
+  fragment HomeProduct on Product {
+    id
+    title
+    handle
+    tags
+    priceRange {
+      minVariantPrice {
+        amount
+        currencyCode
+      }
+    }
+    images(first: 1) {
+      nodes {
+        id
+        url
+        altText
+        width
+        height
+      }
+    }
+  }
+  query HomeProducts($query: String!)  {
+      products(first: 3, query: $query) {
+        nodes {
+          ...HomeProduct
+        }
+      }
   }
 ` as const;

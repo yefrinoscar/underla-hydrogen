@@ -4,3 +4,41 @@
  */
 
 @import 'tailwindcss';
+@plugin "tailwindcss-motion";
+
+@theme {
+  --color-underla-50: #F2F0FD;
+  --color-underla-100: #E5E0FA;
+  --color-underla-200: #C4BEF4;
+  --color-underla-300: #A39AEB;
+  --color-underla-400: #7564E1;
+  --color-underla-500: #4D2DDA;
+  --color-underla-600: #3B23B3;
+  --color-underla-700: #2B1A8C;
+  --color-underla-800: #1B1166;
+  --color-underla-900: #0C0740;
+  --color-underla-950: #06042D;
+
+  --color-underla-yellow: #EAC502;
+
+
+  --color-gr-to: #02EA48;
+
+
+  --animate-gradientAnimation: gradientAnimation 3s ease-in-out infinite;
+
+  @keyframes gradientAnimation {
+    0% {
+      background-position: 0% 50%;
+    }
+
+    50% {
+      background-position: 100% 50%;
+    }
+
+    100% {
+      background-position: 0% 50%;
+    }
+  }
+}
+

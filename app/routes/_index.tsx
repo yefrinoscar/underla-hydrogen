@@ -30,7 +30,7 @@ export async function loader(args: LoaderFunctionArgs) {
  * needed to render the page. If it's unavailable, the whole page should 400 or 500 error.
  */
 async function loadCriticalData({ context }: LoaderFunctionArgs) {
-  const collections = await context.storefront
+  const collections = context.storefront
     .query(FEATURED_COLLECTION_QUERY)
     .catch((error) => {
       // Log query errors, but don't throw them so the page can still render
@@ -277,7 +277,7 @@ function CtaRequest() {
           <div className='w-[520px] flex bg-neutral-100 rounded-[20px] has-[input:focus-within]:outline-2 has-[input:focus-within]:-outline-offset-2 has-[input:focus-within]:outline-underla-500'>
             <input className='min-w-0 grow h-20 placeholder:text-neutral-400 pl-5 focus:outline-none rounded-[20px]' type="text" placeholder='¿Qué necesitas?' />
           </div>
-          <button className='bg-underla-500 shadow-lg hover:shadow-xl shadow-underla-500/50 transition-shadow duration-200 motion-ease-bounce px-8 cursor-pointer rounded-default text-xl font-medium text-white '>
+          <button className='bg-underla-500 shadow-lg hover:shadow-xl shadow-underla-500/50 transition-shadow duration-200 motion-ease-bounce px-8 cursor-pointer rounded-default text-xl font-medium text-white'>
             💡
             Enviar
           </button>

@@ -30,10 +30,13 @@ export async function loader(args: LoaderFunctionArgs) {
  * needed to render the page. If it's unavailable, the whole page should 400 or 500 error.
  */
 async function loadCriticalData({ context }: LoaderFunctionArgs) {
-  const [collections] = await Promise.all([
-    context.storefront.query(FEATURED_COLLECTION_QUERY),
-    // Add other queries here, so that they are loaded in parallel
-  ]);
+  const collections = await context.storefront
+    .query(FEATURED_COLLECTION_QUERY)
+    .catch((error) => {
+      // Log query errors, but don't throw them so the page can still render
+      console.error(error);
+      return null;
+    });
 
   return {
     collections,
@@ -86,6 +89,7 @@ export default function Homepage() {
       <RecommendedProducts products={data.recommendedProducts} />
       <Promotions products={data.recommendedProducts} />
       <FeaturedCollection collections={data.collections} />
+      <CtaRequest />
     </div>
   );
 }
@@ -163,7 +167,7 @@ function FeaturedCollection({
   collections: Promise<FeaturedCollectionQuery | null>;
 }) {
   return (
-    <div className='px-8 max-w-7xl mx-auto pt-7 flex flex-col justify-center items-center gap-5'>
+    <div className='px-8 max-w-7xl mx-auto pt-20 flex flex-col justify-center items-center gap-5'>
       <h2 className='text-3xl font-bold'>Categorias</h2>
       <div className='grid grid-cols-12 gap-5 w-full'>
         <Suspense fallback={<div>Loading...</div>} >
@@ -195,17 +199,6 @@ function FeaturedCollection({
         </Suspense>
       </div>
     </div>
-    // <Link
-    //   className="featured-collection"
-    //   to={`/collections/${collection.handle}`}
-    // >
-    //   {image && (
-    //     <div className="featured-collection-image">
-    //       <Image data={image} sizes="100vw" />
-    //     </div>
-    //   )}
-    //   <h1>{collection.title}</h1>
-    // </Link>
   );
 }
 
@@ -261,20 +254,40 @@ function Promotions({
   products: Promise<RecommendedProductsQuery | null>;
 }) {
   return (
-    <div className="px-8 max-w-7xl mx-auto pt-16 grid grid-cols-12 gap-5 h-64 *:p-5 *:rounded-[20px] *:col-span-6">
+    <div className="px-8 max-w-7xl mx-auto pt-20 grid grid-cols-12 gap-5 h-72 *:p-5 *:rounded-[20px] *:col-span-6">
       <div className='bg-pink-600'>
-        <h3 className='text-[42px]/12 font-bold text-white'>
+        <h3 className='text-[35px]/12 font-bold text-white'>
           Hasta 50% off <br />
           por el verano</h3>
       </div>
       <div className='bg-blue-600'>
-        <h3 className='text-[42px]/12 font-bold text-white'>Lo mejor en  <br />
+        <h3 className='text-[35px]/12 font-bold text-white'>Lo mejor en  <br />
           zapatillas   <br />
           de lujo</h3>
       </div>
     </div>
   );
 }
+
+function CtaRequest() {
+  return (
+    <div className='px-8 max-w-7xl mx-auto pt-20 pb-40 flex flex-col items-center  gap-4'>
+        <h3 className='font-bold text-5xl text-neutral-700'>¿Necesitas algo único y especial?</h3>
+        <div className='flex gap-5'>
+          <div className='w-[520px] flex bg-neutral-100 rounded-[20px] has-[input:focus-within]:outline-2 has-[input:focus-within]:-outline-offset-2 has-[input:focus-within]:outline-underla-500'>
+            <input className='min-w-0 grow h-20 placeholder:text-neutral-400 pl-5 focus:outline-none rounded-[20px]' type="text" placeholder='¿Qué necesitas?' />
+          </div>
+          <button className='bg-underla-500 shadow-lg hover:shadow-xl shadow-underla-500/50 transition-shadow duration-200 motion-ease-bounce px-8 cursor-pointer rounded-default text-xl font-medium text-white '>
+            💡
+            Enviar
+          </button>
+        </div>
+        <p className='text-xl text-neutral-500'>Te conseguimos todo, <strong>SÍ</strong>, todo.</p>
+
+    </div>
+  )
+}
+
 
 const FEATURED_COLLECTION_QUERY = `#graphql
   fragment FeaturedCollection on Collection {
@@ -289,8 +302,7 @@ const FEATURED_COLLECTION_QUERY = `#graphql
     }
     handle
   }
-  query FeaturedCollection($country: CountryCode, $language: LanguageCode)
-    @inContext(country: $country, language: $language) {
+  query FeaturedCollection {
     collections(first: 8, sortKey: UPDATED_AT, reverse: true) {
       nodes {
         ...FeaturedCollection

@@ -18,10 +18,7 @@
   --color-underla-800: #1B1166;
   --color-underla-900: #0C0740;
   --color-underla-950: #06042D;
-
   --color-underla-yellow: #EAC502;
-
-
   --color-gr-to: #02EA48;
 
 
@@ -40,5 +37,18 @@
       background-position: 0% 50%;
     }
   }
+
+
+  --radius-default: 20px;
+
+
+  /* boxShadow: {
+    'category': '4px 4px 0 0 rgba(77, 45, 218, 0.44)',
+    'category-hover': '6px 6px 0 0 rgba(77, 45, 218, 0.44)',
+  } */
 }
 
+
+.container-app {
+  @apply w-full max-w-7xl px-8 mx-auto;
+}

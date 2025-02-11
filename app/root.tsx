@@ -11,7 +11,7 @@ import {
   isRouteErrorResponse,
   type ShouldRevalidateFunction,
 } from '@remix-run/react';
-import favicon from '~/assets/favicon.svg';
+import favicon from '~/assets/favicon.ico';
 import resetStyles from '~/styles/reset.css?url';
 import appStyles from '~/styles/app.css?url';
 import tailwindCss from './styles/tailwind.css?url';
@@ -51,7 +51,7 @@ export function links() {
       rel: 'preconnect',
       href: 'https://shop.app',
     },
-    { rel: 'icon', type: 'image/svg+xml', href: favicon },
+    { rel: 'icon', href: favicon },
   ];
 }
 

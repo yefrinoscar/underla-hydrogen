@@ -4,7 +4,7 @@ import logo from "../assets/underla_logo.svg";
 
 export function Footer() {
   return (
-    <footer className="container-app flex items-center gap-10 h-16 justify-between">
+    <footer className="container-app flex items-center gap-10 h-16 justify-between mt-16">
 
       <div className="flex gap-2 items-center text-neutral-600">
         <img src={logo} alt="Logo underla" />

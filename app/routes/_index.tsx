@@ -11,7 +11,7 @@ import type * as StorefrontAPI from '@shopify/hydrogen/storefront-api-types';
 import { Carrousel } from '~/components/Carrousel';
 
 export const meta: MetaFunction = () => {
-  return [{ title: 'Hydrogen | Home' }];
+  return [{ title: 'Underla | Home' }];
 };
 
 export async function loader(args: LoaderFunctionArgs) {
@@ -51,7 +51,7 @@ async function loadCriticalData({ context }: LoaderFunctionArgs) {
 function loadDeferredData({ context }: LoaderFunctionArgs) {
   const recommendedProducts = context.storefront
     .query(RECOMMENDED_PRODUCTS_QUERY, {
-      variables: { query: 'tags:top-selling' }
+      variables: { query: 'tag:top-selling' }
     })
     .catch((error) => {
       // Log query errors, but don't throw them so the page can still render
@@ -67,7 +67,7 @@ function loadDeferredData({ context }: LoaderFunctionArgs) {
 function loadHomeProducts({ context }: LoaderFunctionArgs) {
   const homeProducts = context.storefront
     .query(HOME_PRODUCTS_QUERY, {
-      variables: { query: 'tags:Home' }
+      variables: { query: 'tag:Home' }
     })
     .catch((error) => {
       // Log query errors, but don't throw them so the page can still render
@@ -83,8 +83,7 @@ function loadHomeProducts({ context }: LoaderFunctionArgs) {
 export default function Homepage() {
   const data = useLoaderData<typeof loader>();
   return (
-    <div className="mt-20">
-
+    <div>
       <Banner products={data.homeProducts} />
       <RecommendedProducts products={data.recommendedProducts} />
       <Promotions products={data.recommendedProducts} />
@@ -334,7 +333,7 @@ const RECOMMENDED_PRODUCTS_QUERY = `#graphql
     }
   }
   query RecommendedProducts ($query: String!) {
-    products(first: 6, sortKey: UPDATED_AT, reverse: true, query: $query) {
+    products(first: 6, query: $query) {
       nodes {
         ...RecommendedProduct
       }

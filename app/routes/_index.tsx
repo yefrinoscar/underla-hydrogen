@@ -11,7 +11,7 @@ import type * as StorefrontAPI from '@shopify/hydrogen/storefront-api-types';
 import { Carrousel } from '~/components/Carrousel';
 
 export const meta: MetaFunction = () => {
-  return [{ title: 'Hydrogen | Home' }];
+  return [{ title: 'Underla | Home' }];
 };
 
 export async function loader(args: LoaderFunctionArgs) {
@@ -30,7 +30,7 @@ export async function loader(args: LoaderFunctionArgs) {
  * needed to render the page. If it's unavailable, the whole page should 400 or 500 error.
  */
 async function loadCriticalData({ context }: LoaderFunctionArgs) {
-  const collections = await context.storefront
+  const collections = context.storefront
     .query(FEATURED_COLLECTION_QUERY)
     .catch((error) => {
       // Log query errors, but don't throw them so the page can still render
@@ -51,7 +51,7 @@ async function loadCriticalData({ context }: LoaderFunctionArgs) {
 function loadDeferredData({ context }: LoaderFunctionArgs) {
   const recommendedProducts = context.storefront
     .query(RECOMMENDED_PRODUCTS_QUERY, {
-      variables: { query: 'tags:top-selling' }
+      variables: { query: 'tag:top-selling' }
     })
     .catch((error) => {
       // Log query errors, but don't throw them so the page can still render
@@ -67,7 +67,7 @@ function loadDeferredData({ context }: LoaderFunctionArgs) {
 function loadHomeProducts({ context }: LoaderFunctionArgs) {
   const homeProducts = context.storefront
     .query(HOME_PRODUCTS_QUERY, {
-      variables: { query: 'tags:Home' }
+      variables: { query: 'tag:Home' }
     })
     .catch((error) => {
       // Log query errors, but don't throw them so the page can still render
@@ -83,8 +83,7 @@ function loadHomeProducts({ context }: LoaderFunctionArgs) {
 export default function Homepage() {
   const data = useLoaderData<typeof loader>();
   return (
-    <div className="mt-20">
-
+    <div>
       <Banner products={data.homeProducts} />
       <RecommendedProducts products={data.recommendedProducts} />
       <Promotions products={data.recommendedProducts} />
@@ -277,7 +276,7 @@ function CtaRequest() {
           <div className='w-[520px] flex bg-neutral-100 rounded-[20px] has-[input:focus-within]:outline-2 has-[input:focus-within]:-outline-offset-2 has-[input:focus-within]:outline-underla-500'>
             <input className='min-w-0 grow h-20 placeholder:text-neutral-400 pl-5 focus:outline-none rounded-[20px]' type="text" placeholder='¿Qué necesitas?' />
           </div>
-          <button className='bg-underla-500 shadow-lg hover:shadow-xl shadow-underla-500/50 transition-shadow duration-200 motion-ease-bounce px-8 cursor-pointer rounded-default text-xl font-medium text-white '>
+          <button className='bg-underla-500 shadow-lg hover:shadow-xl shadow-underla-500/50 transition-shadow duration-200 motion-ease-bounce px-8 cursor-pointer rounded-default text-xl font-medium text-white'>
             💡
             Enviar
           </button>
@@ -334,7 +333,7 @@ const RECOMMENDED_PRODUCTS_QUERY = `#graphql
     }
   }
   query RecommendedProducts ($query: String!) {
-    products(first: 6, sortKey: UPDATED_AT, reverse: true, query: $query) {
+    products(first: 6, query: $query) {
       nodes {
         ...RecommendedProduct
       }

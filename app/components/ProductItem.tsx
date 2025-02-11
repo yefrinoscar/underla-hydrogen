@@ -15,7 +15,7 @@ export function ProductItem({
     return (
         <Link
             key={product.id}
-            className="bg-neutral-100 rounded-[20px] p-5"
+            className="bg-neutral-100 rounded-[20px] p-5 col-span-1"
             prefetch="intent"
             to={variantUrl}
         >

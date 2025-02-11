@@ -1,4 +1,4 @@
-import { Suspense } from 'react';
+import { Suspense, useEffect, useState } from 'react';
 import { Await, NavLink, useAsyncValue } from '@remix-run/react';
 import {
   type CartViewPayload,
@@ -27,8 +27,27 @@ export function Header({
   publicStoreDomain,
 }: HeaderProps) {
   const { shop, menu } = header;
+  const [isScrolled, setIsScrolled] = useState(false)
+
+  useEffect(() => {
+    const handleScroll = () => {
+      if (window.scrollY > 0) {
+        setIsScrolled(true)
+      } else {
+        setIsScrolled(false)
+      }
+    }
+
+    window.addEventListener("scroll", handleScroll)
+
+    return () => {
+      window.removeEventListener("scroll", handleScroll)
+    }
+  }, [])
+
+
   return (
-    <header className="header w-full mb-8  md:mb-16">
+    <header className={`header w-full mb-8  md:mb-16 bg-white ${isScrolled ? 'shadow-md': ''}`}>
       <div className='flex items-center  w-full px-8 max-w-7xl mx-auto h-16 justify-between'>
         <NavLink prefetch="intent" to="/" style={activeLinkStyle} end className="flex items-center gap-2">
           <img src={logo} className='w-8' alt="Logo underla" />

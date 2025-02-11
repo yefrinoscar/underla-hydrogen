@@ -98,6 +98,8 @@ function loadDeferredData({context, params}: LoaderFunctionArgs) {
       return null;
     });
 
+  console.log(variants)
+
   return {
     variants,
   };
@@ -128,23 +130,27 @@ function redirectToFirstVariant({
 
 export default function Product() {
   const {product, variants} = useLoaderData<typeof loader>();
+
   const selectedVariant = useOptimisticVariant(
     product.selectedVariant,
     variants,
   );
-
   const {title, descriptionHtml} = product;
 
   return (
-    <div className="product">
-      <ProductImage image={selectedVariant?.image} />
-      <div className="product-main">
-        <h1>{title}</h1>
-        <ProductPrice
-          price={selectedVariant?.price}
-          compareAtPrice={selectedVariant?.compareAtPrice}
-        />
-        <br />
+    <div className="container-app grid grid-cols-1 md:grid-cols-2 gap-5">
+      <div className='col-span-1'>
+        <ProductImage image={selectedVariant?.image} />
+      </div>
+      <div className="col-span-1 flex flex-col gap-5">
+        <div className='gap-2'>
+          <h1 className='font-bold text-neutral-700 text-xl md:text-2xl'>{title}</h1>
+          <ProductPrice
+            price={selectedVariant?.price}
+            compareAtPrice={selectedVariant?.compareAtPrice}
+          />
+
+        </div>
         <Suspense
           fallback={
             <ProductForm
@@ -169,12 +175,8 @@ export default function Product() {
         </Suspense>
         <br />
         <br />
-        <p>
-          <strong>Description</strong>
-        </p>
-        <br />
-        <div dangerouslySetInnerHTML={{__html: descriptionHtml}} />
-        <br />
+        <span className='text-sm font-semibold text-neutral-600'>Descripción</span>
+        <div className='text-gray-600' dangerouslySetInnerHTML={{__html: descriptionHtml}} />
       </div>
       <Analytics.ProductView
         data={{

@@ -4,10 +4,12 @@ import arrow_right from '../assets/arrow-right.svg'
 
 export function Carrousel({
   items,
-  children
+  children,
+  countItems = 3
 }: {
   items: unknown[];
   children: React.ReactNode;
+  countItems: number
 }) {
 
   const [currentIndex, setCurrentIndex] = useState(0)
@@ -26,7 +28,7 @@ export function Carrousel({
       <div className="overflow-hidden">
         <div
           className="flex transition-transform duration-300 ease-in-out gap-5 "
-          style={{ transform: `translateX(${currentIndex === 0 ? '0' : `calc((( -${currentIndex} * ((100% - 40px) / 3) ) -  ${currentIndex * 20}px))`})` }}
+          style={{ transform: `translateX(${currentIndex === 0 ? '0' : `calc((( -${currentIndex} * ((100% - ${(countItems - 1) * 20}px) / ${countItems}) ) -  ${currentIndex * 20}px))`})` }}
         >
           {children}
         </div>

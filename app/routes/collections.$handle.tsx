@@ -1,17 +1,16 @@
-import {defer, redirect, type LoaderFunctionArgs} from '@shopify/remix-oxygen';
-import {useLoaderData, Link, type MetaFunction} from '@remix-run/react';
+import { defer, redirect, type LoaderFunctionArgs } from '@shopify/remix-oxygen';
+import { useLoaderData, type MetaFunction } from '@remix-run/react';
 import {
-  getPaginationVariables,
-  Image,
-  Money,
   Analytics,
+  getPaginationVariables,
+  Pagination,
 } from '@shopify/hydrogen';
-import type {ProductItemFragment} from 'storefrontapi.generated';
-import {useVariantUrl} from '~/lib/variants';
-import {PaginatedResourceSection} from '~/components/PaginatedResourceSection';
+import type { CollectionFragment, ProductItemFragment } from 'storefrontapi.generated';
+import { CollectionItem, COLLECTIONS_QUERY, ProductsLoadedOnScroll } from './collections._index';
+import { useInView } from 'react-intersection-observer';
 
-export const meta: MetaFunction<typeof loader> = ({data}) => {
-  return [{title: `Underla |${data?.collection.title ?? ''} Collection`}];
+export const meta: MetaFunction<typeof loader> = ({ data }) => {
+  return [{ title: `Underla |${data?.collection.title ?? ''} Collection` }];
 };
 
 export async function loader(args: LoaderFunctionArgs) {
@@ -21,7 +20,7 @@ export async function loader(args: LoaderFunctionArgs) {
   // Await the critical data required to render initial state of the page
   const criticalData = await loadCriticalData(args);
 
-  return defer({...deferredData, ...criticalData});
+  return defer({ ...deferredData, ...criticalData });
 }
 
 /**
@@ -33,31 +32,37 @@ async function loadCriticalData({
   params,
   request,
 }: LoaderFunctionArgs) {
-  const {handle} = params;
-  const {storefront} = context;
+  const { handle } = params;
+  const { storefront } = context;
   const paginationVariables = getPaginationVariables(request, {
     pageBy: 8,
+
   });
 
   if (!handle) {
     throw redirect('/collections');
   }
 
-  const [{collection}] = await Promise.all([
+  const [{ collections }, { collection }] = await Promise.all([
+    storefront.query(COLLECTIONS_QUERY),
     storefront.query(COLLECTION_QUERY, {
       variables: {handle, ...paginationVariables},
-      // Add other queries here, so that they are loaded in parallel
     }),
   ]);
 
-  if (!collection) {
+  console.log(collection);
+
+
+  if (!collections || !handle) {
     throw new Response(`Collection ${handle} not found`, {
       status: 404,
     });
   }
 
   return {
+    collections,
     collection,
+    handle
   };
 }
 
@@ -66,29 +71,55 @@ async function loadCriticalData({
  * fetched after the initial page load. If it's unavailable, the page should still 200.
  * Make sure to not throw any errors here, as it will cause the page to 500.
  */
-function loadDeferredData({context}: LoaderFunctionArgs) {
+function loadDeferredData({ context }: LoaderFunctionArgs) {
   return {};
 }
 
 export default function Collection() {
-  const {collection} = useLoaderData<typeof loader>();
+  const { collections, collection, handle } = useLoaderData<typeof loader>();
+  const { ref, inView } = useInView();
 
   return (
-    <div className="collection">
-      <h1>{collection.title}</h1>
-      <p className="collection-description">{collection.description}</p>
-      <PaginatedResourceSection
-        connection={collection.products}
-        resourcesClassName="products-grid"
-      >
-        {({node: product, index}) => (
-          <ProductItem
-            key={product.id}
-            product={product}
-            loading={index < 8 ? 'eager' : undefined}
-          />
-        )}
-      </PaginatedResourceSection>
+    <div className="w-full max-w-7xl px-4 md:px-8 md:mx-auto flex flex-col gap-5">
+      <h1 className='font-bold text-3xl md:text-5xl text-neutral-700'>Categorias</h1>
+      <div className="flex gap-2 py-3 -mr-4 md:mr-0 md:gap-4 overflow-x-auto scrool">
+        <CollectionItem
+          collection={{ handle: '', title: 'Todos los productos' } as CollectionFragment}
+          active={handle === 'all'}
+        />
+        {
+          collections.nodes.map((collection: CollectionFragment, index: number) => (
+            <CollectionItem
+              key={collection.id}
+              collection={collection}
+              active={handle === collection.handle}
+            />
+          ))
+        }
+      </div>
+
+      <div className='grid grid-cols-1 gap-5 sm:grid-cols-3 md:grid-cols-4'>
+        <Pagination connection={collection?.products}>
+          {({ nodes, NextLink, hasNextPage, nextPageUrl, state }: {
+            nodes: ProductItemFragment[];
+            NextLink: any;
+            hasNextPage: boolean;
+            nextPageUrl: string;
+            state: any;
+          }) => (
+            <>
+              <ProductsLoadedOnScroll
+                nodes={nodes}
+                inView={inView}
+                hasNextPage={hasNextPage}
+                nextPageUrl={nextPageUrl}
+                state={state}
+              />
+              <NextLink ref={ref}>Load more</NextLink>
+            </>
+          )}
+        </Pagination>
+      </div>
       <Analytics.CollectionView
         data={{
           collection: {
@@ -98,39 +129,6 @@ export default function Collection() {
         }}
       />
     </div>
-  );
-}
-
-function ProductItem({
-  product,
-  loading,
-}: {
-  product: ProductItemFragment;
-  loading?: 'eager' | 'lazy';
-}) {
-  const variant = product.variants.nodes[0];
-  const variantUrl = useVariantUrl(product.handle, variant.selectedOptions);
-  return (
-    <Link
-      className="product-item"
-      key={product.id}
-      prefetch="intent"
-      to={variantUrl}
-    >
-      {product.featuredImage && (
-        <Image
-          alt={product.featuredImage.altText || product.title}
-          aspectRatio="1/1"
-          data={product.featuredImage}
-          loading={loading}
-          sizes="(min-width: 45em) 400px, 100vw"
-        />
-      )}
-      <h4>{product.title}</h4>
-      <small>
-        <Money data={product.priceRange.minVariantPrice} />
-      </small>
-    </Link>
   );
 }
 
@@ -186,20 +184,15 @@ const COLLECTION_QUERY = `#graphql
       handle
       title
       description
-      products(
-        first: $first,
-        last: $last,
-        before: $startCursor,
-        after: $endCursor
-      ) {
+      products(first: $first, last: $last, before: $startCursor, after: $endCursor) {
         nodes {
           ...ProductItem
         }
         pageInfo {
           hasPreviousPage
           hasNextPage
-          endCursor
           startCursor
+          endCursor
         }
       }
     }

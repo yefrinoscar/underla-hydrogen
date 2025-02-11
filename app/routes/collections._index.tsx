@@ -49,9 +49,9 @@ export default function Collections() {
   const { ref, inView, entry } = useInView();
 
   return (
-    <div className="w-full max-w-7xl px-8 pl-4 md:mx-auto flex flex-col gap-5">
+    <div className="w-full max-w-7xl px-4 md:px-8 md:mx-auto flex flex-col gap-5">
       <h1 className='font-bold text-3xl md:text-5xl text-neutral-700'>Categorias</h1>
-      <div className="flex gap-2 md:gap-4 overflow-x-auto scrool">
+      <div className="flex gap-2 -mr-4 md:mr-0 md:gap-4 overflow-x-auto scrool">
         <CollectionItem
           collection={{ handle: '', title: 'Todos los productos' } as CollectionFragment}
           active={true}
@@ -67,7 +67,7 @@ export default function Collections() {
         }
       </div>
       
-      <div className='grid gap-5 sm:grid-cols-3 md:grid-cols-4'>
+      <div className='grid grid-cols-1 gap-5 sm:grid-cols-3 md:grid-cols-4'>
         <Pagination connection={products}>
         {({ nodes, NextLink, hasNextPage, nextPageUrl, state }) => (
           <>

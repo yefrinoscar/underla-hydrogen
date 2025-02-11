@@ -28,7 +28,7 @@ export function Header({
 }: HeaderProps) {
   const { shop, menu } = header;
   return (
-    <header className="header w-full  mb-16">
+    <header className="header w-full mb-8  md:mb-16">
       <div className='flex items-center  w-full px-8 max-w-7xl mx-auto h-16 justify-between'>
         <NavLink prefetch="intent" to="/" style={activeLinkStyle} end className="flex items-center gap-2">
           <img src={logo} className='w-8' alt="Logo underla" />

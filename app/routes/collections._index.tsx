@@ -1,8 +1,7 @@
 import { useLoaderData, Link, useNavigate } from '@remix-run/react';
 import { defer, type LoaderFunctionArgs } from '@shopify/remix-oxygen';
-import { getPaginationVariables, Image, Pagination } from '@shopify/hydrogen';
-import type { CollectionFragment, ProductFragment, ProductItemFragment } from 'storefrontapi.generated';
-import { PaginatedResourceSection } from '~/components/PaginatedResourceSection';
+import { getPaginationVariables, Pagination } from '@shopify/hydrogen';
+import type { CollectionFragment, ProductItemFragment } from 'storefrontapi.generated';
 import { useEffect } from 'react';
 import { useInView } from 'react-intersection-observer';
 import { ProductItem } from '~/components/ProductItem';
@@ -49,7 +48,7 @@ export default function Collections() {
   const { ref, inView, entry } = useInView();
 
   return (
-    <div className="w-full max-w-7xl px-4 md:px-8 md:mx-auto flex flex-col gap-5">
+    <div className="container-app flex flex-col gap-5">
       <h1 className='font-bold text-3xl md:text-5xl text-neutral-700'>Categorias</h1>
       <div className="flex gap-2 -mr-4 md:mr-0 md:gap-4 overflow-x-auto scrool">
         <CollectionItem
@@ -87,7 +86,7 @@ export default function Collections() {
   );
 }
 
-function CollectionItem({
+export function CollectionItem({
   collection,
   active
 }: {
@@ -114,7 +113,7 @@ interface ProductsLoadedOnScrollProps {
   state: any; // Using any temporarily to match Pagination component's state
 }
 
-function ProductsLoadedOnScroll({ 
+export function ProductsLoadedOnScroll({ 
   nodes, 
   inView, 
   hasNextPage, 
@@ -138,7 +137,7 @@ function ProductsLoadedOnScroll({
   ));
 }
 
-const COLLECTIONS_QUERY = `#graphql
+export const COLLECTIONS_QUERY = `#graphql
   fragment Collection on Collection {
     id
     title
@@ -160,7 +159,7 @@ const COLLECTIONS_QUERY = `#graphql
   }
 ` as const;
 
-const PRODUCT_ITEM_FRAGMENT = `#graphql
+export const PRODUCT_ITEM_FRAGMENT = `#graphql
   fragment MoneyProductItem on MoneyV2 {
     amount
     currencyCode
@@ -196,7 +195,7 @@ const PRODUCT_ITEM_FRAGMENT = `#graphql
 ` as const;
 
 // NOTE: https://shopify.dev/docs/api/storefront/2024-01/objects/product
-const PAGINATION_PRODUCTS_QUERY = `#graphql
+export const PAGINATION_PRODUCTS_QUERY = `#graphql
   query Catalog(
     $country: CountryCode
     $language: LanguageCode

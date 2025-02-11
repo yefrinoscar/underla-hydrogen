@@ -24,6 +24,7 @@ export function AddToCartButton({
             value={JSON.stringify(analytics)}
           />
           <button
+           className='rounded-xl bg-underla-500 p-4 text-white shadow-lg hover:shadow-xl shadow-underla-500/50 transition-shadow duration-200 motion-ease-bounce cursor-pointer font-medium gap-2 flex'
             type="submit"
             onClick={onClick}
             disabled={disabled ?? fetcher.state !== 'idle'}

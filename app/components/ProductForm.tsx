@@ -18,17 +18,18 @@ export function ProductForm({
 }) {
   const {open} = useAside();
   return (
-    <div className="product-form">
-      <VariantSelector
-        handle={product.handle}
-        options={product.options.filter(
-          (option) => option.optionValues.length > 1,
-        )}
-        variants={variants}
-      >
-        {({option}) => <ProductOptions key={option.name} option={option} />}
-      </VariantSelector>
-      <br />
+    <div className="flex flex-col gap-5">
+      <div className='flex flex-col gap-4'>
+        <VariantSelector
+          handle={product.handle}
+          options={product.options.filter(
+            (option) => option.optionValues.length > 1,
+          )}
+          variants={variants}
+        >
+          {({option}) => <ProductOptions key={option.name} option={option} />}
+        </VariantSelector>
+      </div>
       <AddToCartButton
         disabled={!selectedVariant || !selectedVariant.availableForSale}
         onClick={() => {
@@ -46,7 +47,18 @@ export function ProductForm({
             : []
         }
       >
-        {selectedVariant?.availableForSale ? 'Add to cart' : 'Sold out'}
+        {selectedVariant?.availableForSale ?  
+        <>
+          <svg className='stroke-white' width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M9 22C9.55228 22 10 21.5523 10 21C10 20.4477 9.55228 20 9 20C8.44772 20 8 20.4477 8 21C8 21.5523 8.44772 22 9 22Z" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+            <path d="M20 22C20.5523 22 21 21.5523 21 21C21 20.4477 20.5523 20 20 20C19.4477 20 19 20.4477 19 21C19 21.5523 19.4477 22 20 22Z" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+            <path d="M1 1H5L7.68 14.39C7.77144 14.8504 8.02191 15.264 8.38755 15.5583C8.75318 15.8526 9.2107 16.009 9.68 16H19.4C19.8693 16.009 20.3268 15.8526 20.6925 15.5583C21.0581 15.264 21.3086 14.8504 21.4 14.39L23 6H6" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+          </svg>
+
+          <span>Agregar al carrito</span>
+        </>
+        : 'Sold out'
+        }
       </AddToCartButton>
     </div>
   );
@@ -54,29 +66,29 @@ export function ProductForm({
 
 function ProductOptions({option}: {option: VariantOption}) {
   return (
-    <div className="product-options" key={option.name}>
+    <div className="flex flex-col gap-2" key={option.name}>
       <h5>{option.name}</h5>
-      <div className="product-options-grid">
+      <div className="flex flex-wrap gap-2">
         {option.values.map(({value, isAvailable, isActive, to}) => {
           return (
             <Link
-              className="product-options-item"
+              className={`px-4 py-2.5 md:py-3.5 text-sm rounded-xl ${isActive ? 'bg-neutral-900 text-white hover:bg-neutral-950' : 'bg-neutral-200 hover:bg-neutral-900 text-neutral-600 hover:text-white'}`}
               key={option.name + value}
               prefetch="intent"
               preventScrollReset
               replace
               to={to}
               style={{
-                border: isActive ? '1px solid black' : '1px solid transparent',
-                opacity: isAvailable ? 1 : 0.3,
+                opacity: isAvailable ? 1 : 0.2,
               }}
             >
+              {/* test
+              {isAvailable ? 1 : 0} */}
               {value}
             </Link>
           );
         })}
       </div>
-      <br />
     </div>
   );
 }

@@ -163,12 +163,6 @@ button.reset:hover:not(:has(> *)) {
   width: 100%;
 }
 
-.header-menu-mobile-toggle {
-  @media (min-width: 48em) {
-    display: none;
-  }
-}
-
 .header-menu-mobile {
   display: flex;
   flex-direction: column;

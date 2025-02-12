@@ -10,6 +10,7 @@ import { useAside } from '~/components/Aside';
 import logo from "../assets/underla_logo.svg";
 import search from "../assets/search.png";
 import shopping_cart from "../assets/shopping_cart.png";
+import menu from "../assets/menu.svg";
 
 interface HeaderProps {
   header: HeaderQuery;
@@ -61,6 +62,7 @@ export function Header({
           isLoggedIn={isLoggedIn}
           cart={cart}
         />
+        <HeaderMenuMobileToggle />
       </div>
     </header>
   );
@@ -146,10 +148,10 @@ function HeaderMenuMobileToggle() {
   const { open } = useAside();
   return (
     <button
-      className="header-menu-mobile-toggle reset"
+      className="md:hidden reset"
       onClick={() => open('mobile')}
     >
-      <h3>☰</h3>
+      <img src={menu} alt="Menu" className='w-6' />
     </button>
   );
 }
@@ -157,7 +159,7 @@ function HeaderMenuMobileToggle() {
 function SearchToggle() {
   const { open } = useAside();
   return (
-    <img src={search} onClick={() => open('search')} alt="Buscador" />
+    <img className='w-8' src={search} onClick={() => open('search')} alt="Buscador" />
   );
 }
 

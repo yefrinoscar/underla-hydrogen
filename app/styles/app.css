@@ -1,4 +1,4 @@
-input:root {
+:root {
   --aside-width: 400px;
   --cart-aside-summary-height-with-discount: 300px;
   --cart-aside-summary-height: 250px;
@@ -160,12 +160,6 @@ button.reset:hover:not(:has(> *)) {
   top: 0;
   z-index: 1;
   width: 100%;
-}
-
-.header-menu-mobile-toggle {
-  @media (min-width: 48em) {
-    display: none;
-  }
 }
 
 .header-menu-mobile {

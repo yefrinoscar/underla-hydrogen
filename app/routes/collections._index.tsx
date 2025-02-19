@@ -5,6 +5,7 @@ import type { CollectionFragment, ProductItemFragment } from 'storefrontapi.gene
 import { useEffect } from 'react';
 import { useInView } from 'react-intersection-observer';
 import { ProductItem } from '~/components/ProductItem';
+import { motion } from "framer-motion"
 
 export async function loader(args: LoaderFunctionArgs) {
   // Start fetching non-critical data without blocking time to first byte
@@ -132,8 +133,16 @@ export function ProductsLoadedOnScroll({
     }
   }, [inView, navigate, state, nextPageUrl, hasNextPage]);
 
-  return nodes.map((product) => (
-    <ProductItem key={product.id} product={product}  />
+  return nodes.map((product, index) => (
+    <motion.li
+          key={index}
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.2, delay: index * 0.05 }}
+          className='list-none'
+        >
+      <ProductItem key={product.id} product={product}  />
+    </motion.li>
   ));
 }
 

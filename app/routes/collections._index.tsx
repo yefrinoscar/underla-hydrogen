@@ -50,11 +50,12 @@ export default function Collections() {
 
   return (
     <div className="container-app flex flex-col gap-5">
-      <h1 className='font-bold text-3xl md:text-5xl text-neutral-700'>Categorias</h1>
-      <div className="flex gap-2 -mr-4 md:mr-0 md:gap-4 overflow-x-auto scrool">
+      <h1 className='font-bold text-3xl md:text-5xl text-neutral-700 motion-preset-blur-down'>Categorias</h1>
+      <div className="flex gap-2 -mr-4 md:mr-0 md:gap-4 overflow-x-auto scrool motion-preset-slide-up pb-5">
         <CollectionItem
           collection={{ handle: '', title: 'Todos los productos' } as CollectionFragment}
           active={true}
+          index={0}
         />
         {
           collections.nodes.map((collection: CollectionFragment, index: number) => (
@@ -62,12 +63,13 @@ export default function Collections() {
               key={collection.id}
               collection={collection}
               active={false}
+              index={index + 1}
             />
           ))
         }
       </div>
       
-      <div className='grid grid-cols-1 gap-5 sm:grid-cols-3 md:grid-cols-4'>
+      <div className='grid grid-cols-1 gap-5 sm:grid-cols-3 md:grid-cols-4 motion-preset-fade motion-delay-300'>
         <Pagination connection={products}>
         {({ nodes, NextLink, hasNextPage, nextPageUrl, state }) => (
           <>
@@ -89,14 +91,16 @@ export default function Collections() {
 
 export function CollectionItem({
   collection,
-  active
+  active,
+  index = 0
 }: {
   collection: CollectionFragment;
-  active: boolean
+  active: boolean;
+  index?: number;
 }) {
   return (
     <Link
-      className={`flex rounded-lg cursor-pointer text-xs md:text-sm bg-neutral-200 text-neutral-900 transition-shadow hover:bg-underla-600 hover:text-white hover:shadow-category ${active ? 'bg-underla-600 text-white shadow-category hover:shadow-category-hover' : ''}`}
+      className={`flex rounded-lg cursor-pointer text-xs md:text-sm bg-neutral-200 text-neutral-900 transition-shadow hover:bg-underla-600 hover:text-white hover:shadow-category motion-preset-pop motion-delay-${index * 100} ${active ? 'bg-underla-600 text-white shadow-category hover:shadow-category-hover' : ''}`}
       key={collection.id}
       to={`/collections/${collection.handle}`}
       prefetch="intent"
@@ -139,9 +143,9 @@ export function ProductsLoadedOnScroll({
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.2, delay: index * 0.05 }}
-          className='list-none'
+          className='list-none motion-preset-fade motion-delay-${index * 150}'
         >
-      <ProductItem key={product.id} product={product}  />
+      <ProductItem key={product.id} product={product} />
     </motion.li>
   ));
 }

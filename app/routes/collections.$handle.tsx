@@ -10,7 +10,7 @@ import { CollectionItem, COLLECTIONS_QUERY, ProductsLoadedOnScroll } from './col
 import { useInView } from 'react-intersection-observer';
 
 export const meta: MetaFunction<typeof loader> = ({ data }) => {
-  return [{ title: `Underla |${data?.collection.title ?? ''} Collection` }];
+  return [{ title: `Underla |${data?.collection?.title ?? ''} Collection` }];
 };
 
 export async function loader(args: LoaderFunctionArgs) {
@@ -36,7 +36,6 @@ async function loadCriticalData({
   const { storefront } = context;
   const paginationVariables = getPaginationVariables(request, {
     pageBy: 8,
-
   });
 
   if (!handle) {
@@ -49,9 +48,6 @@ async function loadCriticalData({
       variables: {handle, ...paginationVariables},
     }),
   ]);
-
-  console.log(collection);
-
 
   if (!collections || !handle) {
     throw new Response(`Collection ${handle} not found`, {
@@ -75,17 +71,28 @@ function loadDeferredData({ context }: LoaderFunctionArgs) {
   return {};
 }
 
+const emptyConnection = {
+  nodes: [],
+  pageInfo: {
+    hasPreviousPage: false,
+    hasNextPage: false,
+    startCursor: null,
+    endCursor: null,
+  },
+};
+
 export default function Collection() {
   const { collections, collection, handle } = useLoaderData<typeof loader>();
   const { ref, inView } = useInView();
 
   return (
     <div className="w-full max-w-7xl px-4 md:px-8 md:mx-auto flex flex-col gap-5">
-      <h1 className='font-bold text-3xl md:text-5xl text-neutral-700'>Categorias</h1>
-      <div className="flex gap-2 py-3 -mr-4 md:mr-0 md:gap-4 overflow-x-auto scrool">
+      <h1 className='font-bold text-3xl md:text-5xl text-neutral-700 motion-preset-blur-down'>Categorias</h1>
+      <div className="flex gap-2 py-3 -mr-4 md:mr-0 md:gap-4 overflow-x-auto scrool motion-preset-slide-right">
         <CollectionItem
           collection={{ handle: '', title: 'Todos los productos' } as CollectionFragment}
           active={handle === 'all'}
+          index={0}
         />
         {
           collections.nodes.map((collection: CollectionFragment, index: number) => (
@@ -93,13 +100,14 @@ export default function Collection() {
               key={collection.id}
               collection={collection}
               active={handle === collection.handle}
+              index={index + 1}
             />
           ))
         }
       </div>
 
-      <div className='grid grid-cols-1 gap-5 sm:grid-cols-3 md:grid-cols-4'>
-        <Pagination connection={collection?.products}>
+      <div className='grid grid-cols-1 gap-5 sm:grid-cols-3 md:grid-cols-4 motion-preset-fade motion-delay-300'>
+        <Pagination connection={collection?.products ?? emptyConnection}>
           {({ nodes, NextLink, hasNextPage, nextPageUrl, state }: {
             nodes: ProductItemFragment[];
             NextLink: any;
@@ -123,8 +131,8 @@ export default function Collection() {
       <Analytics.CollectionView
         data={{
           collection: {
-            id: collection.id,
-            handle: collection.handle,
+            id: collection?.id ?? '',
+            handle: collection?.handle ?? '',
           },
         }}
       />

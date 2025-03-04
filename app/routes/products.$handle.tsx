@@ -98,8 +98,6 @@ function loadDeferredData({context, params}: LoaderFunctionArgs) {
       return null;
     });
 
-  console.log(variants)
-
   return {
     variants,
   };
@@ -139,17 +137,16 @@ export default function Product() {
 
   return (
     <div className="container-app grid grid-cols-1 md:grid-cols-2 gap-5">
-      <div className='col-span-1'>
+      <div className='col-span-1 motion-preset-fade'>
         <ProductImage image={selectedVariant?.image} />
       </div>
-      <div className="col-span-1 flex flex-col gap-5">
+      <div className="col-span-1 flex flex-col gap-5 motion-preset-fade motion-delay-100">
         <div className='gap-2'>
           <h1 className='font-bold text-neutral-700 text-xl md:text-2xl'>{title}</h1>
           <ProductPrice
             price={selectedVariant?.price}
             compareAtPrice={selectedVariant?.compareAtPrice}
           />
-
         </div>
         <Suspense
           fallback={

@@ -74,7 +74,7 @@ export default function Collections() {
         {({ nodes, NextLink, hasNextPage, nextPageUrl, state }) => (
           <>
             <ProductsLoadedOnScroll
-              nodes={nodes}
+              nodes={nodes as ProductItemFragment[]}
               inView={inView}
               hasNextPage={hasNextPage}
               nextPageUrl={nextPageUrl}
@@ -196,6 +196,7 @@ export const PRODUCT_ITEM_FRAGMENT = `#graphql
         ...MoneyProductItem
       }
     }
+    availableForSale
     variants(first: 1) {
       nodes {
         selectedOptions {

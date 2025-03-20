@@ -2,6 +2,8 @@ import { Link } from "@remix-run/react";
 import { Image, Money } from "@shopify/hydrogen";
 import { ProductItemFragment } from "storefrontapi.generated";
 import { useVariantUrl } from "~/lib/variants";
+import React from 'react';
+import { DiscountBadge } from "./DiscountBadge";
 
 export function ProductItem({
     product,
@@ -12,6 +14,15 @@ export function ProductItem({
 }) {
     const variant = product.variants.nodes[0];
     const variantUrl = useVariantUrl(product.handle, variant.selectedOptions);
+    
+    // Calculate discount percentage if there's a price difference
+    const compareAtPrice = product.compareAtPriceRange?.minVariantPrice?.amount;
+    const currentPrice = product.priceRange.minVariantPrice.amount;
+    const hasDiscount = compareAtPrice && Number(compareAtPrice) > Number(currentPrice);
+    const discountPercentage = hasDiscount 
+        ? Math.round((1 - (Number(currentPrice) / Number(compareAtPrice))) * 100) 
+        : 0;
+    
     return (
         <Link
             key={product.id}
@@ -19,7 +30,6 @@ export function ProductItem({
             prefetch="intent"
             to={variantUrl}
         >
-
             {product.featuredImage && (
                 <Image
                     alt={product.featuredImage.altText || product.title}
@@ -30,9 +40,25 @@ export function ProductItem({
                 />
             )}
             <h4 className='text-sm font-medium text-neutral-800 text-ellipsis whitespace-nowrap overflow-hidden'>{product.title}</h4>
-            <small>
-                <Money data={product.priceRange.minVariantPrice} className='text-sm text-underla-500 font-semibold' />
-            </small>
+            <div className="flex flex-wrap items-center gap-2">
+                <small className="flex items-center">
+                    <Money data={product.priceRange.minVariantPrice} className='text-sm text-underla-500 font-semibold' />
+                    {!product.availableForSale && <span className="text-red-500 ml-2">Sold Out</span>}
+                </small>
+                
+                {hasDiscount && (
+                    <>
+                        <small className="text-gray-500 line-through text-xs">
+                            {compareAtPrice} {product.priceRange.minVariantPrice.currencyCode}
+                        </small>
+                        <DiscountBadge 
+                            discountPercentage={discountPercentage} 
+                            size="sm" 
+                            className="text-black"
+                        />
+                    </>
+                )}
+            </div>
         </Link>
     );
 }

@@ -351,6 +351,13 @@ export type RecommendedProductsQuery = {
             'amount' | 'currencyCode'
           >;
         };
+        compareAtPriceRange?: {
+          minVariantPrice: Pick<
+            StorefrontAPI.MoneyV2,
+            'amount' | 'currencyCode'
+          >;
+        };
+        availableForSale: boolean;
         images: {
           nodes: Array<
             Pick<
@@ -533,6 +540,7 @@ export type ProductItemFragment = Pick<
     minVariantPrice: Pick<StorefrontAPI.MoneyV2, 'amount' | 'currencyCode'>;
     maxVariantPrice: Pick<StorefrontAPI.MoneyV2, 'amount' | 'currencyCode'>;
   };
+  availableForSale: boolean;
   variants: {
     nodes: Array<{
       selectedOptions: Array<

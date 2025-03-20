@@ -9,6 +9,7 @@ import type {
 } from 'storefrontapi.generated';
 import type * as StorefrontAPI from '@shopify/hydrogen/storefront-api-types';
 import { Carrousel } from '~/components/Carrousel';
+import { HomeBanner } from '~/components/HomeBanner';
 
 export const meta: MetaFunction = () => {
   return [{ title: 'Underla | Home' }];
@@ -84,7 +85,7 @@ export default function Homepage() {
   const data = useLoaderData<typeof loader>();
   return (
     <div>
-      <Banner products={data.homeProducts} />
+      <HomeBanner products={data.homeProducts} />
       <RecommendedProducts products={data.recommendedProducts} />
       <Promotions products={data.recommendedProducts} />
       <FeaturedCollection collections={data.collections} />
@@ -93,74 +94,6 @@ export default function Homepage() {
   );
 }
 
-
-const productItems = [
-  {
-    col: "col-span-6",
-    discount: 15 // 15% discount
-  },
-  {
-    col: "col-span-4",
-    discount: 25
-  },
-  {
-    col: "col-span-10",
-    discount: 0 // No discount
-  }
-];
-
-function getFirstPngImage(images: Array<Pick<StorefrontAPI.Image, 'id' | 'url' | 'altText' | 'width' | 'height'>>) {
-  for (const image of images) {
-    if (image && typeof image === 'object' && image.url) {
-      if (image.url.toLowerCase().endsWith('.png')) {
-        return image; // Found the first PNG image, return the object
-      }
-    }
-  }
-
-  return images[0]; // No PNG image found in the array
-}
-
-function Banner({
-  products,
-}: {
-  products: Promise<RecommendedProductsQuery | null>;
-}) {
-  return (
-    <div className='container-app grid grid-cols-1 md:grid-cols-2 gap-10 md:gap-5 h-auto md:h-[500px]'>
-      <div className='col-span-1 md:grid-cols-6 flex items-center justify-center md:justify-start'>
-        <h1 className='font-bold text-3xl md:text-5xl motion-preset-blur-down motion-delay-300 text-center md:text-start'>Todo lo que <br />    
-          <span className='text-underla-yellow '>necesitas</span>, <br />
-          en un solo lugar</h1>
-      </div>
-
-      <div className='grid col-span-1 md:grid-cols-10 grid-rows-2 gap-5 *:bg-underla-50 *:rounded-default md:*:rounded-[49px] h-72 md:h-auto'>
-        <Suspense fallback={<div>Loading...</div>}>
-          <Await resolve={products}>
-            {
-              (response) => {
-                return response
-                  ? response.products.nodes.map((product, index) => {
-                    const className = `${productItems[index].col} relative flex justify-center items-center motion-preset-fade motion-delay-${(index + 1) * 200}`;
-                    return <div key={index} className={className}>
-                      <span className='bg-underla-500 text-white text-sm md:text-xl font-medium absolute top-0 left-0 -translate-x-2.5 -translate-y-3.5 px-4 md:px-6 py-0.5 md:py-1 rounded-full motion-preset-pop motion-delay-${(index + 1) * 300}'>
-                        {productItems[index].discount}% off
-                      </span>
-                      <Image
-                        data={getFirstPngImage(product.images.nodes)}
-                        className='object-contain h-2/3! absolute motion-preset-scale-up'
-                      />
-                    </div>
-                  }) : null
-              }
-
-            }
-          </Await>
-        </Suspense>
-      </div>
-    </div>
-  );
-}
 
 function FeaturedCollection({
   collections,
@@ -389,6 +322,13 @@ const HOME_PRODUCTS_QUERY = `#graphql
         currencyCode
       }
     }
+    compareAtPriceRange {
+      minVariantPrice {
+        amount
+        currencyCode
+      }
+    }
+    availableForSale
     images(first: 1) {
       nodes {
         id

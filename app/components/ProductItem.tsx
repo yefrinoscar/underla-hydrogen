@@ -43,7 +43,7 @@ export function ProductItem({
             <div className="flex flex-wrap items-center gap-2">
                 <small className="flex items-center">
                     <Money data={product.priceRange.minVariantPrice} className='text-sm text-underla-500 font-semibold' />
-                    // {!product.availableForSale && <span className="text-red-500 ml-2">Sold Out</span>}
+                    {/* {!product.availableForSale && <span className="text-red-500 ml-2">Sold Out</span>} */}
                 </small>
                 
                 {hasDiscount && (

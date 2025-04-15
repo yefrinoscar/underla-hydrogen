@@ -1,6 +1,6 @@
 import { defer, type LoaderFunctionArgs } from '@shopify/remix-oxygen';
-import { Await, useLoaderData, Link, type MetaFunction } from '@remix-run/react';
-import { Suspense, useEffect, useState } from 'react';
+import { Await, useLoaderData, Link, type MetaFunction, useOutletContext } from '@remix-run/react';
+import { ContextType, Suspense, useEffect, useState } from 'react';
 import { Image, Money } from '@shopify/hydrogen';
 import type {
   FeaturedCollectionFragment,
@@ -10,6 +10,8 @@ import type {
 import type * as StorefrontAPI from '@shopify/hydrogen/storefront-api-types';
 import { Carrousel } from '~/components/Carrousel';
 import { HomeBanner } from '~/components/HomeBanner';
+import { Promotion } from '~/types/promotion';
+import { PromotionCard } from '~/components/PromotionCard';
 
 export const meta: MetaFunction = () => {
   return [{ title: 'Underla | Home' }];
@@ -83,11 +85,16 @@ function loadHomeProducts({ context }: LoaderFunctionArgs) {
 
 export default function Homepage() {
   const data = useLoaderData<typeof loader>();
+  const { promotions } = useOutletContext<{ promotions: Promotion[] }>();
+
+  console.log('promotions', promotions);
+  
+
   return (
     <div>
       <HomeBanner products={data.homeProducts} />
       <RecommendedProducts products={data.recommendedProducts} />
-      <Promotions products={data.recommendedProducts} />
+      <Promotions promotions={promotions} />
       <FeaturedCollection collections={data.collections} />
       <CtaRequest />
     </div>
@@ -190,22 +197,15 @@ function RecommendedProducts({
 }
 
 function Promotions({
-  products,
+  promotions,
 }: {
-  products: Promise<RecommendedProductsQuery | null>;
+  promotions: Promotion[] | [];
 }) {
   return (
-    <div className="container-app pt-10 md:pt-20 grid grid-cols-12 gap-5 h-auto md:h-72 *:p-5 *:rounded-[20px]">
-      <div className='bg-pink-600 col-span-12 md:col-span-6 motion-preset-slide-up motion-delay-100'>
-        <h3 className='text-[35px]/12 font-bold text-white'>
-          Hasta 50% off <br />
-          por el verano</h3>
-      </div>
-      <div className='bg-blue-600 col-span-12 md:col-span-6 motion-preset-slide-up motion-delay-300'>
-        <h3 className='text-[35px]/12 font-bold text-white'>Lo mejor en  <br />
-          zapatillas   <br />
-          de lujo</h3>
-      </div>
+    <div className="container-app pt-10 md:pt-20 grid grid-cols-12 gap-5 h-auto md:h-72 motion-preset-slide-right">
+      {promotions.map((promotion, index) => (
+        <PromotionCard key={promotion.id} className={`motion-preset-fade motion-delay-${index * 150}`} promotion={promotion} />
+      ))}
     </div>
   );
 }

@@ -23,7 +23,13 @@
 
 
   --animate-gradientAnimation: gradientAnimation 3s ease-in-out infinite;
-
+  --animate-accordion-down: accordion-down 0.2s ease-out;
+  --animate-accordion-up: accordion-up 0.2s ease-out;
+  --animate-float: float 6s ease-in-out infinite;
+  --animate-accordion-down: accordion-down 0.2s ease-out;
+  --animate-pulse-slow: pulse 7s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+  --animate-pulse-slower: pulse 9s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+  
   @keyframes gradientAnimation {
     0% {
       background-position: 0% 50%;
@@ -37,6 +43,35 @@
       background-position: 0% 50%;
     }
   }
+
+  @keyframes accordion-down {
+    from {
+      height: 0;
+    }
+    to {
+      height: var(--radix-accordion-content-height);
+    }
+  }
+  
+  @keyframes accordion-up {
+    from {
+      height: var(--radix-accordion-content-height);
+    }
+    to {
+      height: 0;
+    }
+  }
+  
+  @keyframes float {
+    0%, 100% {
+      transform: translateY(0);
+    }
+    50% {
+      transform: translateY(-10px);
+    }
+  }
+
+
 
 
   --radius-default: 20px;

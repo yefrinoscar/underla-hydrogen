@@ -11,6 +11,7 @@ import logo from "../assets/underla_logo.svg";
 import search from "../assets/search.png";
 import shopping_cart from "../assets/shopping_cart.png";
 import menu from "../assets/menu.svg";
+import { Link } from '@remix-run/react';
 
 interface HeaderProps {
   header: HeaderQuery;

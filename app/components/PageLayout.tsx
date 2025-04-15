@@ -1,19 +1,21 @@
-import {Await, Link} from '@remix-run/react';
-import {Suspense, useId} from 'react';
+import { Await, Link, Outlet, useLocation } from '@remix-run/react';
+import { Suspense, useId } from 'react';
 import type {
   CartApiQueryFragment,
   FooterQuery,
   HeaderQuery,
 } from 'storefrontapi.generated';
-import {Aside} from '~/components/Aside';
-import {Footer} from '~/components/Footer';
-import {Header, HeaderMenu} from '~/components/Header';
-import {CartMain} from '~/components/CartMain';
+import { Aside } from '~/components/Aside';
+import { Footer } from '~/components/Footer';
+import { Header, HeaderMenu } from '~/components/Header';
+import { CartMain } from '~/components/CartMain';
 import {
   SEARCH_ENDPOINT,
   SearchFormPredictive,
 } from '~/components/SearchFormPredictive';
-import {SearchResultsPredictive} from '~/components/SearchResultsPredictive';
+import { SearchResultsPredictive } from '~/components/SearchResultsPredictive';
+import { Promotion } from '~/types/promotion';
+import { PromotionBanner } from './PromotionBanner';
 
 interface PageLayoutProps {
   cart: Promise<CartApiQueryFragment | null>;
@@ -22,6 +24,7 @@ interface PageLayoutProps {
   isLoggedIn: Promise<boolean>;
   publicStoreDomain: string;
   children?: React.ReactNode;
+  promotions: Promotion[];
 }
 
 export function PageLayout({
@@ -29,14 +32,23 @@ export function PageLayout({
   children = null,
   footer,
   header,
+  promotions,
   isLoggedIn,
   publicStoreDomain,
 }: PageLayoutProps) {
+  const { pathname } = useLocation();
+  const isPromotionsPage = pathname.startsWith('/promotions');
+
   return (
     <Aside.Provider>
       <CartAside cart={cart} />
       <SearchAside />
       <MobileMenuAside cart={cart} header={header} publicStoreDomain={publicStoreDomain} />
+
+      {promotions.length > 0 && !isPromotionsPage && (
+        <PromotionBanner promotion={promotions.find(promotion => promotion.is_main) || promotions[0]} />
+      )}
+
       {header && (
         <Header
           header={header}
@@ -45,13 +57,15 @@ export function PageLayout({
           publicStoreDomain={publicStoreDomain}
         />
       )}
-      <main>{children}</main>
+      <main>
+        <Outlet context={{ promotions }} />
+      </main>
       <Footer />
     </Aside.Provider>
   );
 }
 
-function CartAside({cart}: {cart: PageLayoutProps['cart']}) {
+function CartAside({ cart }: { cart: PageLayoutProps['cart'] }) {
   return (
     <Aside type="cart" heading="CART">
       <Suspense fallback={<p>Loading cart ...</p>}>
@@ -72,7 +86,7 @@ function SearchAside() {
       <div className="predictive-search">
         <br />
         <SearchFormPredictive>
-          {({fetchResults, goToSearch, inputRef}) => (
+          {({ fetchResults, goToSearch, inputRef }) => (
             <>
               <input
                 name="q"
@@ -90,8 +104,8 @@ function SearchAside() {
         </SearchFormPredictive>
 
         <SearchResultsPredictive>
-          {({items, total, term, state, closeSearch}) => {
-            const {articles, collections, pages, products, queries} = items;
+          {({ items, total, term, state, closeSearch }) => {
+            const { articles, collections, pages, products, queries } = items;
 
             if (state === 'loading' && term.current) {
               return <div>Loading...</div>;

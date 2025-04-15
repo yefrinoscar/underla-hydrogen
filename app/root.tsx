@@ -17,6 +17,8 @@ import appStyles from '~/styles/app.css?url';
 import tailwindCss from './styles/tailwind.css?url';
 import { PageLayout } from '~/components/PageLayout';
 import { FOOTER_QUERY, HEADER_QUERY } from '~/lib/fragments';
+import { json } from '@remix-run/node';
+import type { Promotion } from '~/types/promotion';
 
 export type RootLoader = typeof loader;
 
@@ -90,17 +92,45 @@ export async function loader(args: LoaderFunctionArgs) {
 async function loadCriticalData({ context }: LoaderFunctionArgs) {
   const { storefront } = context;
 
-  const [header] = await Promise.all([
-    storefront.query(HEADER_QUERY, {
-      cache: storefront.CacheLong(),
-      variables: {
-        headerMenuHandle: 'main-menu', // Adjust to your header menu handle
-      },
-    }),
-    // Add other queries here, so that they are loaded in parallel
-  ]);
+  try {
+    // Fetch promotions data from external API
+    const promotionsResponse = await fetch('https://dashboard.underla.lat/api/promotions');
+    console.log(promotionsResponse);
+    
+    if (!promotionsResponse.ok) {
+      console.error('Failed to fetch promotions:', promotionsResponse.statusText);
+      throw new Error('Failed to fetch promotions');
+    }
+    const promotions = await promotionsResponse.json() as Promotion[];
+    console.log(promotions);
+    
 
-  return { header };
+    // Fetch header data in parallel
+    const [header] = await Promise.all([
+      storefront.query(HEADER_QUERY, {
+        cache: storefront.CacheLong(),
+        variables: {
+          headerMenuHandle: 'main-menu', // Adjust to your header menu handle
+        },
+      }),
+      // Add other queries here, so that they are loaded in parallel
+    ]);
+
+    return { header, promotions };
+  } catch (error) {
+    console.error('Error loading critical data:', error);
+    // Return header data even if promotions fetch fails
+    const [header] = await Promise.all([
+      storefront.query(HEADER_QUERY, {
+        cache: storefront.CacheLong(),
+        variables: {
+          headerMenuHandle: 'main-menu',
+        },
+      }),
+    ]);
+    
+    return { header, promotions: [] };
+  }
 }
 
 /**

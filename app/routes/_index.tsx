@@ -12,6 +12,9 @@ import { Carrousel } from '~/components/Carrousel';
 import { HomeBanner } from '~/components/HomeBanner';
 import { Promotion } from '~/types/promotion';
 import { PromotionCard } from '~/components/PromotionCard';
+import { RequestForm } from '~/components/RequestForm';
+import { useAside } from '~/components/Aside';
+import { Aside } from '~/components/Aside';
 
 export const meta: MetaFunction = () => {
   return [{ title: 'Underla | Home' }];
@@ -211,25 +214,50 @@ function Promotions({
 }
 
 function CtaRequest() {
+  const [requestText, setRequestText] = useState('');
+  const { open } = useAside();
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (requestText.trim()) {
+      open('request');
+    }
+  };
+
   return (
-    <div className='container-app pt-20 pb-40 flex flex-col items-center gap-4'>
+    <>
+      <div className='container-app pt-20 pb-40 flex flex-col items-center gap-4'>
         <h3 className='font-bold text-center text-2xl md:text-5xl text-neutral-700 motion-preset-blur-down'>
           ¿Necesitas algo único y especial?
         </h3>
-        <div className='flex flex-col gap-5 w-8/10 md:w-auto motion-preset-slide-up motion-delay-200'>
+        <form onSubmit={handleSubmit} className='flex flex-col gap-5 w-8/10 md:w-auto motion-preset-slide-up motion-delay-200'>
           <div className='w-full md:w-[520px] flex bg-neutral-100 rounded-[20px] has-[input:focus-within]:outline-2 has-[input:focus-within]:-outline-offset-2 has-[input:focus-within]:outline-underla-500'>
-            <input className='min-w-0 grow h-16 md:h-20 placeholder:text-neutral-400 pl-5 focus:outline-none rounded-[20px]' type="text" placeholder='¿Qué necesitas?' />
+            <input 
+              className='min-w-0 grow h-16 md:h-20 placeholder:text-neutral-400 pl-5 focus:outline-none rounded-[20px]' 
+              type="text" 
+              placeholder='¿Qué necesitas?' 
+              value={requestText}
+              onChange={(e) => setRequestText(e.target.value)}
+              required
+            />
           </div>
-          <button className='bg-underla-500 h-16 md:h-20 shadow-lg hover:shadow-xl shadow-underla-500/50 transition-shadow duration-200 motion-ease-bounce px-8 cursor-pointer rounded-default text-xl font-medium text-white motion-preset-pop motion-delay-400'>
-            💡
-            Enviar
+          <button 
+            type="submit"
+            className='bg-underla-500 h-16 md:h-20 shadow-lg hover:shadow-xl shadow-underla-500/50 transition-shadow duration-200 motion-ease-bounce px-8 cursor-pointer rounded-default text-xl font-medium text-white motion-preset-pop motion-delay-400'
+          >
+            💡 Enviar
           </button>
-        </div>
+        </form>
         <p className='text-xl text-neutral-500 motion-preset-fade motion-delay-600'>
           Te conseguimos todo, <strong>SÍ</strong>, todo.
         </p>
-    </div>
-  )
+      </div>
+
+      <Aside type="request" heading="Completa tu solicitud">
+        <RequestForm request={requestText} />
+      </Aside>
+    </>
+  );
 }
 
 function useMediaQuery(query: string) {

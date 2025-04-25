@@ -16,6 +16,7 @@ import {
 import { SearchResultsPredictive } from '~/components/SearchResultsPredictive';
 import { Promotion } from '~/types/promotion';
 import { PromotionBanner } from './PromotionBanner';
+import { Modal } from './Modal';
 
 interface PageLayoutProps {
   cart: Promise<CartApiQueryFragment | null>;
@@ -40,28 +41,30 @@ export function PageLayout({
   const isPromotionsPage = pathname.startsWith('/promotions');
 
   return (
-    <Aside.Provider>
-      <CartAside cart={cart} />
-      <SearchAside />
-      <MobileMenuAside cart={cart} header={header} publicStoreDomain={publicStoreDomain} />
+    <Modal.Provider>
+      <Aside.Provider>
+        <CartAside cart={cart} />
+        <SearchAside />
+        <MobileMenuAside cart={cart} header={header} publicStoreDomain={publicStoreDomain} />
 
-      {promotions.length > 0 && !isPromotionsPage && (
-        <PromotionBanner promotion={promotions.find(promotion => promotion.is_main) || promotions[0]} />
-      )}
+        {promotions.length > 0 && !isPromotionsPage && (
+          <PromotionBanner promotion={promotions.find(promotion => promotion.is_main) || promotions[0]} />
+        )}
 
-      {header && (
-        <Header
-          header={header}
-          cart={cart}
-          isLoggedIn={isLoggedIn}
-          publicStoreDomain={publicStoreDomain}
-        />
-      )}
-      <main>
-        <Outlet context={{ promotions }} />
-      </main>
-      <Footer />
-    </Aside.Provider>
+        {header && (
+          <Header
+            header={header}
+            cart={cart}
+            isLoggedIn={isLoggedIn}
+            publicStoreDomain={publicStoreDomain}
+          />
+        )}
+        <main>
+          <Outlet context={{ promotions }} />
+        </main>
+        <Footer />
+      </Aside.Provider>
+    </Modal.Provider>
   );
 }
 

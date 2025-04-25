@@ -1,4 +1,4 @@
-import {json, type LoaderFunctionArgs} from '@shopify/remix-oxygen';
+import {type LoaderFunctionArgs} from '@shopify/remix-oxygen';
 import {Link, useLoaderData, type MetaFunction} from '@remix-run/react';
 import {type Shop} from '@shopify/hydrogen/storefront-api-types';
 
@@ -11,7 +11,7 @@ export const meta: MetaFunction<typeof loader> = ({data}) => {
   return [{title: `Underla |${data?.policy.title ?? ''}`}];
 };
 
-export async function loader({params, context}: LoaderFunctionArgs) {
+export async function loader({context, params}: LoaderFunctionArgs) {
   if (!params.handle) {
     throw new Response('No handle was passed in', {status: 404});
   }
@@ -19,16 +19,14 @@ export async function loader({params, context}: LoaderFunctionArgs) {
   const policyName = params.handle.replace(
     /-([a-z])/g,
     (_: unknown, m1: string) => m1.toUpperCase(),
-  ) as SelectedPolicies;
+  ) as 'privacyPolicy' | 'shippingPolicy' | 'termsOfService' | 'refundPolicy';
 
   const data = await context.storefront.query(POLICY_CONTENT_QUERY, {
     variables: {
-      privacyPolicy: false,
-      shippingPolicy: false,
-      termsOfService: false,
-      refundPolicy: false,
-      [policyName]: true,
-      language: context.storefront.i18n?.language,
+      privacyPolicy: policyName === 'privacyPolicy',
+      shippingPolicy: policyName === 'shippingPolicy',
+      termsOfService: policyName === 'termsOfService',
+      refundPolicy: policyName === 'refundPolicy',
     },
   });
 
@@ -38,7 +36,7 @@ export async function loader({params, context}: LoaderFunctionArgs) {
     throw new Response('Could not find the policy', {status: 404});
   }
 
-  return json({policy});
+  return {policy};
 }
 
 export default function Policy() {

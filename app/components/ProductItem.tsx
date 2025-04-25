@@ -37,6 +37,8 @@ export function ProductItem({
                     aspectRatio="1/1"
                     loading={loading}
                     className='w-full rounded-[20px]! mb-5'
+                    width={200}
+                    height={200}
                 />
             )}
             <h4 className='text-sm font-medium text-neutral-800 text-ellipsis whitespace-nowrap overflow-hidden'>{product.title}</h4>

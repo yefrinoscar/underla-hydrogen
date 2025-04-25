@@ -1,5 +1,5 @@
 import { useNonce, getShopAnalytics, Analytics } from '@shopify/hydrogen';
-import { defer, type LoaderFunctionArgs } from '@shopify/remix-oxygen';
+import { type LoaderFunctionArgs } from '@shopify/remix-oxygen';
 import {
   Links,
   Meta,
@@ -17,8 +17,8 @@ import appStyles from '~/styles/app.css?url';
 import tailwindCss from './styles/tailwind.css?url';
 import { PageLayout } from '~/components/PageLayout';
 import { FOOTER_QUERY, HEADER_QUERY } from '~/lib/fragments';
-import { json } from '@remix-run/node';
 import type { Promotion } from '~/types/promotion';
+import { tryCatch } from './utils/tryCatch';
 
 export type RootLoader = typeof loader;
 
@@ -66,7 +66,7 @@ export async function loader(args: LoaderFunctionArgs) {
 
   const { storefront, env } = args.context;
 
-  return defer({
+  return {
     ...deferredData,
     ...criticalData,
     publicStoreDomain: env.PUBLIC_STORE_DOMAIN,
@@ -77,12 +77,12 @@ export async function loader(args: LoaderFunctionArgs) {
     consent: {
       checkoutDomain: env.PUBLIC_CHECKOUT_DOMAIN,
       storefrontAccessToken: env.PUBLIC_STOREFRONT_API_TOKEN,
-      withPrivacyBanner: false,
+      withPrivacyBanner: true,
       // localize the privacy banner
       country: args.context.storefront.i18n.country,
       language: args.context.storefront.i18n.language,
     },
-  });
+  };
 }
 
 /**
@@ -92,32 +92,19 @@ export async function loader(args: LoaderFunctionArgs) {
 async function loadCriticalData({ context }: LoaderFunctionArgs) {
   const { storefront } = context;
 
-  try {
-    // Fetch promotions data from external API
-    const promotionsResponse = await fetch('https://dashboard.underla.lat/api/promotions');
-    console.log(promotionsResponse);
-    
-    if (!promotionsResponse.ok) {
-      console.error('Failed to fetch promotions:', promotionsResponse.statusText);
-      throw new Error('Failed to fetch promotions');
-    }
-    const promotions = await promotionsResponse.json() as Promotion[];
-    console.log(promotions);
-    
+  // Fetch header data in parallel
+  const { data, error } = await tryCatch(Promise.all([
+    storefront.query(HEADER_QUERY, {
+      cache: storefront.CacheLong(),
+      variables: {
+        headerMenuHandle: 'main-menu', // Adjust to your header menu handle
+      },
+    }),
+    fetch('https://dashboard.underla.lat/api/promotions')
+  ]));
 
-    // Fetch header data in parallel
-    const [header] = await Promise.all([
-      storefront.query(HEADER_QUERY, {
-        cache: storefront.CacheLong(),
-        variables: {
-          headerMenuHandle: 'main-menu', // Adjust to your header menu handle
-        },
-      }),
-      // Add other queries here, so that they are loaded in parallel
-    ]);
-
-    return { header, promotions };
-  } catch (error) {
+  // Error
+  if (error) {
     console.error('Error loading critical data:', error);
     // Return header data even if promotions fetch fails
     const [header] = await Promise.all([
@@ -128,9 +115,14 @@ async function loadCriticalData({ context }: LoaderFunctionArgs) {
         },
       }),
     ]);
-    
+
     return { header, promotions: [] };
   }
+
+  const [header, promotionsResponse] = data;
+  const promotions = await promotionsResponse.json() as Promotion[];
+
+  return { header, promotions };
 }
 
 /**

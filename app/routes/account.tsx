@@ -1,6 +1,7 @@
-import {json, type LoaderFunctionArgs} from '@shopify/remix-oxygen';
+import {type LoaderFunctionArgs} from '@shopify/remix-oxygen';
 import {Form, NavLink, Outlet, useLoaderData} from '@remix-run/react';
 import {CUSTOMER_DETAILS_QUERY} from '~/graphql/customer-account/CustomerDetailsQuery';
+import {redirect} from '@remix-run/node';
 
 export function shouldRevalidate() {
   return true;
@@ -15,14 +16,9 @@ export async function loader({context}: LoaderFunctionArgs) {
     throw new Error('Customer not found');
   }
 
-  return json(
-    {customer: data.customer},
-    {
-      headers: {
-        'Cache-Control': 'no-cache, no-store, must-revalidate',
-      },
-    },
-  );
+  return {
+    customer: data.customer
+  };
 }
 
 export default function AccountLayout() {

@@ -1,4 +1,4 @@
-import { defer, type LoaderFunctionArgs } from '@shopify/remix-oxygen';
+import { type LoaderFunctionArgs } from '@shopify/remix-oxygen';
 import { Await, useLoaderData, Link, type MetaFunction, useOutletContext } from '@remix-run/react';
 import { ContextType, Suspense, useEffect, useState } from 'react';
 import { Image, Money } from '@shopify/hydrogen';
@@ -25,10 +25,10 @@ export async function loader(args: LoaderFunctionArgs) {
   const deferredData = loadDeferredData(args);
 
   // Await the critical data required to render initial state of the page
-  const homeProducts = await loadHomeProducts(args);
+  const homeProducts = loadHomeProducts(args);
   const criticalData = await loadCriticalData(args);
 
-  return defer({ ...homeProducts, ...deferredData, ...criticalData });
+  return { ...homeProducts, ...deferredData, ...criticalData };
 }
 
 /**
@@ -89,9 +89,6 @@ function loadHomeProducts({ context }: LoaderFunctionArgs) {
 export default function Homepage() {
   const data = useLoaderData<typeof loader>();
   const { promotions } = useOutletContext<{ promotions: Promotion[] }>();
-
-  console.log('promotions', promotions);
-  
 
   return (
     <div>
@@ -176,6 +173,8 @@ function RecommendedProducts({
                       to={`/products/${product.handle}`}
                     >
                       <Image
+                        width={249}
+                        height={256}
                         data={product.images.nodes[0]}
                         aspectRatio="1/1"
                         className='h-auto! xl:h-64! rounded-[20px]! mb-5 motion-preset-scale-up'

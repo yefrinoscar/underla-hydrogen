@@ -1,8 +1,8 @@
-import {Await, type MetaFunction, useRouteLoaderData} from '@remix-run/react';
+import {Await, type MetaFunction, useLoaderData, useRouteLoaderData} from '@remix-run/react';
 import {Suspense} from 'react';
 import type {CartQueryDataReturn} from '@shopify/hydrogen';
 import {CartForm} from '@shopify/hydrogen';
-import {json, type ActionFunctionArgs} from '@shopify/remix-oxygen';
+import {type ActionFunctionArgs} from '@shopify/remix-oxygen';
 import {CartMain} from '~/components/CartMain';
 import type {RootLoader} from '~/root';
 
@@ -14,7 +14,6 @@ export async function action({request, context}: ActionFunctionArgs) {
   const {cart} = context;
 
   const formData = await request.formData();
-
   const {action, inputs} = CartForm.getFormInput(formData);
 
   if (!action) {
@@ -38,61 +37,48 @@ export async function action({request, context}: ActionFunctionArgs) {
       const formDiscountCode = inputs.discountCode;
 
       // User inputted discount code
-      const discountCodes = (
-        formDiscountCode ? [formDiscountCode] : []
-      ) as string[];
+      const discountCodes = formDiscountCode ? [formDiscountCode] : [] as string[];
 
-      // Combine discount codes already applied on cart
-      discountCodes.push(...inputs.discountCodes);
-
+      // Combine discount codes
       result = await cart.updateDiscountCodes(discountCodes);
       break;
     }
-    case CartForm.ACTIONS.GiftCardCodesUpdate: {
-      const formGiftCardCode = inputs.giftCardCode;
-
-      // User inputted gift card code
-      const giftCardCodes = (
-        formGiftCardCode ? [formGiftCardCode] : []
-      ) as string[];
-
-      // Combine gift card codes already applied on cart
-      giftCardCodes.push(...inputs.giftCardCodes);
-
-      result = await cart.updateGiftCardCodes(giftCardCodes);
-      break;
-    }
     case CartForm.ACTIONS.BuyerIdentityUpdate: {
-      result = await cart.updateBuyerIdentity({
-        ...inputs.buyerIdentity,
-      });
+      result = await cart.updateBuyerIdentity(inputs.buyerIdentity);
       break;
     }
     default:
       throw new Error(`${action} cart action is not defined`);
   }
 
-  const cartId = result?.cart?.id;
-  const headers = cartId ? cart.setCartId(result.cart.id) : new Headers();
-  const {cart: cartResult, errors, warnings} = result;
+  const cartId = result.cart.id;
+  const headers = cart.setCartId(result.cart.id);
+  const {cart: cartResult, errors: cartErrors, warnings} = result;
 
-  const redirectTo = formData.get('redirectTo') ?? null;
-  if (typeof redirectTo === 'string') {
+  const redirectTo = formData.get('redirectTo') as string | undefined;
+  if (redirectTo) {
     status = 303;
     headers.set('Location', redirectTo);
   }
 
-  return json(
-    {
-      cart: cartResult,
-      errors,
-      warnings,
-      analytics: {
-        cartId,
-      },
+  const errors = cartErrors?.map((error) => {
+    return {
+      message: error.message,
+      field: error.field as string | undefined,
+      code: error.code as string | undefined,
+    };
+  });
+
+  return {
+    cart: cartResult,
+    errors,
+    warnings,
+    analytics: {
+      cartId,
     },
-    {status, headers},
-  );
+    status,
+    headers,
+  };
 }
 
 export default function Cart() {

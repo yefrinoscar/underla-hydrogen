@@ -1,28 +1,25 @@
-import { json, type ActionFunctionArgs } from '@shopify/remix-oxygen';
+import { type ActionFunctionArgs } from '@shopify/remix-oxygen';
 
 export async function action({ request }: ActionFunctionArgs) {
   if (request.method !== 'POST') {
-    return json({ error: 'Method not allowed' }, { status: 405 });
+    return { error: 'Method not allowed', status: 405 };
   }
 
   try {
-    const data = await request.json();
+    const data = await request.json() as { message: string; email: string; name: string; phone: string };
     
-    // Here you would typically:
-    // 1. Validate the data
-    // 2. Store it in your database
-    // 3. Send notifications (email, SMS, etc.)
-    // 4. Handle any other business logic
+    // Process the form data
+    const { message, email, name, phone } = data;
 
-    // For now, we'll just log it and return success
-    console.log('Received request:', data);
-
-    return json({ success: true });
+    console.log('Received support request:', { message, email, name, phone });
+    
+    // Here you would typically save to a database or send an email
+    
+    return { success: true };
   } catch (error) {
-    console.error('Error processing request:', error);
-    return json(
-      { error: 'Failed to process request' },
-      { status: 500 }
-    );
+    return { 
+      error: error instanceof Error ? error.message : 'An unknown error occurred',
+      status: 400
+    };
   }
 } 

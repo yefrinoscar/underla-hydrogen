@@ -1,3 +1,4 @@
+
 import { Link } from "@remix-run/react";
 import { useEffect, useState } from "react";
 import { Promotion } from "~/types/promotion";
@@ -7,11 +8,11 @@ import { adjustColorBrightness } from "~/utils/gradients";
 export function PromotionBanner({ promotion }: { promotion: Promotion }) {
     const [isLoaded, setIsLoaded] = useState(false)
 
-    useEffect(() => {
+    useEffect(() => {        
         // Add a small delay before showing the animation
         const timer = setTimeout(() => {
             setIsLoaded(true)
-        }, 100)
+        }, 150)
 
         return () => clearTimeout(timer)
     }, [])
@@ -26,10 +27,7 @@ export function PromotionBanner({ promotion }: { promotion: Promotion }) {
                                         ${adjustColorBrightness(promotion.background_color, 20)}, 
                                         ${adjustColorBrightness(promotion.background_color, -20)})`
                 }}
-                className={`relative block max-w-7xl mx-4 md:mx-auto rounded-[20px] 
-                                    text-white overflow-hidden shadow-lg transform transition-all duration-700 ease-in-out
-                                    ${isLoaded ? "translate-y-0 opacity-100 animate-float" : "translate-y-[-20px] opacity-0"} 
-                                `}>
+                className={`relative block max-w-7xl mx-4 md:mx-auto rounded-[20px] text-white overflow-hidden shadow-lg transform transition-all duration-700 ease-in-out ${isLoaded ? "translate-y-0 opacity-100 animate-float" : "translate-y-[-20px] opacity-0"}`}>
                 <Link
                     to={promotion.condition_type === 'tags' ? `/promotions/${promotion.condition_value.toLowerCase()}` : `/products/${promotion.id}`}
                 >

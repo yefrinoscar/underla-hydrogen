@@ -1,4 +1,4 @@
-import { defer, type LoaderFunctionArgs } from '@shopify/remix-oxygen';
+import { type LoaderFunctionArgs } from '@shopify/remix-oxygen';
 import { useLoaderData, Link, useNavigate } from '@remix-run/react';
 import { getPaginationVariables, Image, Money, Pagination } from '@shopify/hydrogen';
 import type { ProductItemFragment } from 'storefrontapi.generated';
@@ -6,11 +6,12 @@ import { useEffect } from 'react';
 import { useInView } from 'react-intersection-observer';
 import { ProductItem } from '~/components/ProductItem';
 import { motion } from "framer-motion";
+import { PRODUCT_ITEM_FRAGMENT } from '~/lib/fragments';
 
 export async function loader(args: LoaderFunctionArgs) {
   const deferredData = loadDeferredData(args);
   const criticalData = await loadCriticalData(args);
-  return defer({ ...deferredData, ...criticalData });
+  return { ...deferredData, ...criticalData };
 }
 
 async function loadCriticalData({ context, request }: LoaderFunctionArgs) {
@@ -129,42 +130,6 @@ function ProductsLoadedOnScroll({
   ));
 }
 
-
-export const PRODUCT_ITEM_FRAGMENT = `#graphql
-  fragment MoneyProductItem on MoneyV2 {
-    amount
-    currencyCode
-  }
-  fragment ProductItem on Product {
-    id
-    handle
-    title
-    featuredImage {
-      id
-      altText
-      url
-      width
-      height
-    }
-    priceRange {
-      minVariantPrice {
-        ...MoneyProductItem
-      }
-      maxVariantPrice {
-        ...MoneyProductItem
-      }
-    }
-    availableForSale
-    variants(first: 1) {
-      nodes {
-        selectedOptions {
-          name
-          value
-        }
-      }
-    }
-  }
-` as const;
 
 const PROMOTIONS_QUERY = `#graphql
   ${PRODUCT_ITEM_FRAGMENT}

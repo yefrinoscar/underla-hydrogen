@@ -17,17 +17,21 @@ export default async function handleRequest(
       storeDomain: context.env.PUBLIC_STORE_DOMAIN,
     },
     fontSrc: ["'self'", 'https://fonts.gstatic.com'],
-    styleSrc: ["'self'", 'https://fonts.googleapis.com'],
-    defaultSrc: ["'self'",],
+    styleSrc: ["'self'", 'https://fonts.googleapis.com', "'unsafe-inline'"],
+    defaultSrc: ["'self'", 'https://cdn.shopify.com', 'https://shopify.com'],
     connectSrc: [
       "'self'",
-      'https://dashboard.underla.lat/'
+      'https://dashboard.underla.lat/',
+      'https://underlastore.myshopify.com/'
     ],
+    scriptSrc: ["'self'", "'unsafe-inline'", 'https://cdn.shopify.com'],
+
   });
+
 
   const body = await renderToReadableStream(
     <NonceProvider>
-      <RemixServer context={remixContext} url={request.url} />
+      <RemixServer context={remixContext} url={request.url} nonce={nonce} />
     </NonceProvider>,
     {
       nonce,

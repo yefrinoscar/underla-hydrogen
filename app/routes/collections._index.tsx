@@ -1,20 +1,18 @@
 import { useLoaderData, Link, useNavigate } from '@remix-run/react';
-import { defer, type LoaderFunctionArgs } from '@shopify/remix-oxygen';
+import { type LoaderFunctionArgs } from '@shopify/remix-oxygen';
 import { getPaginationVariables, Pagination } from '@shopify/hydrogen';
 import type { CollectionFragment, ProductItemFragment } from 'storefrontapi.generated';
 import { useEffect } from 'react';
 import { useInView } from 'react-intersection-observer';
 import { ProductItem } from '~/components/ProductItem';
 import { motion } from "framer-motion"
+import { PRODUCT_ITEM_FRAGMENT } from '~/lib/fragments';
 
 export async function loader(args: LoaderFunctionArgs) {
-  // Start fetching non-critical data without blocking time to first byte
   const deferredData = loadDeferredData(args);
-
-  // Await the critical data required to render initial state of the page
   const criticalData = await loadCriticalData(args);
-
-  return defer({ ...deferredData, ...criticalData });
+  
+  return { ...deferredData, ...criticalData };
 }
 
 /**
@@ -167,42 +165,6 @@ export const COLLECTIONS_QUERY = `#graphql
     collections(first: 20) {
       nodes {
         ...Collection
-      }
-    }
-  }
-` as const;
-
-export const PRODUCT_ITEM_FRAGMENT = `#graphql
-  fragment MoneyProductItem on MoneyV2 {
-    amount
-    currencyCode
-  }
-  fragment ProductItem on Product {
-    id
-    handle
-    title
-    featuredImage {
-      id
-      altText
-      url
-      width
-      height
-    }
-    priceRange {
-      minVariantPrice {
-        ...MoneyProductItem
-      }
-      maxVariantPrice {
-        ...MoneyProductItem
-      }
-    }
-    availableForSale
-    variants(first: 1) {
-      nodes {
-        selectedOptions {
-          name
-          value
-        }
       }
     }
   }

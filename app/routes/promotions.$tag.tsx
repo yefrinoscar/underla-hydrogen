@@ -1,4 +1,4 @@
-import { defer, type LoaderFunctionArgs } from '@shopify/remix-oxygen';
+import { type LoaderFunctionArgs } from '@shopify/remix-oxygen';
 import { useLoaderData, Link, useOutletContext, useParams, useNavigate } from '@remix-run/react';
 import { getPaginationVariables, Image, Money, Pagination } from '@shopify/hydrogen';
 import type { ProductItemFragment } from 'storefrontapi.generated';
@@ -8,22 +8,23 @@ import { ProductItem } from '~/components/ProductItem';
 import { motion } from "framer-motion";
 import { Promotion } from '~/types/promotion';
 import { adjustColorBrightness } from '~/utils/gradients';
+import { PRODUCT_ITEM_FRAGMENT } from '~/lib/fragments';
 
-export async function loader({ context, params, request }: LoaderFunctionArgs) {
-  const { tag } = params;
+export async function loader(args: LoaderFunctionArgs) {
+  const { tag } = args.params;
   
-  const variables = getPaginationVariables(request, {
+  const variables = getPaginationVariables(args.request, {
     pageBy: 8,
   });
 
-  const { products } = await context.storefront.query(PROMOTIONS_QUERY, {
+  const { products } = await args.context.storefront.query(PROMOTIONS_QUERY, {
     variables: { ...variables, tag: `tag:${tag}` },
   });
 
-  return defer({ 
+  return { 
     products,
     currentTag: tag 
-  });
+  };
 }
 
 export default function PromotionDetail() {
@@ -145,39 +146,7 @@ function ProductsLoadedOnScroll({
 }
 
 const PROMOTIONS_QUERY = `#graphql
-  fragment MoneyProductItem on MoneyV2 {
-    amount
-    currencyCode
-  }
-  fragment ProductItem on Product {
-    id
-    handle
-    title
-    featuredImage {
-      id
-      altText
-      url
-      width
-      height
-    }
-    priceRange {
-      minVariantPrice {
-        ...MoneyProductItem
-      }
-      maxVariantPrice {
-        ...MoneyProductItem
-      }
-    }
-    availableForSale
-    variants(first: 1) {
-      nodes {
-        selectedOptions {
-          name
-          value
-        }
-      }
-    }
-  }
+  ${PRODUCT_ITEM_FRAGMENT}
   query PromotionsProducts(
     $country: CountryCode
     $language: LanguageCode

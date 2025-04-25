@@ -1,4 +1,4 @@
-import { defer, redirect, type LoaderFunctionArgs } from '@shopify/remix-oxygen';
+import { redirect, type LoaderFunctionArgs } from '@shopify/remix-oxygen';
 import { useLoaderData, type MetaFunction } from '@remix-run/react';
 import {
   Analytics,
@@ -8,6 +8,7 @@ import {
 import type { CollectionFragment, ProductItemFragment } from 'storefrontapi.generated';
 import { CollectionItem, COLLECTIONS_QUERY, ProductsLoadedOnScroll } from './collections._index';
 import { useInView } from 'react-intersection-observer';
+import { PRODUCT_ITEM_FRAGMENT } from '~/lib/fragments';
 
 export const meta: MetaFunction<typeof loader> = ({ data }) => {
   return [{ title: `Underla |${data?.collection?.title ?? ''} Collection` }];
@@ -20,7 +21,7 @@ export async function loader(args: LoaderFunctionArgs) {
   // Await the critical data required to render initial state of the page
   const criticalData = await loadCriticalData(args);
 
-  return defer({ ...deferredData, ...criticalData });
+  return { ...deferredData, ...criticalData };
 }
 
 /**
@@ -139,41 +140,6 @@ export default function Collection() {
     </div>
   );
 }
-
-const PRODUCT_ITEM_FRAGMENT = `#graphql
-  fragment MoneyProductItem on MoneyV2 {
-    amount
-    currencyCode
-  }
-  fragment ProductItem on Product {
-    id
-    handle
-    title
-    featuredImage {
-      id
-      altText
-      url
-      width
-      height
-    }
-    priceRange {
-      minVariantPrice {
-        ...MoneyProductItem
-      }
-      maxVariantPrice {
-        ...MoneyProductItem
-      }
-    }
-    variants(first: 1) {
-      nodes {
-        selectedOptions {
-          name
-          value
-        }
-      }
-    }
-  }
-` as const;
 
 // NOTE: https://shopify.dev/docs/api/storefront/2022-04/objects/collection
 const COLLECTION_QUERY = `#graphql

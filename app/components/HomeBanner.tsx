@@ -2,7 +2,7 @@ import { Link } from "@remix-run/react";
 import { Image, Money } from "@shopify/hydrogen";
 import { Suspense } from "react";
 import { Await } from "@remix-run/react";
-import type { RecommendedProductsQuery } from "storefrontapi.generated";
+import type { HomeProductsQuery, RecommendedProductsQuery } from "storefrontapi.generated";
 import type * as StorefrontAPI from '@shopify/hydrogen/storefront-api-types';
 import { DiscountBadge } from "./DiscountBadge";
 import badge_percent from '../assets/badge-percent.svg';
@@ -23,7 +23,7 @@ function getFirstPngImage(images: Array<Pick<StorefrontAPI.Image, 'id' | 'url' |
 export function HomeBanner({
     products,
 }: {
-    products: Promise<RecommendedProductsQuery | null>;
+    products: Promise<HomeProductsQuery | null>;
 }) {
     return (
         <div className='container-app grid grid-cols-1 md:grid-cols-2 gap-10 md:gap-5 h-auto md:h-[500px]'>
@@ -90,6 +90,8 @@ export function HomeBanner({
                                                         </div>
                                                         <div className="relative w-full h-full rounded-r-[49px]">
                                                             <Image
+                                                                width={400}
+                                                                height={400}
                                                                 data={getFirstPngImage(product.images.nodes)}
                                                                 className='object-contain h-full absolute motion-preset-scale-up'
                                                             />
@@ -118,6 +120,8 @@ export function HomeBanner({
                                                             </div>
 
                                                             <Image
+                                                                width={150}
+                                                                height={150}
                                                                 data={getFirstPngImage(product.images.nodes)}
                                                                 className='object-contain h-3/5! absolute motion-preset-scale-up'
                                                             />

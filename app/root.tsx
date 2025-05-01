@@ -122,6 +122,9 @@ async function loadCriticalData({ context }: LoaderFunctionArgs) {
   const [header, promotionsResponse] = data;
   const promotions = await promotionsResponse.json() as Promotion[];
 
+  console.log(JSON.stringify(header.menu));
+
+
   return { header, promotions };
 }
 

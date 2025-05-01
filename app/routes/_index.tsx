@@ -17,6 +17,8 @@ import { useAside } from '~/components/Aside';
 import { Aside } from '~/components/Aside';
 import { PartyPopper, PartyPopperIcon, Send } from 'lucide-react';
 import { Modal, useModal } from '~/components/Modal';
+import { ShoppingBag } from 'lucide-react';
+import { getCategoryColor, CategoryIcon } from '~/components/CategoryIcon';
 
 export const meta: MetaFunction = () => {
   return [{ title: 'Underla | Home' }];
@@ -110,39 +112,81 @@ function FeaturedCollection({
   collections: Promise<FeaturedCollectionQuery | null>;
 }) {
   return (
-    <div className='container-app pt-20 flex flex-col justify-center items-center gap-5'>
-      <h2 className='text-3xl font-bold motion-preset-blur-down'>Categorias</h2>
-      <div className='grid grid-cols-9 md:grid-cols-12 gap-2 md:gap-5 w-full'>
-        <Suspense fallback={<div>Loading...</div>} >
-          <Await resolve={collections}>
-            {(response) => {
-              {
-                return response
-                  ? response.collections.nodes.map((collection, index) => (
+    <div className='container-app py-20 flex flex-col justify-center items-center gap-8'>
+      <h2 className='text-4xl md:text-5xl font-bold text-neutral-700 motion-preset-blur-down'>Categorias</h2>
+      
+      <Suspense fallback={<CategorySkeleton />}>
+        <Await resolve={collections}>
+          {(response) => {
+            if (!response) return null;
+            
+            return (
+              <div className='grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5 md:gap-6 w-full'>
+                {response.collections.nodes.map((collection, index) => {
+                  // Get the appropriate color gradient for this category
+                  const gradientClass = getCategoryColor(collection.handle);
+                  
+                  return (
                     <Link
                       key={collection.id}
-                      className={`col-span-3 h-16 md:h-32 bg-neutral-50 rounded-2xl md:rounded-[20px] flex justify-center items-center hover:bg-underla-500 group motion-preset-slide-up motion-delay-${index * 100}`}
+                      className={`motion-preset-slide-up motion-delay-${Math.min(index, 9) * 100}`}
                       to={`/collections/${collection.handle}`}
                     >
-                      {/* {
-                        collection.image && <Image
-                          data={collection?.image}
-                          aspectRatio="1/1"
-                          className='h-64! rounded-[20px]! mb-5'
-                        />
-                      } */}
-
-                      <h3 className='font-semibold text-neutral-700 text-center text-base md:text-3xl group-hover:text-white text-decoration-none'>
-                        {collection.title}
-                      </h3>
+                      <div className={`flex items-center h-28 md:h-36 overflow-hidden rounded-xl shadow-md transition-all duration-300 hover:shadow-xl hover:scale-[1.02] bg-gradient-to-r ${gradientClass} group relative`}>
+                        {/* Subtle pattern overlay */}
+                        <div className="absolute inset-0 opacity-10 bg-[url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI1IiBoZWlnaHQ9IjUiPgo8cmVjdCB3aWR0aD0iNSIgaGVpZ2h0PSI1IiBmaWxsPSIjZmZmIj48L3JlY3Q+CjxyZWN0IHdpZHRoPSIxIiBoZWlnaHQ9IjEiIGZpbGw9IiNjY2MiPjwvcmVjdD4KPC9zdmc+')]"></div>
+                        
+                        {/* Icon - with subtle background */}
+                        <div className="w-1/3 flex justify-center items-center pl-4">
+                          <div className="bg-white/20 p-3 rounded-full">
+                            <CategoryIcon handle={collection.handle} size="large" />
+                          </div>
+                        </div>
+                        
+                        {/* Text content */}
+                        <div className="w-2/3 pl-3 pr-6">
+                          <h3 className="text-white font-bold text-xl md:text-2xl drop-shadow-md group-hover:translate-x-1 transition-transform">
+                            {collection.title}
+                          </h3>
+                          <div className="h-1 w-12 bg-white/50 mt-2 rounded-full group-hover:w-16 transition-all"></div>
+                        </div>
+                        
+                        {/* Arrow indicator */}
+                        <div className="absolute right-4 opacity-70 group-hover:opacity-100 group-hover:right-3 transition-all">
+                          <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                          </svg>
+                        </div>
+                      </div>
                     </Link>
-                  ))
-                  : null
-              }
-            }}
-          </Await>
-        </Suspense>
-      </div>
+                  );
+                })}
+              </div>
+            );
+          }}
+        </Await>
+      </Suspense>
+    </div>
+  );
+}
+
+function CategorySkeleton() {
+  // Create an array of 6 items for the skeleton
+  const skeletonItems = Array.from({ length: 6 }, (_, i) => i);
+  
+  return (
+    <div className='grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5 md:gap-6 w-full'>
+      {skeletonItems.map((index) => (
+        <div key={index} className='flex items-center h-28 md:h-36 overflow-hidden rounded-xl shadow-md bg-gray-200 animate-pulse'>
+          <div className="w-1/3 flex justify-center items-center">
+            <div className="bg-gray-300 rounded-full h-12 w-12 p-3"></div>
+          </div>
+          <div className="w-2/3 pl-3 pr-6">
+            <div className="h-6 w-32 bg-gray-300 rounded"></div>
+            <div className="h-1 w-12 bg-gray-300 mt-2 rounded-full"></div>
+          </div>
+        </div>
+      ))}
     </div>
   );
 }

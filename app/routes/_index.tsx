@@ -221,7 +221,7 @@ function CtaRequest() {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (requestText.trim()) {
-      open('default');
+      open('default', requestText);
     }
   };
 
@@ -254,10 +254,6 @@ function CtaRequest() {
           Te conseguimos todo, <strong>SÍ</strong>, todo.
         </p>
       </div>
-
-      <Modal type="default" heading="Solicitud de pedido">
-        <RequestForm request={requestText} />
-      </Modal>
     </>
   );
 }

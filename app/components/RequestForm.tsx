@@ -15,15 +15,14 @@ export function RequestForm({ request }: { request: string }) {
   const { close, setCloseDisabled, type } = useModal();
   const timeoutRef = useRef<NodeJS.Timeout | null>(null);
   const previousTypeRef = useRef(type);
-  
+
   const [formData, setFormData] = useState<RequestFormData>({
     name: '',
     phone: '',
     email: '',
-    description: request
+    description: ''
   });
-  
-  // Clean up timeout when component unmounts or when modal type changes
+
   useEffect(() => {
     return () => {
       if (timeoutRef.current) {
@@ -32,68 +31,69 @@ export function RequestForm({ request }: { request: string }) {
       }
     };
   }, []);
-  
-  // Reset form when modal closes
+
   useEffect(() => {
-    // Check if modal was previously open and is now closed
     if (previousTypeRef.current !== 'closed' && type === 'closed') {
-      // Clear any pending timeouts
       if (timeoutRef.current) {
         clearTimeout(timeoutRef.current);
         timeoutRef.current = null;
       }
       resetForm();
     }
-    
-    // Update previous type reference
+
     previousTypeRef.current = type;
   }, [type]);
-  
-  // Reset form state
+
+  useEffect(() => {
+    if (request) {
+      setFormData(prev => ({ ...prev, description: request }));
+    }
+  }, [request]);
+
   const resetForm = () => {
     setTimeout(() => {
       setFormData({
         name: '',
         phone: '',
         email: '',
-        description: request
+        description: ''
       });
       setShowSuccess(false);
       setIsSubmitting(false);
       setCloseDisabled(false);
     }, 400);
   };
-  
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
-    // Clear any existing timeouts first
+
     if (timeoutRef.current) {
       clearTimeout(timeoutRef.current);
       timeoutRef.current = null;
     }
-    
-    setIsSubmitting(true);
-    setCloseDisabled(true); // Disable close button during submission
 
-    try {      
+    setIsSubmitting(true);
+    setCloseDisabled(true);
+
+    try {
       const response = await fetch('https://dashboard.underla.lat/api/requests', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ ...formData, description: request }),
+        body: JSON.stringify({
+          ...formData,
+          description: formData.description
+        }),
       });
 
       if (response.ok) {
         setShowSuccess(true);
-        // Store the timeout ID for cleanup
         timeoutRef.current = setTimeout(() => {
           try {
             close();
             resetForm();
           } finally {
-            // Make sure we clear the ref even if there's an error
             timeoutRef.current = null;
           }
         }, 3000);
@@ -102,10 +102,9 @@ export function RequestForm({ request }: { request: string }) {
       }
     } catch (error) {
       console.error('Error submitting request:', error);
-      // You might want to show an error message here
     } finally {
       setIsSubmitting(false);
-      setCloseDisabled(false); // Re-enable close button
+      setCloseDisabled(false);
     }
   };
 
@@ -135,10 +134,17 @@ export function RequestForm({ request }: { request: string }) {
           <p className='text-sm md:text-base'>
             Usaremos esta info solo para tu pedido. ¡Tus datos están seguros! 😉
           </p>
-        
+
+          {request && (
+            <div className="bg-purple-50 p-3 rounded-lg border border-purple-100 mb-2">
+              <p className="text-sm text-purple-800 font-medium">
+                Estás solicitando un pedido especial
+                <span className="block text-xs mt-1 text-purple-600">{request}</span>
+              </p>
+            </div>
+          )}
+
           <div className='grid grid-cols-2 gap-4'>
-
-
             <div>
               <label htmlFor="name" className="block text-sm font-medium text-neutral-700">
                 Nombre
@@ -183,34 +189,33 @@ export function RequestForm({ request }: { request: string }) {
                 className="mt-1 w-full bg-neutral-100 rounded-[20px] has-[input:focus-within]:outline-2 has-[input:focus-within]:-outline-offset-2 has-[input:focus-within]:outline-underla-500 h-12 px-4"
               />
             </div>
-            {/* 
-        <div>
-          <label htmlFor="description" className="block text-sm font-medium text-neutral-700">
-            Tu solicitud
-          </label>
-          <textarea
-            id="description"
-            name="description"
-            required
-            value={request}
-            onChange={handleChange}
-            disabled
-            rows={4}
-            className="mt-1 w-full rounded-[20px] border-neutral-300 shadow-sm focus:border-underla-500 focus:ring-underla-500 p-4"
-          />
-        </div> */}
 
+            {/* <div className='col-span-2'>
+              <label htmlFor="description" className="block text-sm font-medium text-neutral-700">
+                Comentarios adicionales (opcional)
+              </label>
+              <textarea
+                id="description"
+                name="description"
+                value={formData.description}
+                onChange={handleChange}
+                rows={3}
+                className="mt-1 w-full bg-neutral-100 rounded-[20px] p-4 has-[textarea:focus-within]:outline-2 has-[textarea:focus-within]:-outline-offset-2 has-[textarea:focus-within]:outline-underla-500"
+              />
+            </div> */}
           </div>
 
-          <button
-            type="submit"
-            disabled={isSubmitting}
-            className="bg-underla-500 h-12 shadow-lg hover:shadow-xl shadow-underla-500/50 transition-shadow duration-200 px-8 cursor-pointer rounded-[20px] text-base font-medium text-white disabled:opacity-50 disabled:cursor-not-allowed"
-          >
-            {isSubmitting ? 'Enviando...' : 'Enviar solicitud'}
-          </button>
+          <div className="flex justify-end">
+            <button
+              type="submit"
+              disabled={isSubmitting}
+              className="bg-gradient-to-r from-[#6644ff] via-[#4D2DDA] to-[#3620a0] text-white py-2.5 px-6 rounded-xl font-medium text-sm hover:shadow-lg transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              {isSubmitting ? 'Enviando...' : 'Enviar solicitud'}
+            </button>
+          </div>
         </form>
       )}
     </>
   );
-} 
+}

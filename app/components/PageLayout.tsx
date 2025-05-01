@@ -17,6 +17,7 @@ import { SearchResultsPredictive } from '~/components/SearchResultsPredictive';
 import { Promotion } from '~/types/promotion';
 import { PromotionBanner } from './PromotionBanner';
 import { Modal } from './Modal';
+import { RequestForm } from './RequestForm';
 
 interface PageLayoutProps {
   cart: Promise<CartApiQueryFragment | null>;
@@ -44,6 +45,9 @@ export function PageLayout({
     <Modal.Provider>
       <Aside.Provider>
         <CartAside cart={cart} />
+        <Modal type="default" heading="Solicitud de pedido">
+          <RequestForm request="" />
+        </Modal>
         <SearchAside />
         <MobileMenuAside cart={cart} header={header} publicStoreDomain={publicStoreDomain} />
 

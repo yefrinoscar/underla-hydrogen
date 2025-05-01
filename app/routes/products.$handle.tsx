@@ -1,20 +1,22 @@
-import {Suspense} from 'react';
-import {redirect, type LoaderFunctionArgs} from '@shopify/remix-oxygen';
-import {Await, useLoaderData, type MetaFunction} from '@remix-run/react';
-import type {ProductFragment} from 'storefrontapi.generated';
+import { Suspense } from 'react';
+import { redirect, type LoaderFunctionArgs } from '@shopify/remix-oxygen';
+import { Await, useLoaderData, type MetaFunction } from '@remix-run/react';
+import type { ProductFragment } from 'storefrontapi.generated';
 import {
   getSelectedProductOptions,
   Analytics,
   useOptimisticVariant,
 } from '@shopify/hydrogen';
-import type {SelectedOption} from '@shopify/hydrogen/storefront-api-types';
-import {getVariantUrl} from '~/lib/variants';
-import {ProductPrice} from '~/components/ProductPrice';
-import {ProductImage} from '~/components/ProductImage';
-import {ProductForm} from '~/components/ProductForm';
+import type { SelectedOption } from '@shopify/hydrogen/storefront-api-types';
+import { getVariantUrl } from '~/lib/variants';
+import { ProductPrice } from '~/components/ProductPrice';
+import { ProductImage } from '~/components/ProductImage';
+import { ProductForm } from '~/components/ProductForm';
+import { Modal } from '~/components/Modal';
+import { RequestForm } from '~/components/RequestForm';
 
-export const meta: MetaFunction<typeof loader> = ({data}) => {
-  return [{title: `Underla |${data?.product.title ?? ''}`}];
+export const meta: MetaFunction<typeof loader> = ({ data }) => {
+  return [{ title: `Underla | ${data?.product.title ?? ''}` }];
 };
 
 export async function loader(args: LoaderFunctionArgs) {
@@ -36,22 +38,22 @@ async function loadCriticalData({
   params,
   request,
 }: LoaderFunctionArgs) {
-  const {handle} = params;
-  const {storefront} = context;
+  const { handle } = params;
+  const { storefront } = context;
 
   if (!handle) {
     throw new Error('Expected product handle to be defined');
   }
 
-  const [{product}] = await Promise.all([
+  const [{ product }] = await Promise.all([
     storefront.query(PRODUCT_QUERY, {
-      variables: {handle, selectedOptions: getSelectedProductOptions(request)},
+      variables: { handle, selectedOptions: getSelectedProductOptions(request) },
     }),
     // Add other queries here, so that they are loaded in parallel
   ]);
 
   if (!product?.id) {
-    throw new Response(null, {status: 404});
+    throw new Response(null, { status: 404 });
   }
 
   const firstVariant = product.variants.nodes[0];
@@ -68,7 +70,7 @@ async function loadCriticalData({
     // if no selected variant was returned from the selected options,
     // we redirect to the first variant's url with it's selected options applied
     if (!product.selectedVariant) {
-      throw redirectToFirstVariant({product, request});
+      throw redirectToFirstVariant({ product, request });
     }
   }
 
@@ -82,7 +84,7 @@ async function loadCriticalData({
  * fetched after the initial page load. If it's unavailable, the page should still 200.
  * Make sure to not throw any errors here, as it will cause the page to 500.
  */
-function loadDeferredData({context, params}: LoaderFunctionArgs) {
+function loadDeferredData({ context, params }: LoaderFunctionArgs) {
   // In order to show which variants are available in the UI, we need to query
   // all of them. But there might be a *lot*, so instead separate the variants
   // into it's own separate query that is deferred. So there's a brief moment
@@ -90,7 +92,7 @@ function loadDeferredData({context, params}: LoaderFunctionArgs) {
   // this deffered query resolves, the UI will update.
   const variants = context.storefront
     .query(VARIANTS_QUERY, {
-      variables: {handle: params.handle!},
+      variables: { handle: params.handle! },
     })
     .catch((error) => {
       // Log query errors, but don't throw them so the page can still render
@@ -127,13 +129,13 @@ function redirectToFirstVariant({
 }
 
 export default function Product() {
-  const {product, variants} = useLoaderData<typeof loader>();
+  const { product, variants } = useLoaderData<typeof loader>();
 
   const selectedVariant = useOptimisticVariant(
     product.selectedVariant,
     variants,
   );
-  const {title, descriptionHtml} = product;
+  const { title, descriptionHtml } = product;
 
   return (
     <div className="container-app grid grid-cols-1 md:grid-cols-2 gap-5">
@@ -173,7 +175,7 @@ export default function Product() {
         <br />
         <br />
         <span className='text-sm font-semibold text-neutral-600'>Descripción</span>
-        <div className='text-gray-600' dangerouslySetInnerHTML={{__html: descriptionHtml}} />
+        <div className='text-gray-600' dangerouslySetInnerHTML={{ __html: descriptionHtml }} />
       </div>
       <Analytics.ProductView
         data={{

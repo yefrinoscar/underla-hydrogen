@@ -133,7 +133,7 @@ export function HeaderMenu({
           <NavLink prefetch="intent" to="/account" style={activeLinkStyle}>
             <Suspense fallback="Sign in">
               <Await resolve={isLoggedIn} errorElement="Sign in">
-                {(isLoggedIn) => (isLoggedIn ? 'Account' : 'Sign in')}
+                {(isLoggedIn) => (isLoggedIn ? 'Cuenta' : 'Iniciar sesión')}
               </Await>
             </Suspense>
           </NavLink>

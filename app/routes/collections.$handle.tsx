@@ -2,8 +2,9 @@ import { useLoaderData } from '@remix-run/react';
 import { type LoaderFunctionArgs } from '@shopify/remix-oxygen';
 import { getPaginationVariables } from '@shopify/hydrogen';
 import type { ProductItemFragment } from 'storefrontapi.generated';
-import { COLLECTIONS_QUERY, PRODUCT_ITEM_FRAGMENT } from '~/lib/fragments';
+import { COLLECTION_QUERY, COLLECTIONS_QUERY, PRODUCT_ITEM_FRAGMENT } from '~/lib/fragments';
 import { CollectionPage } from '~/components/CollectionPage';
+import { filterCollections } from '~/utils/collection-filters';
 
 export async function loader(args: LoaderFunctionArgs) {
   const deferredData = loadDeferredData(args);
@@ -64,6 +65,9 @@ function loadDeferredData({ context }: LoaderFunctionArgs) {
 export default function Collections() {
   const { collections, collection, products } = useLoaderData<typeof loader>();
   
+  // Filter collections to exclude those with underscores in their handle
+  const filteredCollections = filterCollections(collections.nodes, undefined, '_');
+  
   // If we have a specific collection, use its products
   if (collection) {
     const collectionProducts = {
@@ -78,7 +82,7 @@ export default function Collections() {
     
     return (
       <CollectionPage
-        collections={collections.nodes}
+        collections={filteredCollections}
         products={collectionProducts}
         currentCollection={collection.handle}
       />
@@ -99,7 +103,7 @@ export default function Collections() {
   
   return (
     <CollectionPage
-      collections={collections.nodes}
+      collections={filteredCollections}
       products={formattedProducts}
       currentCollection={null}
     />
@@ -126,38 +130,6 @@ export const PAGINATION_PRODUCTS_QUERY = `#graphql
         hasNextPage
         startCursor
         endCursor
-      }
-    }
-  }
-` as const;
-
-// Query for a specific collection
-const COLLECTION_QUERY = `#graphql
-  ${PRODUCT_ITEM_FRAGMENT}
-  query Collection(
-    $handle: String!
-    $country: CountryCode
-    $language: LanguageCode
-    $first: Int
-    $last: Int
-    $startCursor: String
-    $endCursor: String
-  ) @inContext(country: $country, language: $language) {
-    collection(handle: $handle) {
-      id
-      handle
-      title
-      description
-      products(first: $first, last: $last, before: $startCursor, after: $endCursor) {
-        nodes {
-          ...ProductItem
-        }
-        pageInfo {
-          hasPreviousPage
-          hasNextPage
-          startCursor
-          endCursor
-        }
       }
     }
   }

@@ -10,8 +10,6 @@ export async function action({ request }: ActionFunctionArgs) {
     
     // Process the form data
     const { message, email, name, phone } = data;
-
-    console.log('Received support request:', { message, email, name, phone });
     
     // Here you would typically save to a database or send an email
     

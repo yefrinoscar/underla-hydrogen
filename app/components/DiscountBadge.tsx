@@ -17,15 +17,15 @@ export function DiscountBadge({
   if (discountPercentage <= 0) return null;
   
   const sizeClasses = {
-    sm: 'text-xs px-1.5 py-0.5',
-    md: 'text-sm px-3 py-1',
+    sm: 'text-sm px-2 py-1',
+    md: 'text-sm px-2 py-1',
     lg: 'text-xl px-4 py-1.5'
   };
   
   return (
-    <div className={`bg-underla-yellow text-white flex flex-col md:flex-row items-center space-x-1 font-medium rounded-default md:rounded-full ${sizeClasses[size]} ${className} px-1.5`}>
+    <div className={`bg-underla-yellow text-white font-semibold flex flex-col md:flex-row items-center space-x-1 rounded-[10px] ${sizeClasses[size]} ${className}`}>
       {showIcon && (
-        <img src={badge_percent} className="h-4 w-4 stroke-white" alt="%" />
+        <img src={badge_percent} className="px-2 h-4 w-4 stroke-white" alt="%" />
       )}
       <span>
         {discountPercentage}% off

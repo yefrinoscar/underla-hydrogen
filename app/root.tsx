@@ -10,11 +10,13 @@ import {
   ScrollRestoration,
   isRouteErrorResponse,
   type ShouldRevalidateFunction,
+  useNavigation,
 } from '@remix-run/react';
 import favicon from '~/assets/favicon.ico';
 import resetStyles from '~/styles/reset.css?url';
 import appStyles from '~/styles/app.css?url';
 import tailwindCss from './styles/tailwind.css?url';
+import categoryTransitions from './styles/category-transitions.css?url';
 import { PageLayout } from '~/components/PageLayout';
 import { FOOTER_QUERY, HEADER_QUERY } from '~/lib/fragments';
 import type { Promotion } from '~/types/promotion';
@@ -45,6 +47,7 @@ export function links() {
     { rel: 'stylesheet', href: tailwindCss },
     { rel: 'stylesheet', href: resetStyles },
     { rel: 'stylesheet', href: appStyles },
+    { rel: 'stylesheet', href: categoryTransitions },
     {
       rel: 'preconnect',
       href: 'https://cdn.shopify.com',
@@ -122,9 +125,6 @@ async function loadCriticalData({ context }: LoaderFunctionArgs) {
   const [header, promotionsResponse] = data;
   const promotions = await promotionsResponse.json() as Promotion[];
 
-  console.log(JSON.stringify(header.menu));
-
-
   return { header, promotions };
 }
 
@@ -159,19 +159,39 @@ function loadDeferredData({ context }: LoaderFunctionArgs) {
 export function Layout({ children }: { children?: React.ReactNode }) {
   const nonce = useNonce();
   const data = useRouteLoaderData<RootLoader>('root');
+  const navigation = useNavigation();
+  const isNavigating = navigation.state === 'loading';
 
   return (
     <html lang="en">
       <head>
         <meta charSet="utf-8" />
         <meta name="viewport" content="width=device-width,initial-scale=1" />
+        <meta name="msapplication-TileColor" content="#da532c" />
+        <meta name="theme-color" content="#ffffff" />
         <Meta />
         <Links />
+        <style>
+          {`
+            @keyframes gradient-animation {
+              0% { background-position: 0% 50%; }
+              50% { background-position: 100% 50%; }
+              100% { background-position: 0% 50%; }
+            }
+            
+            .animate-gradient {
+              animation: gradient-animation 4s ease infinite;
+            }
+          `}
+        </style>
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="" />
         <link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet" />
       </head>
       <body>
+        {/* Global loading indicator */}
+        {isNavigating && <div className="route-loading-indicator" />}
+        
         {data ? (
           <Analytics.Provider
             cart={data.cart}

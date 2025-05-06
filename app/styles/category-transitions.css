@@ -1,0 +1,56 @@
+/* Category transitions and animations */
+.category-link {
+  position: relative;
+  transition: transform 0.3s ease-out;
+}
+
+.category-link.active {
+  transform: scale(1.1);
+  z-index: 10;
+}
+
+/* Hide products during navigation */
+.navigation-loading .products-container {
+  opacity: 0;
+  pointer-events: none;
+}
+
+/* Clean, modern loading indicator */
+.route-loading-indicator {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 3px;
+  background-color: rgba(255, 255, 255, 0.1);
+  z-index: 9999;
+  overflow: hidden;
+}
+
+.route-loading-indicator::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 100%;
+  width: 30%;
+  background: linear-gradient(90deg, 
+    #4D2DDA, 
+    rgba(255, 255, 255, 0.8), 
+    #4D2DDA
+  );
+  animation: loading-shimmer 1.2s infinite;
+  transform: translateX(-100%);
+}
+
+@keyframes loading-shimmer {
+  0% {
+    transform: translateX(-100%);
+  }
+  60% {
+    transform: translateX(100%);
+  }
+  100% {
+    transform: translateX(100%);
+  }
+}

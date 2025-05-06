@@ -263,12 +263,13 @@ export const PRODUCT_ITEM_FRAGMENT = `#graphql
       }
     }
     availableForSale
-    variants(first: 1) {
+    variants(first: 10) {
       nodes {
         selectedOptions {
           name
           value
         }
+        availableForSale
       }
     }
   }
@@ -292,6 +293,44 @@ export const COLLECTIONS_QUERY = `#graphql
     collections(first: 20) {
       nodes {
         ...Collection
+      }
+    }
+  }
+` as const;
+
+export const COLLECTION_QUERY = `#graphql
+  ${PRODUCT_ITEM_FRAGMENT}
+  query Collection(
+    $handle: String!
+    $country: CountryCode
+    $language: LanguageCode
+    $first: Int
+    $last: Int
+    $startCursor: String
+    $endCursor: String
+    $filters: [ProductFilter!]
+  ) @inContext(country: $country, language: $language) {
+    collection(handle: $handle) {
+      id
+      handle
+      title
+      description
+      products(
+        first: $first, 
+        last: $last, 
+        before: $startCursor, 
+        after: $endCursor,
+        filters: $filters
+      ) {
+        nodes {
+          ...ProductItem
+        }
+        pageInfo {
+          hasPreviousPage
+          hasNextPage
+          startCursor
+          endCursor
+        }
       }
     }
   }

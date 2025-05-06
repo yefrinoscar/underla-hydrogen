@@ -1,7 +1,7 @@
 import { type LoaderFunctionArgs } from '@shopify/remix-oxygen';
 import { Await, useLoaderData, Link, type MetaFunction, useOutletContext } from '@remix-run/react';
 import { ContextType, Suspense, useEffect, useState } from 'react';
-import { Image, Money } from '@shopify/hydrogen';
+import { Money } from '@shopify/hydrogen';
 import type {
   FeaturedCollectionFragment,
   FeaturedCollectionQuery,
@@ -19,6 +19,8 @@ import { PartyPopper, PartyPopperIcon, Send } from 'lucide-react';
 import { Modal, useModal } from '~/components/Modal';
 import { ShoppingBag } from 'lucide-react';
 import { getCategoryColor, CategoryIcon } from '~/components/CategoryIcon';
+import { filterCollections } from '~/utils/collection-filters';
+import { getCollectionUrl } from '~/utils/special-collections';
 
 export const meta: MetaFunction = () => {
   return [{ title: 'Underla | Home' }];
@@ -105,7 +107,6 @@ export default function Homepage() {
   );
 }
 
-
 function FeaturedCollection({
   collections,
 }: {
@@ -120,42 +121,61 @@ function FeaturedCollection({
           {(response) => {
             if (!response) return null;
             
+            // Filter collections to exclude those with underscores in their handle
+            
+            const filteredCollections = filterCollections(response.collections.nodes, undefined, '_');
+                        
             return (
               <div className='grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5 md:gap-6 w-full'>
-                {response.collections.nodes.map((collection, index) => {
-                  // Get the appropriate color gradient for this category
+                {filteredCollections.map((collection, index) => {
+                  // Get the appropriate color gradient for this category as fallback
                   const gradientClass = getCategoryColor(collection.handle);
                   
                   return (
                     <Link
                       key={collection.id}
                       className={`motion-preset-slide-up motion-delay-${Math.min(index, 9) * 100}`}
-                      to={`/collections/${collection.handle}`}
+                      to={getCollectionUrl(collection.handle)}
                     >
-                      <div className={`flex items-center h-28 md:h-36 overflow-hidden rounded-xl shadow-md transition-all duration-300 hover:shadow-xl hover:scale-[1.02] bg-gradient-to-r ${gradientClass} group relative`}>
-                        {/* Subtle pattern overlay */}
-                        <div className="absolute inset-0 opacity-10 bg-[url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI1IiBoZWlnaHQ9IjUiPgo8cmVjdCB3aWR0aD0iNSIgaGVpZ2h0PSI1IiBmaWxsPSIjZmZmIj48L3JlY3Q+CjxyZWN0IHdpZHRoPSIxIiBoZWlnaHQ9IjEiIGZpbGw9IiNjY2MiPjwvcmVjdD4KPC9zdmc+')]"></div>
+                      <div className={`relative h-[200px] overflow-hidden rounded-xl shadow-md transition-all duration-300 hover:shadow-xl hover:scale-[1.02] group`}>
+                        {/* Collection image */}
+                        {collection.image ? (
+                          <>
+                            {/* Blurred background version of the image */}
+                            <div 
+                              className="absolute inset-0 w-full h-full"
+                              style={{
+                                backgroundImage: `url(${collection.image.url})`,
+                                backgroundSize: 'cover',
+                                backgroundPosition: 'center',
+                                filter: 'blur(20px) brightness(0.7)',
+                                transform: 'scale(1.1)'
+                              }}
+                            />
+                            
+                            {/* Actual image */}
+                            <div className="absolute inset-0 w-full h-full flex items-center justify-center">
+                              <img
+                                src={collection.image.url}
+                                className="w-full h-full object-cover view-transition-image"
+                                alt={collection.image.altText || collection.title}
+                                loading="lazy"
+                              />
+                            </div>
+                          </>
+                        ) : (
+                          // Fallback gradient if no image
+                          <div className={`absolute inset-0 bg-gradient-to-r ${gradientClass}`}></div>
+                        )}
                         
-                        {/* Icon - with subtle background */}
-                        <div className="w-1/3 flex justify-center items-center pl-4">
-                          <div className="bg-white/20 p-3 rounded-full">
-                            <CategoryIcon handle={collection.handle} size="large" />
-                          </div>
-                        </div>
+                        {/* Overlay for better text visibility */}
+                        <div className="absolute inset-0  bg-gradient-to-t from-black/65 to-transparent"></div>
                         
                         {/* Text content */}
-                        <div className="w-2/3 pl-3 pr-6">
-                          <h3 className="text-white font-bold text-xl md:text-2xl drop-shadow-md group-hover:translate-x-1 transition-transform">
+                        <div className="absolute bottom-0 left-0 right-0 p-5 text-white">
+                          <h3 className="font-bold text-2xl md:text-3xl drop-shadow-md group-hover:translate-y-[-2px] transition-transform view-transition-title">
                             {collection.title}
                           </h3>
-                          <div className="h-1 w-12 bg-white/50 mt-2 rounded-full group-hover:w-16 transition-all"></div>
-                        </div>
-                        
-                        {/* Arrow indicator */}
-                        <div className="absolute right-4 opacity-70 group-hover:opacity-100 group-hover:right-3 transition-all">
-                          <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                          </svg>
                         </div>
                       </div>
                     </Link>
@@ -218,12 +238,13 @@ function RecommendedProducts({
                       className={`recommended-product w-[calc((100%-20px)/2)] md:w-[calc((100%-40px)/3)] flex-shrink-0 bg-neutral-100 rounded-[20px] p-5 motion-preset-fade motion-delay-${index * 150}`}
                       to={`/products/${product.handle}`}
                     >
-                      <Image
+                      <img
+                        src={product.images.nodes[0].url}
                         width={249}
                         height={256}
-                        data={product.images.nodes[0]}
-                        aspectRatio="1/1"
                         className='h-auto! xl:h-64! rounded-[20px]! mb-5 motion-preset-scale-up'
+                        alt={product.images.nodes[0].altText || product.title}
+                        loading="lazy"
                       />
                       <h4 className='font-medium text-neutral-800 text-ellipsis whitespace-nowrap overflow-hidden text-sm'>
                         {product.title}
@@ -341,7 +362,7 @@ const FEATURED_COLLECTION_QUERY = `#graphql
     handle
   }
   query FeaturedCollection {
-    collections(first: 8, sortKey: UPDATED_AT, reverse: true) {
+    collections(first: 20, sortKey: UPDATED_AT, reverse: true) {
       nodes {
         ...FeaturedCollection
       }

@@ -1,12 +1,15 @@
 import {Link, useFetcher, type Fetcher} from '@remix-run/react';
 import {Image, Money} from '@shopify/hydrogen';
-import React, {useRef, useEffect} from 'react';
+import React, {useRef, useEffect, useState} from 'react';
 import {
   getEmptyPredictiveSearchResult,
   urlWithTrackingParams,
   type PredictiveSearchReturn,
 } from '~/lib/search';
 import {useAside} from './Aside';
+import { getCollectionUrl } from '~/utils/special-collections';
+import { getCategoryColor } from '~/components/CategoryIcon';
+import { CategoryIcon } from '~/components/CategoryIcon';
 
 type PredictiveSearchItems = PredictiveSearchReturn['result']['items'];
 
@@ -122,36 +125,35 @@ function SearchResultsPredictiveArticles({
 }
 
 function SearchResultsPredictiveCollections({
-  term,
   collections,
-  closeSearch,
-}: PartialPredictiveSearchResult<'collections'>) {
+  closeSearch
+}: {
+  collections: any[];
+  closeSearch: () => void;
+}) {
   if (!collections.length) return null;
-
+  
   return (
-    <div className="predictive-search-result" key="collections">
-      <h5>Collections</h5>
-      <ul>
+    <div className="py-4">
+      <h3 className="font-medium text-sm text-neutral-500 uppercase mb-3">Categorías</h3>
+      <ul className="grid grid-cols-1 gap-2">
         {collections.map((collection) => {
-          const colllectionUrl = urlWithTrackingParams({
-            baseUrl: `/collections/${collection.handle}`,
-            trackingParams: collection.trackingParameters,
-            term: term.current,
-          });
-
+          const gradientClass = getCategoryColor(collection.handle);
+          
           return (
-            <li className="predictive-search-result-item" key={collection.id}>
-              <Link onClick={closeSearch} to={colllectionUrl}>
-                {collection.image?.url && (
-                  <Image
-                    alt={collection.image.altText ?? ''}
-                    src={collection.image.url}
-                    width={50}
-                    height={50}
-                  />
-                )}
+            <li key={collection.id}>
+              <Link
+                to={getCollectionUrl(collection.handle)}
+                className="flex items-center gap-3 p-2 hover:bg-neutral-100 rounded-lg transition-colors"
+                onClick={closeSearch}
+                prefetch="intent"
+              >
+                <div className={`flex items-center justify-center h-10 w-10 rounded-full bg-gradient-to-br ${gradientClass} text-white`}>
+                  <CategoryIcon handle={collection.handle} size="small" />
+                </div>
                 <div>
-                  <span>{collection.title}</span>
+                  <p className="font-medium text-neutral-800">{collection.title}</p>
+                  <p className="text-xs text-neutral-500">Ver productos</p>
                 </div>
               </Link>
             </li>

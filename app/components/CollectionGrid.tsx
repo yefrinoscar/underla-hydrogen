@@ -8,6 +8,7 @@ import { CategoryIcon, getCategoryColor } from '~/components/CategoryIcon';
 import { CategoryTextImage } from '~/components/CategoryTextImage';
 import { Collection } from '@shopify/hydrogen/storefront-api-types';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
+import { getCollectionUrl } from '~/utils/special-collections';
 
 // Container animation variants
 export const containerVariants = {
@@ -44,7 +45,7 @@ export function CollectionItem({
         active ? 'bg-white shadow-lg ring-2 ring-underla-600' : 'bg-white/80 hover:bg-white'
       }`}
       key={collection.id || collection.handle}
-      to={`/collections/${collection.handle}`}
+      to={getCollectionUrl(collection.handle)}
       prefetch="intent"
       style={{
         transitionDelay: `${index * 50}ms`

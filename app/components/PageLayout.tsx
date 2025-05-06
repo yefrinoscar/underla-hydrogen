@@ -39,7 +39,7 @@ export function PageLayout({
   publicStoreDomain,
 }: PageLayoutProps) {
   const { pathname } = useLocation();
-  const isPromotionsPage = pathname.startsWith('/promotions');
+  const isPromotionsPage = pathname.startsWith('/promotions') || pathname.startsWith('/collections/special');
 
   return (
     <Modal.Provider>
@@ -49,7 +49,7 @@ export function PageLayout({
           <RequestForm request="" />
         </Modal>
         <SearchAside />
-        <MobileMenuAside cart={cart} header={header} publicStoreDomain={publicStoreDomain} />
+        <MobileMenuAside cart={cart} header={header} publicStoreDomain={publicStoreDomain} isLoggedIn={isLoggedIn} />
 
         {promotions.length > 0 && !isPromotionsPage && (
           <PromotionBanner promotion={promotions.find(promotion => promotion.is_main) || promotions[0]} />
@@ -136,7 +136,6 @@ function SearchAside() {
                 <SearchResultsPredictive.Collections
                   collections={collections}
                   closeSearch={closeSearch}
-                  term={term}
                 />
                 <SearchResultsPredictive.Pages
                   pages={pages}
@@ -171,11 +170,13 @@ function SearchAside() {
 function MobileMenuAside({
   header,
   publicStoreDomain,
-  cart
+  cart,
+  isLoggedIn
 }: {
   header: PageLayoutProps['header'];
   publicStoreDomain: PageLayoutProps['publicStoreDomain'];
   cart: PageLayoutProps['cart'];
+  isLoggedIn: PageLayoutProps['isLoggedIn'];
 }) {
   return (
     header.menu &&
@@ -187,6 +188,7 @@ function MobileMenuAside({
           primaryDomainUrl={header.shop.primaryDomain.url}
           publicStoreDomain={publicStoreDomain}
           cart={cart}
+          isLoggedIn={isLoggedIn}
         />
       </Aside>
     )

@@ -7,7 +7,10 @@ import { COLLECTION_QUERY, COLLECTIONS_QUERY, PRODUCT_ITEM_FRAGMENT } from '~/li
 import { filterCollections, getSpecialCollection } from '~/utils/collection-filters';
 import { InfiniteProductGrid } from '~/components/CollectionGrid';
 import { CategoryIcon, getCategoryColor } from '~/components/CategoryIcon';
-import { SpecialCollectionHandle, SPECIAL_COLLECTIONS_CONFIG } from '~/utils/special-collections';
+import { 
+  SpecialCollectionHandle, 
+  SPECIAL_COLLECTIONS_CONFIG 
+} from '~/utils/special-collections';
 
 export async function loader(args: LoaderFunctionArgs) {
   const { params } = args;
@@ -29,14 +32,57 @@ export async function loader(args: LoaderFunctionArgs) {
     return redirect('/');
   }
 
-  const criticalData = await loadCriticalData(args);
+  const criticalData = await loadCriticalData({ ...args, baseCollection });
   
   return { ...criticalData, baseCollection, subcategory };
 }
 
-async function loadCriticalData({ context, request, params }: LoaderFunctionArgs) {
+async function loadCriticalData({ context, request, params, baseCollection }: LoaderFunctionArgs & { baseCollection: string }) {
   const { handle } = params;
-  
+
+  // Fragment for fetching basic special collection information 
+  const SPECIAL_COLLECTION_DATA_FRAGMENT = `#graphql
+    fragment SpecialCollectionData on Collection {
+      id
+      title
+      description
+    }
+  ` as const;
+
+  // Query to get special collection title and description by handle
+  const GET_SPECIAL_COLLECTION_DATA_QUERY = `#graphql
+    ${SPECIAL_COLLECTION_DATA_FRAGMENT}
+    query GetSpecialCollectionData(
+      $handle: String!
+      $country: CountryCode
+      $language: LanguageCode
+    ) @inContext(country: $country, language: $language) {
+      collection(handle: $handle) {
+        ...SpecialCollectionData
+      }
+    }
+  ` as const;
+
+  // Fetch special collection title and description from Shopify API
+  const { collection: specialCollectionData } = await context.storefront.query(
+    GET_SPECIAL_COLLECTION_DATA_QUERY,
+    {
+      variables: { handle: baseCollection as string },
+    },
+  );
+
+  const title = specialCollectionData?.title || 'Collection';
+  const description = specialCollectionData?.description || '';
+  // backgroundImage will still come from local config as it's specific to UI
+  const backgroundImage = SPECIAL_COLLECTIONS_CONFIG[handle as SpecialCollectionHandle]?.backgroundImage || ''; 
+  // Construct specialCollectionInfo with data from API and config
+  const specialCollectionInfo = {
+    title,
+    description,
+    backgroundImage,
+    replace: SPECIAL_COLLECTIONS_CONFIG[baseCollection as SpecialCollectionHandle]?.replace
+  };
+
   const variables = getPaginationVariables(request, {
     pageBy: 8, // 8 products per page for better initial load
   });
@@ -57,17 +103,20 @@ async function loadCriticalData({ context, request, params }: LoaderFunctionArgs
     const { products: fallbackProducts } = await context.storefront.query(PAGINATION_PRODUCTS_QUERY, {
       variables
     });
-    return { collections, products: fallbackProducts };
+    // Pass the API-derived title/desc and config-derived backgroundImage
+    return { collections, products: fallbackProducts, specialCollectionInfo };
   } 
   
   return { 
     collections, 
-    collection
+    collection,
+    // Pass the API-derived title/desc and config-derived backgroundImage
+    specialCollectionInfo
   };
 }
 
 export default function SpecialCollections() {
-  const { collections, collection, baseCollection } = useLoaderData<typeof loader>();
+  const { collections, collection, baseCollection, specialCollectionInfo } = useLoaderData<typeof loader>();
   const { handle } = useParams();
   const navigation = useNavigation();
   const isNavigating = navigation.state === 'loading';
@@ -133,9 +182,9 @@ export default function SpecialCollections() {
       </div>
 
       <div className="relative z-10 container-app h-full flex flex-col justify-center text-white">
-          <h1 className="text-5xl md:text-7xl font-bold mb-4">Mundo Tennis</h1>
+          <h1 className="text-5xl md:text-7xl font-bold mb-4">{specialCollectionInfo.title}</h1>
           <p className="text-xl md:text-2xl max-w-2xl">
-            Desde principiantes hasta profesionales, tenemos lo necesario para acompañarte en cada punto.
+            {specialCollectionInfo.description}
           </p>
           
           {/* Fixed-size category cards with special active state */}
@@ -160,7 +209,7 @@ export default function SpecialCollections() {
                       <CategoryIcon handle={category.handle} size="normal" />
                     </div>
                     <span className={`text-xs text-center ${isActive ? 'font-bold' : 'font-medium'}`}>
-                      {category.title.replace(/(\bde\s+tennis\b)|(\btennis\b)/gi, '').trim()}
+                      {category.title.replace(specialCollectionInfo.replace, '').trim()}
                     </span>
                   </div>
                 </div>

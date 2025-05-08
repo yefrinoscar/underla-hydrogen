@@ -7,7 +7,13 @@ import {
   Medal,
   Cpu,
   Cable,
-  WatchIcon
+  WatchIcon,
+  Backpack,
+  Footprints,
+  LandPlot,
+  Trophy,
+  Monitor,
+  AppWindow
 } from 'lucide-react';
 
 // Map of collection handles to their corresponding icons
@@ -29,6 +35,15 @@ const CATEGORY_ICONS: Record<string, React.ReactNode> = {
   </svg>,
   'salud-y-belleza': <Heart className="h-5 w-5" />,
   'zona-gamer': <Gamepad2 className="h-5 w-5" />,
+  'mundo-tennis_ropa': <Shirt className="h-5 w-5" />,
+  'mundo-tennis_bolsos-mochilas': <Backpack className="h-5 w-5" />,
+  'mundo-tennis_zapatillas': <Footprints className="h-5 w-5" />,
+  'mundo-tennis_lifestyle': <LandPlot className="h-5 w-5" />,
+  'mundo-tennis_padel': <Trophy className="h-5 w-5" />,
+  'mundo-tennis_accesorios-tenis': <Dumbbell className="h-5 w-5" />,
+  'zona-gamer_monitores': <Monitor  className="h-5 w-5" />,
+  'zona-gamer_procesadores': <Cpu className="h-5 w-5" />,
+  'zona-gamer_memorias-ram': <AppWindow className="h-5 w-5" />
 };
 
 // Define colors for each category to create visual distinction

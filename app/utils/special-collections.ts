@@ -8,7 +8,7 @@ import mundo_tennis_bg from '../assets/images-categories/mundo-tennis-bg.jpg'
  */
 export enum SpecialCollectionHandle {
   TENNIS = 'mundo-tennis',
-  // ZONA_GAMER = 'zona-gamer'
+  ZONA_GAMER = 'zona-gamer'
 }
 
 /**
@@ -19,14 +19,16 @@ export const SPECIAL_COLLECTIONS_CONFIG = {
     redirectUrl: '/collections/special/mundo-tennis_lifestyle',
     backgroundImage: mundo_tennis_bg,
     title: 'Mundo Tennis',
-    description: 'Descubre nuestra colección exclusiva de productos de tennis'
+    description: 'Descubre nuestra colección exclusiva de productos de tennis',
+    replace: /\b(de\s+)?[Tt]ennis\b/
   },
-  // [SpecialCollectionHandle.ZONA_GAMER]: {
-  //   redirectUrl: '/collections/special/zona-gamer-bg',
-  //   backgroundImage: zona_gamer_bg,
-  //   title: 'Zona Gamer',
-  //   description: 'Equipamiento de alta gama para gamers exigentes'
-  // }
+  [SpecialCollectionHandle.ZONA_GAMER]: {
+    redirectUrl: '/collections/special/zona-gamer_monitores',
+    backgroundImage: zona_gamer_bg,
+    title: 'Zona Gamer',
+    description: 'Equipamiento de alta gama para gamers exigentes',
+    replace: /\b[Zz]ona gamer\b/gi
+  }
 };
 
 /**

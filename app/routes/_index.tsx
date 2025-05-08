@@ -362,7 +362,7 @@ const FEATURED_COLLECTION_QUERY = `#graphql
     handle
   }
   query FeaturedCollection {
-    collections(first: 20, sortKey: UPDATED_AT, reverse: true) {
+    collections(first: 50, sortKey: UPDATED_AT, reverse: true) {
       nodes {
         ...FeaturedCollection
       }

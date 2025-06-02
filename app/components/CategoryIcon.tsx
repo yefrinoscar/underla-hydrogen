@@ -13,7 +13,15 @@ import {
   LandPlot,
   Trophy,
   Monitor,
-  AppWindow
+  AppWindow,
+  Eye,
+  User,
+  Smile,
+  Shield,
+  Gem,
+  Sparkles,
+  Sun,
+  EyeClosed
 } from 'lucide-react';
 
 // Map of collection handles to their corresponding icons
@@ -43,7 +51,16 @@ const CATEGORY_ICONS: Record<string, React.ReactNode> = {
   'mundo-tennis_accesorios-tenis': <Dumbbell className="h-5 w-5" />,
   'zona-gamer_monitores': <Monitor  className="h-5 w-5" />,
   'zona-gamer_procesadores': <Cpu className="h-5 w-5" />,
-  'zona-gamer_memorias-ram': <AppWindow className="h-5 w-5" />
+  'zona-gamer_memorias-ram': <AppWindow className="h-5 w-5" />,
+  
+  // Beauty categories for women
+  'para-ellas_cejas': <EyeClosed className="h-5 w-5" />,
+  'para-ellas_labios': <Heart className="h-5 w-5" />,
+  'para-ellas_accesorios': <Gem className="h-5 w-5" />,
+  'para-ellas_proteccion-piel': <Shield className="h-5 w-5" />,
+  'para-ellas_cuerpo': <User className="h-5 w-5" />,
+  'para-ellas_ojos': <Eye className="h-5 w-5" />,
+  'para-ellas_rostro': <Smile className="h-5 w-5" />
 };
 
 // Define colors for each category to create visual distinction
@@ -57,6 +74,15 @@ export const CATEGORY_COLORS: Record<string, string> = {
   'perfumes': 'from-pink-500 to-pink-600',
   'salud-y-belleza': 'from-rose-500 to-rose-600',
   'zona-gamer': 'from-red-500 to-red-600',
+  
+  // Beauty categories for women - using beautiful feminine colors
+  'para-ellas_cejas': 'from-pink-400 to-pink-500',
+  'para-ellas_labios': 'from-rose-500 to-rose-600',
+  'para-ellas_accesorios': 'from-purple-400 to-purple-500',
+  'para-ellas_proteccion-de-la-piel': 'from-amber-400 to-amber-500',
+  'para-ellas_cuerpo': 'from-teal-400 to-teal-500',
+  'para-ellas_ojos': 'from-blue-400 to-blue-500',
+  'para-ellas_rostro': 'from-violet-400 to-violet-500'
 };
 
 export function CategoryIcon({ handle, size = "normal" }: { handle: string, size?: "small" | "normal" | "large" }) {

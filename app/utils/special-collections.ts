@@ -1,6 +1,6 @@
 import zona_gamer_bg from '../assets/images-categories/zona-gamer-bg.jpg'
 import mundo_tennis_bg from '../assets/images-categories/mundo-tennis-bg.jpg'
-
+import for_girls_bg from '../assets/images-categories/for-girls-bg.jpg'
 
 /**
  * Enum for special collection handles that should use the /collections/special/$handle route
@@ -8,7 +8,8 @@ import mundo_tennis_bg from '../assets/images-categories/mundo-tennis-bg.jpg'
  */
 export enum SpecialCollectionHandle {
   TENNIS = 'mundo-tennis',
-  ZONA_GAMER = 'zona-gamer'
+  ZONA_GAMER = 'zona-gamer',
+  FOR_GIRLS = 'para-ellas'
 }
 
 /**
@@ -28,6 +29,13 @@ export const SPECIAL_COLLECTIONS_CONFIG = {
     title: 'Zona Gamer',
     description: 'Equipamiento de alta gama para gamers exigentes',
     replace: /\b[Zz]ona gamer\b/gi
+  },
+  [SpecialCollectionHandle.FOR_GIRLS]: {
+    redirectUrl: '/collections/special/para-ellas_labios',
+    backgroundImage: for_girls_bg,
+    title: 'Para Ellas',
+    description: 'Un espacio pensado para ellas, donde bienestar, estilo y autenticidad se encuentran. Todo lo necesario para sentirse plena, poderosa y feliz, en un solo lugar.',
+    replace: /\bpara ellas\b/gi
   }
 };
 

@@ -97,6 +97,9 @@ async function loadCriticalData({ context, request, params, baseCollection }: Lo
       ...variables 
     }
   });
+
+  console.log('collection.nodes', JSON.stringify(collections?.nodes));
+  console.log('collection.products.nodes', JSON.stringify(collection?.products.nodes));
   
   // If no products found, fall back to regular products
   if (!collection || collection.products.nodes.length === 0) {

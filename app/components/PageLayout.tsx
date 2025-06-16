@@ -40,6 +40,11 @@ export function PageLayout({
 }: PageLayoutProps) {
   const { pathname } = useLocation();
   const isPromotionsPage = pathname.startsWith('/promotions') || pathname.startsWith('/collections/special');
+  
+  // Debug logging
+  console.log('PageLayout: promotions count:', promotions.length);
+  console.log('PageLayout: pathname:', pathname);
+  console.log('PageLayout: isPromotionsPage:', isPromotionsPage);
 
   return (
     <Modal.Provider>

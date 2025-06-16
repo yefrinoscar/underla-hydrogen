@@ -18,6 +18,10 @@ export function PromotionCarousel({ promotions }: PromotionCarouselProps) {
     return null;
   }
 
+  // Debug logging
+  console.log('PromotionCarousel: promotions count:', promotions.length);
+  console.log('PromotionCarousel: promotions data:', promotions);
+
   const nextSlide = useCallback(() => {
     setCurrentIndex((prevIndex) => 
       prevIndex === promotions.length - 1 ? 0 : prevIndex + 1

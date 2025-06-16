@@ -11,6 +11,7 @@ export function PromotionCarousel({ promotions }: PromotionCarouselProps) {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isAutoPlay, setIsAutoPlay] = useState(true);
   const [isLoaded, setIsLoaded] = useState(false);
+  const [progressKey, setProgressKey] = useState(0); // Key to restart animation
 
   // Don't render if no promotions
   if (!promotions || promotions.length === 0) {
@@ -31,7 +32,19 @@ export function PromotionCarousel({ promotions }: PromotionCarouselProps) {
 
   const goToSlide = useCallback((index: number) => {
     setCurrentIndex(index);
+    // Reset progress animation when manually navigating
+    setProgressKey(prev => prev + 1);
   }, []);
+
+  const handleManualNavigation = useCallback((direction: 'next' | 'prev') => {
+    if (direction === 'next') {
+      nextSlide();
+    } else {
+      prevSlide();
+    }
+    // Reset progress animation when manually navigating
+    setProgressKey(prev => prev + 1);
+  }, [nextSlide, prevSlide]);
 
   // Auto-advance carousel every 5 seconds
   useEffect(() => {
@@ -61,6 +74,31 @@ export function PromotionCarousel({ promotions }: PromotionCarouselProps) {
             isLoaded ? "translate-y-0 opacity-100" : "translate-y-[-20px] opacity-0"
           }`}
         >
+          {/* Border Progress Indicator */}
+          {promotions.length > 1 && isAutoPlay && (
+            <svg 
+              key={progressKey}
+              className="absolute inset-0 pointer-events-none z-20 w-full h-full"
+            >
+              <rect
+                x="1"
+                y="1"
+                width="calc(100% - 2px)"
+                height="calc(100% - 2px)"
+                rx="19"
+                ry="19"
+                fill="none"
+                stroke="rgba(255,255,255,0.8)"
+                strokeWidth="2"
+                strokeDasharray="1000"
+                strokeDashoffset="1000"
+                style={{
+                  animation: 'drawBorder 5s linear infinite',
+                  animationPlayState: isAutoPlay ? 'running' : 'paused'
+                }}
+              />
+            </svg>
+          )}
           {/* Carousel Slides */}
           <div 
             className="flex transition-transform duration-500 ease-in-out h-full"
@@ -125,75 +163,64 @@ export function PromotionCarousel({ promotions }: PromotionCarouselProps) {
           {promotions.length > 1 && (
             <>
               <button
-                onClick={prevSlide}
-                className="absolute left-2 top-1/2 -translate-y-1/2 z-10 bg-black/20 hover:bg-black/40 backdrop-blur-sm rounded-full p-2 transition-all duration-200 hover:scale-110"
+                onClick={() => handleManualNavigation('prev')}
+                className="absolute left-2 top-1/2 -translate-y-1/2 z-30 bg-black/20 hover:bg-black/40 backdrop-blur-sm rounded-full p-2 transition-all duration-200 hover:scale-110"
                 aria-label="Previous promotion"
               >
                 <ChevronLeft className="h-4 w-4 text-white" />
               </button>
               <button
-                onClick={nextSlide}
-                className="absolute right-2 top-1/2 -translate-y-1/2 z-10 bg-black/20 hover:bg-black/40 backdrop-blur-sm rounded-full p-2 transition-all duration-200 hover:scale-110"
+                onClick={() => handleManualNavigation('next')}
+                className="absolute right-2 top-1/2 -translate-y-1/2 z-30 bg-black/20 hover:bg-black/40 backdrop-blur-sm rounded-full p-2 transition-all duration-200 hover:scale-110"
                 aria-label="Next promotion"
               >
                 <ChevronRight className="h-4 w-4 text-white" />
               </button>
             </>
           )}
+        </div>
 
-          {/* Auto-play control - Only show if more than 1 promotion */}
-          {promotions.length > 1 && (
+        {/* Circle Indicators & Play/Pause Control - Only show if more than 1 promotion */}
+        {promotions.length > 1 && (
+          <div className="flex justify-center items-center mt-3 gap-3">
+            {/* Circle Indicators */}
+            <div className="flex gap-2">
+              {promotions.map((_, index) => (
+                <button
+                  key={index}
+                  onClick={() => goToSlide(index)}
+                  className={`w-2 h-2 rounded-full transition-all duration-300 hover:scale-125 ${
+                    index === currentIndex 
+                      ? 'bg-white shadow-lg ring-2 ring-white/30' 
+                      : 'bg-white/40 hover:bg-white/60'
+                  }`}
+                  aria-label={`Go to promotion ${index + 1}`}
+                />
+              ))}
+            </div>
+            
+            {/* Play/Pause Control */}
             <button
               onClick={() => setIsAutoPlay(!isAutoPlay)}
-              className="absolute top-2 right-2 z-10 bg-black/20 hover:bg-black/40 backdrop-blur-sm rounded-full p-1.5 transition-all duration-200 hover:scale-110"
+              className="bg-white/20 hover:bg-white/30 backdrop-blur-sm rounded-full p-1.5 transition-all duration-200 hover:scale-110 ml-2"
               aria-label={isAutoPlay ? "Pause autoplay" : "Start autoplay"}
             >
               {isAutoPlay ? (
                 <Pause className="h-3 w-3 text-white" />
               ) : (
-                <Play className="h-3 w-3 text-white" />
+                <Play className="h-3 w-3 text-white ml-0.5" />
               )}
             </button>
-          )}
-        </div>
-
-        {/* Circle Indicators - Only show if more than 1 promotion */}
-        {promotions.length > 1 && (
-          <div className="flex justify-center mt-3 gap-2">
-            {promotions.map((_, index) => (
-              <button
-                key={index}
-                onClick={() => goToSlide(index)}
-                className={`w-2 h-2 rounded-full transition-all duration-300 hover:scale-125 ${
-                  index === currentIndex 
-                    ? 'bg-white shadow-lg' 
-                    : 'bg-white/40 hover:bg-white/60'
-                }`}
-                aria-label={`Go to promotion ${index + 1}`}
-              />
-            ))}
           </div>
         )}
 
-        {/* Progress Bar */}
-        {promotions.length > 1 && isAutoPlay && (
-          <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-white/20 rounded-b-[20px] overflow-hidden">
-            <div 
-              className="h-full bg-white transition-all duration-100 ease-linear"
-              style={{
-                animation: 'progressBar 5s linear infinite',
-                animationPlayState: isAutoPlay ? 'running' : 'paused'
-              }}
-            />
-          </div>
-        )}
       </div>
 
       <style dangerouslySetInnerHTML={{
         __html: `
-          @keyframes progressBar {
-            from { width: 0% }
-            to { width: 100% }
+          @keyframes drawBorder {
+            from { stroke-dashoffset: 1000; }
+            to { stroke-dashoffset: 0; }
           }
         `
       }} />

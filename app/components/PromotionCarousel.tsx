@@ -74,31 +74,7 @@ export function PromotionCarousel({ promotions }: PromotionCarouselProps) {
             isLoaded ? "translate-y-0 opacity-100" : "translate-y-[-20px] opacity-0"
           }`}
         >
-          {/* Border Progress Indicator */}
-          {promotions.length > 1 && isAutoPlay && (
-            <svg 
-              key={progressKey}
-              className="absolute inset-0 pointer-events-none z-20 w-full h-full"
-            >
-              <rect
-                x="1"
-                y="1"
-                width="calc(100% - 2px)"
-                height="calc(100% - 2px)"
-                rx="19"
-                ry="19"
-                fill="none"
-                stroke="rgba(255,255,255,0.8)"
-                strokeWidth="2"
-                strokeDasharray="1000"
-                strokeDashoffset="1000"
-                style={{
-                  animation: 'drawBorder 5s linear infinite',
-                  animationPlayState: isAutoPlay ? 'running' : 'paused'
-                }}
-              />
-            </svg>
-          )}
+
           {/* Carousel Slides */}
           <div 
             className="flex transition-transform duration-500 ease-in-out h-full"
@@ -180,37 +156,89 @@ export function PromotionCarousel({ promotions }: PromotionCarouselProps) {
           )}
         </div>
 
-        {/* Circle Indicators & Play/Pause Control - Only show if more than 1 promotion */}
+        {/* Enhanced Progress Indicators & Play/Pause Control */}
         {promotions.length > 1 && (
-          <div className="flex justify-center items-center mt-3 gap-3">
-            {/* Circle Indicators */}
-            <div className="flex gap-2">
+          <div className="flex justify-center items-center mt-4 gap-4">
+            {/* Progressive Circle Indicators */}
+            <div className="flex gap-3">
               {promotions.map((_, index) => (
                 <button
                   key={index}
                   onClick={() => goToSlide(index)}
-                  className={`w-2 h-2 rounded-full transition-all duration-300 hover:scale-125 ${
-                    index === currentIndex 
-                      ? 'bg-white shadow-lg ring-2 ring-white/30' 
-                      : 'bg-white/40 hover:bg-white/60'
-                  }`}
+                  className="relative w-6 h-6 flex items-center justify-center group"
                   aria-label={`Go to promotion ${index + 1}`}
-                />
+                >
+                  {/* Background Circle */}
+                  <div className="absolute inset-0 rounded-full bg-white/20 group-hover:bg-white/30 transition-colors duration-200" />
+                  
+                  {/* Progress Ring - Only for active slide */}
+                  {index === currentIndex && isAutoPlay && (
+                    <svg 
+                      key={progressKey}
+                      className="absolute inset-0 w-6 h-6 -rotate-90"
+                      viewBox="0 0 24 24"
+                    >
+                      <circle
+                        cx="12"
+                        cy="12"
+                        r="10"
+                        fill="none"
+                        stroke="rgba(255,255,255,0.3)"
+                        strokeWidth="2"
+                      />
+                      <circle
+                        cx="12"
+                        cy="12"
+                        r="10"
+                        fill="none"
+                        stroke="white"
+                        strokeWidth="2"
+                        strokeLinecap="round"
+                        strokeDasharray="62.83"
+                        strokeDashoffset="62.83"
+                        style={{
+                          animation: 'fillProgress 5s linear infinite',
+                          animationPlayState: isAutoPlay ? 'running' : 'paused'
+                        }}
+                      />
+                    </svg>
+                  )}
+                  
+                  {/* Center Dot */}
+                  <div 
+                    className={`relative z-10 w-2 h-2 rounded-full transition-all duration-300 group-hover:scale-125 ${
+                      index === currentIndex 
+                        ? 'bg-white shadow-lg' 
+                        : 'bg-white/60 group-hover:bg-white/80'
+                    }`}
+                  />
+                  
+                  {/* Ripple Effect for Active */}
+                  {index === currentIndex && (
+                    <div className="absolute inset-0 rounded-full bg-white/20 animate-ping" />
+                  )}
+                </button>
               ))}
             </div>
             
-            {/* Play/Pause Control */}
-            <button
-              onClick={() => setIsAutoPlay(!isAutoPlay)}
-              className="bg-white/20 hover:bg-white/30 backdrop-blur-sm rounded-full p-1.5 transition-all duration-200 hover:scale-110 ml-2"
-              aria-label={isAutoPlay ? "Pause autoplay" : "Start autoplay"}
-            >
-              {isAutoPlay ? (
-                <Pause className="h-3 w-3 text-white" />
-              ) : (
-                <Play className="h-3 w-3 text-white ml-0.5" />
-              )}
-            </button>
+            {/* Play/Pause Control with Enhanced Design */}
+            <div className="flex items-center ml-2">
+              <div className="w-px h-4 bg-white/30 mr-3" /> {/* Separator */}
+              <button
+                onClick={() => setIsAutoPlay(!isAutoPlay)}
+                className="relative bg-white/15 hover:bg-white/25 backdrop-blur-sm rounded-full p-2 transition-all duration-200 hover:scale-110 group"
+                aria-label={isAutoPlay ? "Pause autoplay" : "Start autoplay"}
+              >
+                {isAutoPlay ? (
+                  <Pause className="h-3 w-3 text-white group-hover:text-white/90" />
+                ) : (
+                  <Play className="h-3 w-3 text-white ml-0.5 group-hover:text-white/90" />
+                )}
+                
+                {/* Subtle glow effect */}
+                <div className="absolute inset-0 rounded-full bg-white/10 scale-0 group-hover:scale-100 transition-transform duration-200" />
+              </button>
+            </div>
           </div>
         )}
 
@@ -218,8 +246,8 @@ export function PromotionCarousel({ promotions }: PromotionCarouselProps) {
 
       <style dangerouslySetInnerHTML={{
         __html: `
-          @keyframes drawBorder {
-            from { stroke-dashoffset: 1000; }
+          @keyframes fillProgress {
+            from { stroke-dashoffset: 62.83; }
             to { stroke-dashoffset: 0; }
           }
         `

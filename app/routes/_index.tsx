@@ -100,7 +100,7 @@ export default function Homepage() {
     <div>
       <HomeBanner products={data.homeProducts} />
       <RecommendedProducts products={data.recommendedProducts} />
-      <Promotions promotions={promotions} />
+      {/* <Promotions promotions={promotions} /> */}
       <FeaturedCollection collections={data.collections} />
       <CtaRequest />
     </div>

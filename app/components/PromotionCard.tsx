@@ -1,19 +1,15 @@
 import { Link } from "@remix-run/react";
 import { useEffect, useState } from "react";
 import { Promotion } from "~/types/promotion";
-import { adjustColorBrightness } from "~/utils/gradients";
 
 
 export function PromotionCard({ promotion, className }: { promotion: Promotion, className: string    }) {
 
     return (
         <div
-            style={{
-                background: `linear-gradient(135deg, 
-                            ${promotion.background_color}, 
-                            ${adjustColorBrightness(promotion.background_color, 20)}, 
-                            ${adjustColorBrightness(promotion.background_color, -20)})`
-            }}
+        style={{
+            background: `url(${promotion.image_url})`
+        }}
             className={`${className} relative w-full p-4 col-span-12 md:col-span-6 md:mx-auto rounded-[20px] text-white overflow-hidden shadow-lg`}
         >
             <Link to={promotion.condition_type === 'tags' ? `/promotions/${promotion.condition_value.toLowerCase()}` : `/products/${promotion.id}`}>

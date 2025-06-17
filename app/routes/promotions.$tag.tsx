@@ -7,7 +7,6 @@ import { useInView } from 'react-intersection-observer';
 import { ProductItem } from '~/components/ProductItem';
 import { motion } from "framer-motion";
 import { Promotion } from '~/types/promotion';
-import { adjustColorBrightness } from '~/utils/gradients';
 import { PRODUCT_ITEM_FRAGMENT } from '~/lib/fragments';
 
 export async function loader(args: LoaderFunctionArgs) {
@@ -46,10 +45,7 @@ export default function PromotionDetail() {
         <div 
           className="w-full rounded-[20px] p-8 text-white motion-preset-slide-down"
           style={{
-            background: `linear-gradient(135deg, 
-                        ${currentPromotion.background_color}, 
-                        ${adjustColorBrightness(currentPromotion.background_color, 30)}, 
-                        ${adjustColorBrightness(currentPromotion.background_color, -50)})`
+            background: `url(${currentPromotion.image_url})`
         }}
         >
           <p className="text-md md:text-xl !mb-4 font-medium">🎉 Ofertas por tiempo limitado</p>

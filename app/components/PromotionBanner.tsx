@@ -2,13 +2,12 @@
 import { Link } from "@remix-run/react";
 import { useEffect, useState } from "react";
 import { Promotion } from "~/types/promotion";
-import { adjustColorBrightness } from "~/utils/gradients";
 
 
 export function PromotionBanner({ promotion }: { promotion: Promotion }) {
     const [isLoaded, setIsLoaded] = useState(false)
 
-    useEffect(() => {        
+    useEffect(() => {
         // Add a small delay before showing the animation
         const timer = setTimeout(() => {
             setIsLoaded(true)
@@ -22,16 +21,21 @@ export function PromotionBanner({ promotion }: { promotion: Promotion }) {
             {/* bg-gradient-to-r from-pink-500 via-purple-500 to-indigo-500  */}
             <div
                 style={{
-                    background: `linear-gradient(135deg, 
-                                        ${promotion.background_color}, 
-                                        ${adjustColorBrightness(promotion.background_color, 20)}, 
-                                        ${adjustColorBrightness(promotion.background_color, -20)})`
+                    backgroundImage: `url(${promotion.image_url})`,
+                    backgroundSize: 'cover',
+                    backgroundPosition: 'center center',
+                    backgroundColor: 'transparent'
                 }}
-                className={`relative block max-w-7xl mx-4 md:mx-auto rounded-[20px] text-white overflow-hidden shadow-lg transform transition-all duration-700 ease-in-out ${isLoaded ? "translate-y-0 opacity-100 animate-float" : "translate-y-[-20px] opacity-0"}`}>
+                className={`relative max-w-7xl mx-4 h-[75px]  md:mx-auto rounded-[20px] text-white overflow-hidden shadow-lg transform transition-all duration-700 ease-in-out ${isLoaded ? "translate-y-0 opacity-100 animate-float" : "translate-y-[-20px] opacity-0"}`}>
                 <Link
                     to={promotion.condition_type === 'tags' ? `/promotions/${promotion.condition_value.toLowerCase()}` : `/products/${promotion.id}`}
+                    className="relative"
                 >
-                    <div className="px-4 py-3 sm:px-6 lg:px-8 h-full flex w-full">
+                    <div className="px-4 py-3 sm:px-6 lg:px-8 h-full flex w-full inset-0"
+                        style={{
+                            background: `linear-gradient(to right, rgba(0,0,0,0.7) 0%, rgba(0,0,0,0) 50%)`
+                        }}
+                    >
                         <div className="w-full flex items-center justify-between flex-wrap">
                             <div className="flex-1 flex items-center h-full justify-center md:justify-start">
                                 <span className="flex p-2 animate-pulse">
@@ -76,14 +80,6 @@ export function PromotionBanner({ promotion }: { promotion: Promotion }) {
                             </button>
                         </div> */}
                         </div>
-                    </div>
-
-                    {/* Decorative elements with animations */}
-                    <div className="absolute top-0 right-0 -mt-20 -mr-20">
-                        <div className="w-40 h-40 rounded-full bg-white opacity-10 animate-pulse-slow"></div>
-                    </div>
-                    <div className="absolute bottom-0 left-0 -mb-16 -ml-16">
-                        <div className="w-32 h-32 rounded-full bg-white opacity-10 animate-pulse-slower"></div>
                     </div>
                 </Link>
             </div>

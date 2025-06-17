@@ -15,7 +15,7 @@ import {
 } from '~/components/SearchFormPredictive';
 import { SearchResultsPredictive } from '~/components/SearchResultsPredictive';
 import { Promotion } from '~/types/promotion';
-import { PromotionBanner } from './PromotionBanner';
+import { PromotionCarousel } from './PromotionCarousel';
 import { Modal } from './Modal';
 import { RequestForm } from './RequestForm';
 
@@ -40,6 +40,11 @@ export function PageLayout({
 }: PageLayoutProps) {
   const { pathname } = useLocation();
   const isPromotionsPage = pathname.startsWith('/promotions') || pathname.startsWith('/collections/special');
+  
+  // Debug logging
+  console.log('PageLayout: promotions count:', promotions.length);
+  console.log('PageLayout: pathname:', pathname);
+  console.log('PageLayout: isPromotionsPage:', isPromotionsPage);
 
   return (
     <Modal.Provider>
@@ -52,7 +57,7 @@ export function PageLayout({
         <MobileMenuAside cart={cart} header={header} publicStoreDomain={publicStoreDomain} isLoggedIn={isLoggedIn} />
 
         {promotions.length > 0 && !isPromotionsPage && (
-          <PromotionBanner promotion={promotions.find(promotion => promotion.is_main) || promotions[0]} />
+          <PromotionCarousel promotions={promotions} />
         )}
 
         {header && (

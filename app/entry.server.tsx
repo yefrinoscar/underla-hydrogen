@@ -18,7 +18,8 @@ export default async function handleRequest(
     },
     fontSrc: ["'self'", 'https://fonts.gstatic.com'],
     styleSrc: ["'self'", 'https://fonts.googleapis.com', "'unsafe-inline'"],
-    defaultSrc: ["'self'", 'https://cdn.shopify.com', 'https://shopify.com'],
+    defaultSrc: ["'self'", 'https://cdn.shopify.com', 'https://shopify.com', 'nonce-550972a1de313ef2c81bf5ab065f96ef'],
+    imgSrc: ["'self'", 'https://cdn.shopify.com', 'https://shopify.com', 'https://vvdxlmnopqkikvevuedb.supabase.co'],
     connectSrc: [
       "'self'",
       'https://dashboard.underla.lat/',

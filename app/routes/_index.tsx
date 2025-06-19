@@ -113,7 +113,7 @@ function FeaturedCollection({
   collections: Promise<FeaturedCollectionQuery | null>;
 }) {
   return (
-    <div className='container-app py-20 flex flex-col justify-center items-center gap-8'>
+    <div id="categorias" className='container-app py-20 flex flex-col justify-center items-center gap-8'>
       <h2 className='text-4xl md:text-5xl font-bold text-neutral-700 motion-preset-blur-down'>Categorias</h2>
       
       <Suspense fallback={<CategorySkeleton />}>

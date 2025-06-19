@@ -59,6 +59,17 @@ const FALLBACK_HEADER_MENU = {
   ],
 };
 
+// Function to smooth scroll to categories section
+const scrollToCategories = () => {
+  const categoriesSection = document.getElementById('categorias');
+  if (categoriesSection) {
+    categoriesSection.scrollIntoView({ 
+      behavior: 'smooth',
+      block: 'start'
+    });
+  }
+};
+
 export function Header({
   header,
   isLoggedIn,
@@ -136,8 +147,23 @@ export function HeaderMenu({
   textColorClass?: string;
 }) {
   const { close } = useAside();
+  const location = useLocation();
   
   const className = `${viewport === 'mobile' ? 'lg:hidden' : 'hidden lg:flex'} gap-8`;
+  
+  // Function to handle click on menu items
+  const handleMenuItemClick = (e: React.MouseEvent, item: any, url: string) => {
+    // Check if it's the Collections link and we're on the home page
+    if (item.title === 'Collections' && location.pathname === '/') {
+      e.preventDefault();
+      // Close mobile menu if open
+      if (viewport === 'mobile') {
+        close();
+      }
+      scrollToCategories();
+    }
+    // For other cases, let the navigation happen normally
+  };
   
   return (
     <nav className={className}>
@@ -151,6 +177,20 @@ export function HeaderMenu({
             item.url.includes(primaryDomainUrl)
               ? new URL(item.url).pathname
               : item.url;
+          
+          // Special handling for Collections link
+          if (item.title === 'Collections') {
+            return (
+              <button
+                key={item.id}
+                className={`${textColorClass} nav-item cursor-pointer`}
+                onClick={(e) => handleMenuItemClick(e, item, url)}
+              >
+                Catálogo
+              </button>
+            );
+          }
+          
           return (
             <NavLink
               className={`${textColorClass} nav-item`}

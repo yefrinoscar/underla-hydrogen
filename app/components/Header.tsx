@@ -151,18 +151,33 @@ export function HeaderMenu({
   
   const className = `${viewport === 'mobile' ? 'lg:hidden' : 'hidden lg:flex'} gap-8`;
   
-  // Function to handle click on menu items
-  const handleMenuItemClick = (e: React.MouseEvent, item: any, url: string) => {
-    // Check if it's the Collections link and we're on the home page
-    if (item.title === 'Collections' && location.pathname === '/') {
+  // Function to handle smooth scroll to categories section
+  const handleCategoriesClick = (e: React.MouseEvent, url: string) => {
+    // Check if this is a collections link
+    if (url.includes('/collections')) {
       e.preventDefault();
+      console.log('Collections link clicked!', { url, pathname: location.pathname });
+      
       // Close mobile menu if open
       if (viewport === 'mobile') {
         close();
       }
-      scrollToCategories();
+      
+      // Only scroll if we're on the home page
+      if (location.pathname === '/') {
+        const categoriesSection = document.getElementById('categorias');
+        console.log('Categories section found:', categoriesSection);
+        if (categoriesSection) {
+          categoriesSection.scrollIntoView({ 
+            behavior: 'smooth',
+            block: 'start'
+          });
+        }
+      } else {
+        // If not on home page, navigate to home and then scroll
+        window.location.href = '/#categorias';
+      }
     }
-    // For other cases, let the navigation happen normally
   };
   
   return (
@@ -184,7 +199,7 @@ export function HeaderMenu({
               <button
                 key={item.id}
                 className={`${textColorClass} nav-item cursor-pointer`}
-                onClick={(e) => handleMenuItemClick(e, item, url)}
+                onClick={(e) => handleCategoriesClick(e, url)}
               >
                 Catálogo
               </button>
@@ -199,6 +214,7 @@ export function HeaderMenu({
               prefetch="intent"
               style={activeLinkStyle}
               to={url}
+              onClick={(e) => handleCategoriesClick(e, url)}
             >
               {item.title}
             </NavLink>
@@ -208,12 +224,29 @@ export function HeaderMenu({
         <Await resolve={isLoggedIn}>
           {(isLoggedIn) => (
             <NavLink
-              className={`${textColorClass} nav-item`}
+              className={`${textColorClass} nav-item hover:opacity-80 transition-opacity duration-200`}
               prefetch="intent"
               style={activeLinkStyle}
               to={isLoggedIn ? '/account' : '/account/login'}
+              title={isLoggedIn ? 'Ver mi cuenta' : 'Iniciar sesión'}
             >
-              {isLoggedIn ? 'Cuenta' : 'Iniciar sesión'}
+              <span className="flex items-center gap-2">
+                <svg 
+                  xmlns="http://www.w3.org/2000/svg" 
+                  width="18" 
+                  height="18" 
+                  viewBox="0 0 24 24" 
+                  fill="none" 
+                  stroke="currentColor" 
+                  strokeWidth="2" 
+                  strokeLinecap="round" 
+                  strokeLinejoin="round"
+                >
+                  <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                  <circle cx="12" cy="7" r="4"></circle>
+                </svg>
+                {isLoggedIn ? 'Mi Cuenta' : 'Iniciar Sesión'}
+              </span>
             </NavLink>
           )}
         </Await>

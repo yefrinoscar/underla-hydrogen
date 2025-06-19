@@ -96,6 +96,21 @@ export default function Homepage() {
   const data = useLoaderData<typeof loader>();
   const { promotions } = useOutletContext<{ promotions: Promotion[] }>();
 
+  // Handle scroll to categories if URL has hash
+  useEffect(() => {
+    if (window.location.hash === '#categorias') {
+      setTimeout(() => {
+        const categoriesSection = document.getElementById('categorias');
+        if (categoriesSection) {
+          categoriesSection.scrollIntoView({ 
+            behavior: 'smooth',
+            block: 'start'
+          });
+        }
+      }, 100); // Small delay to ensure the page is fully loaded
+    }
+  }, []);
+
   return (
     <div>
       <HomeBanner products={data.homeProducts} />

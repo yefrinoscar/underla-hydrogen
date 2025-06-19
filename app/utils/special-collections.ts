@@ -47,7 +47,7 @@ export const SPECIAL_COLLECTIONS_CONFIG = {
     backgroundImage: apple_bg,
     title: 'Mundo Apple',
     description: 'Todo lo que necesitas para potenciar tu ecosistema Apple, en un solo lugar. Accesorios, gadgets y tecnología 100% compatibles con tu estilo de vida Apple.',
-    replace: /\b(de\s+)?[Aa]pple\b/
+    replace: /\b[Mm]undo\s+[Aa]pple\b/ // fix que la palabra filtrada sea mundo apple y no apple
   },
   [SpecialCollectionHandle.STREET_WEAR]: {
     redirectUrl: '/collections/special/streetwear_polos',

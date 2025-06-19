@@ -1,6 +1,6 @@
 import { useLoaderData, Link, useParams, useNavigation } from '@remix-run/react';
 import { useState, useEffect, useRef } from 'react';
-import { type LoaderFunctionArgs, redirect } from '@shopify/remix-oxygen';
+import { type LoaderFunctionArgs, MetaFunction, redirect } from '@shopify/remix-oxygen';
 import { getPaginationVariables, Pagination } from '@shopify/hydrogen';
 import type { ProductItemFragment } from 'storefrontapi.generated';
 import { COLLECTION_QUERY, COLLECTIONS_QUERY, PRODUCT_ITEM_FRAGMENT } from '~/lib/fragments';
@@ -11,6 +11,10 @@ import {
   SpecialCollectionHandle, 
   SPECIAL_COLLECTIONS_CONFIG 
 } from '~/utils/special-collections';
+
+export const meta: MetaFunction<typeof loader> = ({data}) => {
+  return [{ title: `${data?.specialCollectionInfo.title}` }];
+};
 
 export async function loader(args: LoaderFunctionArgs) {
   const { params } = args;

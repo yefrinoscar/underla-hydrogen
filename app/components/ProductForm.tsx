@@ -27,9 +27,7 @@ export function ProductForm({
       <div className='flex flex-col gap-4'>
         <VariantSelector
           handle={product.handle}
-          options={product.options.filter(
-            (option) => option.optionValues.length > 1,
-          )}
+          options={product.options}
           variants={variants}
         >
           {({ option }) => <ProductOptions key={option.name} option={option} />}

@@ -11,7 +11,7 @@ import { PRODUCT_ITEM_FRAGMENT } from '~/lib/fragments';
 
 export async function loader(args: LoaderFunctionArgs) {
   const { tag } = args.params;
-  
+
   const variables = getPaginationVariables(args.request, {
     pageBy: 8,
   });
@@ -20,9 +20,9 @@ export async function loader(args: LoaderFunctionArgs) {
     variables: { ...variables, tag: `tag:${tag}` },
   });
 
-  return { 
+  return {
     products,
-    currentTag: tag 
+    currentTag: tag
   };
 }
 
@@ -31,54 +31,45 @@ export default function PromotionDetail() {
   const { promotions } = useOutletContext<{ promotions: Promotion[] }>();
   const params = useParams();
   const { ref, inView } = useInView();
-  
+
   // Find the specific promotion that matches the current tag
   const currentPromotion = promotions.find(
-    promo => promo.condition_type === 'tags' && 
-    promo.condition_value.toLowerCase() === params.tag?.toLowerCase()
+    promo => promo.tags.toLowerCase() === params.tag?.toLowerCase()
   );
 
   return (
     <div className="container-app flex flex-col gap-8">
       {/* Promotional Banner */}
-      {currentPromotion ? (
-        <div 
-          className="w-full rounded-[20px] p-8 text-white motion-preset-slide-down"
-          style={{
-            background: `url(${currentPromotion.image_url})`
+
+      <div
+        className="w-full rounded-[20px] text-white motion-preset-slide-down overflow-hidden"
+        style={{
+          backgroundImage: `url(${currentPromotion?.image_url})`,
+          backgroundSize: 'cover',
+          backgroundPosition: 'center center',
+          backgroundColor: 'transparent'
         }}
+      >
+        <div
+          className="p-8"
+          style={{
+            background: `linear-gradient(to right, rgba(0,0,0,0.7) 0%, rgba(0,0,0,0) 50%)`
+          }}
         >
           <p className="text-md md:text-xl !mb-4 font-medium">🎉 Ofertas por tiempo limitado</p>
-          <h1 className="text-4xl md:text-6xl font-bold mb-4">{currentPromotion.title}</h1>
-          <p className="text-lg md:text-xl mb-6">{currentPromotion.description}</p>
+          <h1 className="text-4xl md:text-6xl font-bold mb-4">{currentPromotion?.title}</h1>
+          <p className="text-lg md:text-xl mb-6">{currentPromotion?.description}</p>
           <div className="flex flex-wrap gap-4 items-center">
-            {currentPromotion.button_text && currentPromotion.button_url && (
-              <a 
-                href={currentPromotion.button_url}
-                className="px-6 py-3 rounded-full font-semibold"
-                style={{
-                  backgroundColor: currentPromotion.button_background_color || '#FFFFFF',
-                  color: currentPromotion.button_text_color || '#FF6B6B'
-                }}
-              >
-                {currentPromotion.button_text}
-              </a>
-            )}
-            
-            {currentPromotion.start_date && currentPromotion.end_date && (
+            {currentPromotion?.start_date && currentPromotion?.end_date && (
               <span className="text-sm mt-4">
-                Válido del {new Date(currentPromotion.start_date).toLocaleDateString()} 
+                Válido del {new Date(currentPromotion?.start_date).toLocaleDateString()}
                 al {new Date(currentPromotion.end_date).toLocaleDateString()}
               </span>
             )}
           </div>
         </div>
-      ) : (
-        <div className="w-full bg-gradient-to-r from-underla-500 to-underla-yellow rounded-[20px] p-8 text-white motion-preset-slide-down">
-          <h1 className="text-4xl md:text-6xl font-bold mb-4">Promoción: {currentTag}</h1>
-          <p className="text-lg md:text-xl mb-6">Descubre nuestros productos con la etiqueta {currentTag}</p>
-        </div>
-      )}
+      </div>
+
 
       {/* Products Grid */}
       <div className="grid grid-cols-1 gap-5 sm:grid-cols-3 md:grid-cols-4 motion-preset-fade motion-delay-300">
@@ -109,12 +100,12 @@ interface ProductsLoadedOnScrollProps {
   state: any;
 }
 
-function ProductsLoadedOnScroll({ 
-  nodes, 
-  inView, 
-  hasNextPage, 
-  nextPageUrl, 
-  state 
+function ProductsLoadedOnScroll({
+  nodes,
+  inView,
+  hasNextPage,
+  nextPageUrl,
+  state
 }: ProductsLoadedOnScrollProps) {
   const navigate = useNavigate();
 

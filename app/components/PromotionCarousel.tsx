@@ -96,9 +96,7 @@ export function PromotionCarousel({ promotions }: PromotionCarouselProps) {
                 }}
               >
                 <Link
-                  to={promotion.condition_type === 'tags' 
-                    ? `/promotions/${promotion.condition_value.toLowerCase()}` 
-                    : `/products/${promotion.id}`}
+                  to={`/promotions/${promotion.tags.toLowerCase()}`}
                   className="relative block h-full"
                 >
                   <div 

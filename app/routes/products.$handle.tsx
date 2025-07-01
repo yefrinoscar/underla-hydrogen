@@ -14,17 +14,19 @@ import { ProductImage } from '~/components/ProductImage';
 import { ProductForm } from '~/components/ProductForm';
 import { Modal } from '~/components/Modal';
 import { RequestForm } from '~/components/RequestForm';
+import { RelatedProducts } from '~/components/RelatedProducts';
+import { RELATED_PRODUCTS_QUERY, processRelatedProducts } from '~/lib/related-products';
 
 export const meta: MetaFunction<typeof loader> = ({ data }) => {
   return [{ title: `Underla | ${data?.product.title ?? ''}` }];
 };
 
 export async function loader(args: LoaderFunctionArgs) {
-  // Start fetching non-critical data without blocking time to first byte
-  const deferredData = loadDeferredData(args);
-
   // Await the critical data required to render initial state of the page
   const criticalData = await loadCriticalData(args);
+
+  // Start fetching non-critical data with product ID from critical data
+  const deferredData = loadDeferredData(args, criticalData.product.id);
 
   return { ...deferredData, ...criticalData };
 }
@@ -84,7 +86,7 @@ async function loadCriticalData({
  * fetched after the initial page load. If it's unavailable, the page should still 200.
  * Make sure to not throw any errors here, as it will cause the page to 500.
  */
-function loadDeferredData({ context, params }: LoaderFunctionArgs) {
+function loadDeferredData({ context, params }: LoaderFunctionArgs, productId: string) {
   // In order to show which variants are available in the UI, we need to query
   // all of them. But there might be a *lot*, so instead separate the variants
   // into it's own separate query that is deferred. So there's a brief moment
@@ -100,8 +102,28 @@ function loadDeferredData({ context, params }: LoaderFunctionArgs) {
       return null;
     });
 
+  // Load related products using Shopify's intelligent recommendations
+  const relatedProducts = context.storefront
+    .query(RELATED_PRODUCTS_QUERY, {
+      variables: { 
+        handle: params.handle!,
+        productId: productId,
+        first: 8 // Fetch 8 products to have enough for rotation
+      },
+    })
+    .then((result) => {
+      // Use the improved processing function with multiple strategies
+      return processRelatedProducts(result, params.handle!, 8);
+    })
+    .catch((error) => {
+      // Log query errors, but don't throw them so the page can still render
+      console.error('Error loading related products:', error);
+      return { products: [] };
+    });
+
   return {
     variants,
+    relatedProducts,
   };
 }
 
@@ -129,7 +151,7 @@ function redirectToFirstVariant({
 }
 
 export default function Product() {
-  const { product, variants } = useLoaderData<typeof loader>();
+  const { product, variants, relatedProducts } = useLoaderData<typeof loader>();
 
   const selectedVariant = useOptimisticVariant(
     product.selectedVariant,
@@ -137,62 +159,108 @@ export default function Product() {
   );
   const { title, descriptionHtml } = product;
 
+  // Process media nodes to convert them to the format expected by ProductImage
+  const processedMedia = product.media.nodes.map((mediaNode: any) => {
+    if (mediaNode.__typename === 'MediaImage' && mediaNode.image) {
+      return {
+        ...mediaNode.image,
+        __typename: "Image",
+      };
+    } else if (mediaNode.__typename === 'Video' && mediaNode.sources?.length > 0) {
+      const source = mediaNode.sources[0]; // Use first source
+      return {
+        __typename: "Video",
+        id: mediaNode.id,
+        url: source.url,
+        altText: mediaNode.alt || undefined,
+        width: source.width || undefined,
+        height: source.height || undefined,
+        mimeType: source.mimeType || undefined,
+      };
+    } else if (mediaNode.__typename === 'ExternalVideo') {
+      return {
+        __typename: "Video",
+        id: mediaNode.id,
+        url: mediaNode.originUrl,
+        altText: mediaNode.alt || undefined,
+      };
+    }
+    
+    // Fallback for unsupported media types or invalid data
+    return null;
+  }).filter(Boolean);
+
+  console.log('Processed media:', processedMedia);
+
+  // Add test video to processed media for testing
+  const mediaWithTestVideo = [...processedMedia];
+
   return (
-    <div className="container-app grid grid-cols-1 md:grid-cols-2 gap-5">
-      <div className='col-span-1 motion-preset-fade'>
-        <ProductImage image={selectedVariant?.image} />
-      </div>
-      <div className="col-span-1 flex flex-col gap-5 motion-preset-fade motion-delay-100">
-        <div className='gap-2'>
-          <h1 className='font-bold text-neutral-700 text-xl md:text-2xl'>{title}</h1>
-          <ProductPrice
-            price={selectedVariant?.price}
-            compareAtPrice={selectedVariant?.compareAtPrice}
+    <>
+      <div className="container-app grid grid-cols-1 md:grid-cols-2 gap-5 mb-10">
+        <div className='col-span-1 motion-preset-fade'>
+          <ProductImage
+            image={selectedVariant?.image}
+            allImages={mediaWithTestVideo}
           />
         </div>
-        <Suspense
-          fallback={
-            <ProductForm
-              product={product}
-              selectedVariant={selectedVariant}
-              variants={[]}
+        <div className="col-span-1 flex flex-col gap-5 motion-preset-fade motion-delay-100">
+          <div className='gap-2'>
+            <h1 className='font-bold text-neutral-700 text-xl md:text-2xl'>{title}</h1>
+            <ProductPrice
+              price={selectedVariant?.price}
+              compareAtPrice={selectedVariant?.compareAtPrice}
             />
-          }
-        >
-          <Await
-            errorElement="There was a problem loading product variants"
-            resolve={variants}
-          >
-            {(data) => (
+          </div>
+          <Suspense
+            fallback={
               <ProductForm
                 product={product}
                 selectedVariant={selectedVariant}
-                variants={data?.product?.variants.nodes || []}
+                variants={[]}
               />
-            )}
-          </Await>
-        </Suspense>
-        <br />
-        <br />
-        <span className='text-sm font-semibold text-neutral-600'>Descripción</span>
-        <div className='text-gray-600' dangerouslySetInnerHTML={{ __html: descriptionHtml }} />
+            }
+          >
+            <Await
+              errorElement="There was a problem loading product variants"
+              resolve={variants}
+            >
+              {(data) => (
+                <ProductForm
+                  product={product}
+                  selectedVariant={selectedVariant}
+                  variants={data?.product?.variants.nodes || []}
+                />
+              )}
+            </Await>
+          </Suspense>
+          <br />
+          <br />
+          <span className='text-sm font-semibold text-neutral-600'>Descripción</span>
+          <div className='text-gray-600' dangerouslySetInnerHTML={{ __html: descriptionHtml }} />
+        </div>
+
       </div>
+      
+      {/* Related Products Section */}
+      <RelatedProducts relatedProducts={relatedProducts} />
+
       <Analytics.ProductView
-        data={{
-          products: [
-            {
-              id: product.id,
-              title: product.title,
-              price: selectedVariant?.price.amount || '0',
-              vendor: product.vendor,
-              variantId: selectedVariant?.id || '',
-              variantTitle: selectedVariant?.title || '',
-              quantity: 1,
-            },
-          ],
-        }}
-      />
-    </div>
+          data={{
+            products: [
+              {
+                id: product.id,
+                title: product.title,
+                price: selectedVariant?.price.amount || '0',
+                vendor: product.vendor,
+                variantId: selectedVariant?.id || '',
+                variantTitle: selectedVariant?.title || '',
+                quantity: 1,
+              },
+            ],
+          }}
+        />
+    </>
   );
 }
 
@@ -255,12 +323,60 @@ const PRODUCT_FRAGMENT = `#graphql
         ...ProductVariant
       }
     }
+    media(first: 10) {
+      nodes {
+        ...ProductMedia
+      }
+    }
     seo {
       description
       title
     }
   }
   ${PRODUCT_VARIANT_FRAGMENT}
+` as const;
+
+// Define a fragment for ProductMedia to handle both images and videos
+const PRODUCT_MEDIA_FRAGMENT = `#graphql
+  fragment ProductMedia on Media {
+    __typename
+    mediaContentType
+    ... on MediaImage {
+      id
+      image {
+        id
+        url
+        altText
+        width
+        height
+      }
+    }
+    ... on Video {
+      id
+      sources {
+        url
+        mimeType
+        format
+        height
+        width
+      }
+      alt
+    }
+    ... on ExternalVideo {
+      id
+      originUrl
+      alt
+    }
+    ... on Model3d {
+      id
+      sources {
+        url
+        mimeType
+        format
+      }
+      alt
+    }
+  }
 ` as const;
 
 const PRODUCT_QUERY = `#graphql
@@ -275,6 +391,7 @@ const PRODUCT_QUERY = `#graphql
     }
   }
   ${PRODUCT_FRAGMENT}
+  ${PRODUCT_MEDIA_FRAGMENT}
 ` as const;
 
 const PRODUCT_VARIANTS_FRAGMENT = `#graphql
@@ -300,3 +417,5 @@ const VARIANTS_QUERY = `#graphql
     }
   }
 ` as const;
+
+

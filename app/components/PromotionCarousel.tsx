@@ -1,7 +1,7 @@
 import { Link } from "@remix-run/react";
 import { useEffect, useState, useCallback } from "react";
 import { Promotion } from "~/types/promotion";
-import { ChevronLeft, ChevronRight, Play, Pause } from "lucide-react";
+import { ChevronLeft, ChevronRight, Play, Pause, ShoppingBag, ShoppingCart } from "lucide-react";
 
 interface PromotionCarouselProps {
   promotions: Promotion[];
@@ -78,7 +78,6 @@ export function PromotionCarousel({ promotions }: PromotionCarouselProps) {
             isLoaded ? "translate-y-0 opacity-100" : "translate-y-[-20px] opacity-0"
           }`}
         >
-
           {/* Carousel Slides */}
           <div 
             className="flex transition-transform duration-500 ease-in-out h-full"
@@ -107,27 +106,27 @@ export function PromotionCarousel({ promotions }: PromotionCarouselProps) {
                   >
                     <div className="w-full flex items-center justify-between flex-wrap">
                       <div className="flex-1 flex items-center h-full justify-center md:justify-start">
-                        <span className="flex p-2 animate-pulse">
-                          <svg
-                            className="h-6 w-6 text-white"
-                            xmlns="http://www.w3.org/2000/svg"
-                            fill="none"
-                            viewBox="0 0 24 24"
-                            stroke="currentColor"
-                            aria-hidden="true"
+                        <div className="ml-3 font-medium truncate flex flex-col gap-2">
+                          <span 
+                            className="inline md:hidden"
+                            style={{ color: promotion.text_color }}
                           >
-                            <path
-                              strokeLinecap="round"
-                              strokeLinejoin="round"
-                              strokeWidth={2}
-                              d="M11 5.882V19.24a1.76 1.76 0 01-3.417.592l-2.147-6.15M18 13a3 3 0 100-6M5.436 13.683A4.001 4.001 0 017 6h1.832c4.1 0 7.625-1.234 9.168-3v14c-1.543-1.766-5.067-3-9.168-3H7a3.988 3.988 0 01-1.564-.317z"
-                            />
-                          </svg>
-                        </span>
-                        <div className="ml-3 font-medium truncate flex flex-col">
-                          <span className="inline md:hidden">{promotion.title}</span>
-                          <span className="hidden md:inline text-lg font-bold">{promotion.title}</span>
-                          <span className="hidden md:inline text-sm">{promotion.description}</span>
+                            {promotion.title}
+                          </span>
+                          <span 
+                            className="hidden md:inline text-lg font-bold tracking-tight"
+                            style={{ color: promotion.text_color }}
+                          >
+                            {promotion.title}
+                          </span>
+                          <div className="hidden md:block">
+                            <button 
+                              className="cursor-pointer flex items-center justify-center px-3 py-1.5 text-sm font-medium rounded-lg bg-gradient-to-r from-[#6644ff] via-[#4D2DDA] to-[#3620a0] text-white hover:shadow-[0_4px_12px_-2px_rgba(77,45,218,0.6)] transition-all duration-300 ease-out transform hover:scale-[1.02] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#4D2DDA] shadow-md"
+                            >
+                              {promotion.button_text || 'Ver promoción'}
+                              <ShoppingCart className='h-4 w-4 ml-1.5' />
+                            </button>
+                          </div>
                         </div>
                       </div>
                     </div>

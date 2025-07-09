@@ -35,9 +35,9 @@ export function CategoryCard({
   
   // Determine size classes based on the size prop
   const sizeClasses = {
-    small: 'w-[40px] h-[40px]',
-    normal: 'w-[50px] h-[50px]',
-    large: 'w-[60px] h-[60px]'
+    small: 'w-[50px] h-[50px]',
+    normal: 'w-[60px] h-[60px]',
+    large: 'w-[70px] h-[70px]'
   }[size];
 
   // Get the appropriate image
@@ -56,7 +56,7 @@ export function CategoryCard({
           ? 'bg-white/20 backdrop-blur-sm border-2 border-white shadow-xl shadow-white/25 scale-110' 
           : 'bg-white/5 backdrop-blur-sm border border-white/40 hover:bg-white/10 hover:border-white/60 hover:scale-105'
         }
-        p-2 w-[110px] h-[100px] flex flex-col items-center justify-center gap-2
+        p-3 w-[130px] h-[130px] flex flex-col items-center justify-center gap-3
       `}
     >
       {/* Category Image */}

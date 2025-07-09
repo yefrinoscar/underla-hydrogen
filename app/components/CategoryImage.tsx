@@ -56,7 +56,7 @@ export function CategoryCard({
           ? 'bg-white/20 backdrop-blur-sm border-2 border-white shadow-xl shadow-white/25 scale-110' 
           : 'bg-white/5 backdrop-blur-sm border border-white/40 hover:bg-white/10 hover:border-white/60 hover:scale-105'
         }
-        p-3 w-[80px] min-h-[85px] flex flex-col items-center justify-center gap-2
+        p-2 w-[110px] h-[100px] flex flex-col items-center justify-center gap-2
       `}
     >
       {/* Category Image */}
@@ -90,7 +90,7 @@ export function CategoryCard({
           ? 'text-white font-bold text-xs leading-tight' 
           : 'text-white/90 group-hover:text-white font-medium text-xs leading-tight'
         }
-        text-wrap break-words max-w-[70px]
+        text-wrap break-words
       `}>
         {formatTitle(title)}
       </div>

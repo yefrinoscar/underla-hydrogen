@@ -9,48 +9,7 @@
  */
 
 import type { ProductItemFragment } from 'storefrontapi.generated';
-
-// Product Item Fragment for consistency
-export const PRODUCT_ITEM_FRAGMENT = `#graphql
-  fragment ProductItem on Product {
-    id
-    handle
-    title
-    availableForSale
-    featuredImage {
-      id
-      altText
-      url
-      width
-      height
-    }
-    priceRange {
-      minVariantPrice {
-        amount
-        currencyCode
-      }
-      maxVariantPrice {
-        amount
-        currencyCode
-      }
-    }
-    compareAtPriceRange {
-      minVariantPrice {
-        amount
-        currencyCode
-      }
-    }
-    variants(first: 10) {
-      nodes {
-        availableForSale
-        selectedOptions {
-          name
-          value
-        }
-      }
-    }
-  }
-` as const;
+import { PRODUCT_ITEM_FRAGMENT } from './fragments/product';
 
 // Enhanced Related Products Query with multiple strategies
 export const ENHANCED_RELATED_PRODUCTS_QUERY = `#graphql

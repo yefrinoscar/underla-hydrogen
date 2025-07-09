@@ -2,21 +2,59 @@ import { useLoaderData, Link, useParams, useNavigation } from '@remix-run/react'
 import { useState, useEffect, useRef } from 'react';
 import { type LoaderFunctionArgs, MetaFunction, redirect } from '@shopify/remix-oxygen';
 import { getPaginationVariables, Pagination } from '@shopify/hydrogen';
-import type { ProductItemFragment } from 'storefrontapi.generated';
+import type { ProductItemFragment, CollectionFragment } from 'storefrontapi.generated';
 import { COLLECTION_QUERY, COLLECTIONS_QUERY, PRODUCT_ITEM_FRAGMENT } from '~/lib/fragments';
 import { filterCollections, getSpecialCollection } from '~/utils/collection-filters';
 import { InfiniteProductGrid } from '~/components/CollectionGrid';
-import { CategoryIcon, getCategoryColor } from '~/components/CategoryIcon';
+import { CategoryCard } from '~/components/CategoryImage';
 import { 
   SpecialCollectionHandle, 
   SPECIAL_COLLECTIONS_CONFIG 
 } from '~/utils/special-collections';
 
+interface SpecialCollectionInfo {
+  title: string;
+  description: string;
+  image?: string;
+  backgroundImage: string;
+  replace: RegExp;
+}
+
+interface LoaderData {
+  collections: {
+    nodes: CollectionFragment[];
+  };
+  collection?: {
+    products: {
+      nodes: ProductItemFragment[];
+      pageInfo: {
+        hasPreviousPage: boolean;
+        hasNextPage: boolean;
+        startCursor: string | null;
+        endCursor: string | null;
+      };
+    };
+  };
+  products?: {
+    nodes: ProductItemFragment[];
+    pageInfo: {
+      hasPreviousPage: boolean;
+      hasNextPage: boolean;
+      startCursor: string | null;
+      endCursor: string | null;
+    };
+  };
+  specialCollectionInfo: SpecialCollectionInfo;
+  baseCollection: string;
+  subcategory?: string;
+}
+
 export const meta: MetaFunction<typeof loader> = ({data}) => {
-  return [{ title: `${data?.specialCollectionInfo.title}` }];
+  const loaderData = data as LoaderData;
+  return [{ title: `${loaderData?.specialCollectionInfo.title}` }];
 };
 
-export async function loader(args: LoaderFunctionArgs) {
+export async function loader(args: LoaderFunctionArgs): Promise<LoaderData | Response> {
   const { params } = args;
   const { handle } = params;
 
@@ -38,7 +76,7 @@ export async function loader(args: LoaderFunctionArgs) {
 
   const criticalData = await loadCriticalData({ ...args, baseCollection });
   
-  return { ...criticalData, baseCollection, subcategory };
+  return { ...criticalData, baseCollection, subcategory: subcategory || undefined };
 }
 
 async function loadCriticalData({ context, request, params, baseCollection }: LoaderFunctionArgs & { baseCollection: string }) {
@@ -50,6 +88,13 @@ async function loadCriticalData({ context, request, params, baseCollection }: Lo
       id
       title
       description
+      image {
+        id
+        url
+        altText
+        width
+        height
+      }
     }
   ` as const;
 
@@ -77,12 +122,14 @@ async function loadCriticalData({ context, request, params, baseCollection }: Lo
 
   const title = specialCollectionData?.title || 'Collection';
   const description = specialCollectionData?.description || '';
+  const image = specialCollectionData?.image?.url;
   // backgroundImage will still come from local config as it's specific to UI
   const backgroundImage = SPECIAL_COLLECTIONS_CONFIG[handle as SpecialCollectionHandle]?.backgroundImage || ''; 
   // Construct specialCollectionInfo with data from API and config
   const specialCollectionInfo = {
     title,
     description,
+    image,
     backgroundImage,
     replace: SPECIAL_COLLECTIONS_CONFIG[baseCollection as SpecialCollectionHandle]?.replace
   };
@@ -123,7 +170,8 @@ async function loadCriticalData({ context, request, params, baseCollection }: Lo
 }
 
 export default function SpecialCollections() {
-  const { collections, collection, baseCollection, specialCollectionInfo } = useLoaderData<typeof loader>();
+  const data = useLoaderData<typeof loader>() as LoaderData;
+  const { collections, collection, baseCollection, specialCollectionInfo } = data;
   const { handle } = useParams();
   const navigation = useNavigation();
   const isNavigating = navigation.state === 'loading';
@@ -134,20 +182,14 @@ export default function SpecialCollections() {
   
   // Handle product transitions when category changes
   useEffect(() => {
-    // If the handle has changed, we need to manage the transition
     if (handle !== previousHandleRef.current) {
-      // First hide the current products
       setShowProducts(false);
-      
-      // After they're hidden, update the reference and show the new products
       const timer = setTimeout(() => {
         previousHandleRef.current = handle;
         setShowProducts(true);
-      }, 300); // Match this with CSS transition duration
-      
+      }, 300);
       return () => clearTimeout(timer);
     } else if (!showProducts && !isNavigating) {
-      // If products are hidden but we're not navigating, show them
       setShowProducts(true);
     }
   }, [handle, isNavigating, showProducts]);
@@ -168,9 +210,7 @@ export default function SpecialCollections() {
   
   // Get the background image for the current handle
   const getBackgroundImage = () => {
-
-    // Default to tennis background if no match is found
-    return SPECIAL_COLLECTIONS_CONFIG[baseCollection as SpecialCollectionHandle].backgroundImage;
+    return SPECIAL_COLLECTIONS_CONFIG[baseCollection as SpecialCollectionHandle]?.backgroundImage;
   };
   
   const backgroundImage = getBackgroundImage();
@@ -179,7 +219,6 @@ export default function SpecialCollections() {
     <div className={`w-full ${navigation.state === 'loading' ? 'navigation-loading' : ''}`}>
       {/* Hero section with background image */}
       <div className="absolute top-0 w-full h-[600px] -z-10">
-        {/* Tennis background image */}
         <div 
           className="w-full h-full bg-cover bg-center" 
           style={{ backgroundImage: `url(${backgroundImage})` }}
@@ -194,33 +233,27 @@ export default function SpecialCollections() {
             {specialCollectionInfo.description}
           </p>
           
-          {/* Fixed-size category cards with special active state */}
-          <div className="flex flex-wrap gap-3 mt-6">
-            {filteredCollections.map((category, index) => {
+          {/* Category grid with unified cards */}
+          <div className="flex flex-wrap gap-4 mt-6">
+            {filteredCollections.map((category) => {
               const isActive = handle === category.handle;
+              const categoryTitle = category.title.replace(specialCollectionInfo.replace, '').trim();
+              
               return (
-              <Link 
-                key={category.handle} 
-                to={`/collections/special/${category.handle}`}
-                className="transition-all duration-200 hover:scale-105"
-              >
-                <div className={`w-[100px] h-[80px] relative overflow-hidden rounded-lg ${isActive ? 'shadow-md' : ''}`}>
-                  <div className={`
-                    backdrop-blur-sm p-2 h-full w-full flex flex-col items-center justify-center
-                    ${isActive 
-                      ? 'bg-underla-500/90 text-white' 
-                      : 'bg-white/10 hover:bg-white/20'
-                    }
-                  `}>
-                    <div className={`mb-1 ${isActive ? 'text-white' : 'text-white/90'}`}>
-                      <CategoryIcon handle={category.handle} size="normal" />
-                    </div>
-                    <span className={`text-xs text-center ${isActive ? 'font-bold' : 'font-medium'}`}>
-                      {category.title.replace(specialCollectionInfo.replace, '').trim()}
-                    </span>
-                  </div>
-                </div>
-              </Link>
+                <Link 
+                  key={category.handle} 
+                  to={`/collections/special/${category.handle}`}
+                  className="transition-all duration-300"
+                >
+                  <CategoryCard 
+                    handle={category.handle}
+                    title={categoryTitle}
+                    isActive={isActive}
+                    size="normal"
+                    image={category.image?.url}
+                    fallbackImage={specialCollectionInfo.image}
+                  />
+                </Link>
               );
             })}
           </div>
@@ -228,7 +261,6 @@ export default function SpecialCollections() {
       
       {/* Products section */}
       <div className="container-app py-12 min-h-[1000px] transition-opacity ease-in-out">
-        {/* Current products that fade in */}
         <div className="grid gap-5 grid-cols-2 md:grid-cols-4">
           {showProducts && (
             <Pagination connection={connection}>

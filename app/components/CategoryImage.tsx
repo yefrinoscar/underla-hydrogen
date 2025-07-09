@@ -35,9 +35,9 @@ export function CategoryCard({
   
   // Determine size classes based on the size prop
   const sizeClasses = {
-    small: 'w-[50px] h-[50px]',
-    normal: 'w-[60px] h-[60px]',
-    large: 'w-[70px] h-[70px]'
+    small: 'w-[40px] h-[40px]',
+    normal: 'w-[50px] h-[50px]',
+    large: 'w-[60px] h-[60px]'
   }[size];
 
   // Get the appropriate image
@@ -56,14 +56,14 @@ export function CategoryCard({
           ? 'bg-white/20 backdrop-blur-sm border-2 border-white shadow-xl shadow-white/25 scale-110' 
           : 'bg-white/5 backdrop-blur-sm border border-white/40 hover:bg-white/10 hover:border-white/60 hover:scale-105'
         }
-        p-3 w-[130px] h-[130px] flex flex-col items-center justify-center gap-3
+        p-2 w-[110px] h-[100px] flex flex-col items-center justify-center gap-2
       `}
     >
       {/* Category Image */}
       <div 
         className={`
           relative rounded-full overflow-hidden ${sizeClasses}
-          transition-all duration-300
+          transition-all duration-300 flex-shrink-0
           ${isActive 
             ? 'ring-2 ring-white/80 shadow-lg' 
             : 'ring-1 ring-white/40'
@@ -85,14 +85,16 @@ export function CategoryCard({
 
       {/* Category Title */}
       <div className={`
-        text-center transition-all duration-300 w-full
+        text-center transition-all duration-300 w-full flex-1 flex items-center justify-center
         ${isActive 
           ? 'text-white font-bold text-xs leading-tight' 
           : 'text-white/90 group-hover:text-white font-medium text-xs leading-tight'
         }
-        text-wrap break-words
+        overflow-hidden
       `}>
-        {formatTitle(title)}
+        <span className="text-wrap break-words line-clamp-2">
+          {formatTitle(title)}
+        </span>
       </div>
 
       {/* Active indicator */}

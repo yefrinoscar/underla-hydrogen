@@ -1,3 +1,6 @@
+import {PRODUCT_ITEM_FRAGMENT} from './fragments/product';
+export {PRODUCT_ITEM_FRAGMENT};
+
 // NOTE: https://shopify.dev/docs/api/storefront/latest/queries/cart
 export const CART_QUERY_FRAGMENT = `#graphql
   fragment Money on MoneyV2 {
@@ -232,50 +235,6 @@ export const FOOTER_QUERY = `#graphql
   ${MENU_FRAGMENT}
 ` as const;
 
-export const PRODUCT_ITEM_FRAGMENT = `#graphql
-  fragment MoneyProductItem on MoneyV2 {
-    amount
-    currencyCode
-  }
-  fragment ProductItem on Product {
-    id
-    handle
-    title
-    featuredImage {
-      id
-      altText
-      url
-      width
-      height
-    }
-    priceRange {
-      minVariantPrice {
-        ...MoneyProductItem
-      }
-      maxVariantPrice {
-        ...MoneyProductItem
-      }
-    }
-    compareAtPriceRange {
-      minVariantPrice {
-        amount
-        currencyCode
-      }
-    }
-    availableForSale
-    variants(first: 10) {
-      nodes {
-        selectedOptions {
-          name
-          value
-        }
-        availableForSale
-      }
-    }
-  }
-` as const;
-
-
 export const COLLECTIONS_QUERY = `#graphql
   fragment Collection on Collection {
     id
@@ -315,6 +274,13 @@ export const COLLECTION_QUERY = `#graphql
       handle
       title
       description
+      image {
+        id
+        url
+        altText
+        width
+        height
+      }
       products(
         first: $first, 
         last: $last, 

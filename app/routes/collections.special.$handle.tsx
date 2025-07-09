@@ -234,7 +234,7 @@ export default function SpecialCollections() {
           </p>
           
           {/* Category grid with unified cards */}
-          <div className="flex flex-wrap gap-6 mt-8 justify-center">
+          <div className="flex flex-wrap gap-4 mt-6 justify-center">
             {filteredCollections.map((category) => {
               const isActive = handle === category.handle;
               const categoryTitle = category.title.replace(specialCollectionInfo.replace, '').trim();

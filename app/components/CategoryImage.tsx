@@ -35,19 +35,40 @@ export function CategoryCard({
   
   // Determine size classes based on the size prop
   const sizeClasses = {
-    small: 'w-[60px] h-[60px]',
-    normal: 'w-[80px] h-[80px]',
-    large: 'w-[100px] h-[100px]'
+    small: 'w-[40px] h-[40px]',
+    normal: 'w-[50px] h-[50px]',
+    large: 'w-[60px] h-[60px]'
   }[size];
 
   // Get the appropriate image
   const imageUrl = image || fallbackImage || getDefaultImage(handle);
 
-  // Function to format long titles
+  // Function to format long titles - better logic for 2 lines
   const formatTitle = (title: string) => {
     const words = title.split(' ');
-    if (words.length <= 2) return title;
     
+    // If 1 word or very short, keep as is
+    if (words.length === 1 || title.length <= 12) {
+      return title;
+    }
+    
+    // If 2 words, check if they're short enough for one line
+    if (words.length === 2 && title.length <= 16) {
+      return title;
+    }
+    
+    // For longer titles, split intelligently
+    if (words.length === 2) {
+      // Two long words - put each on its own line
+      return (
+        <>
+          <span className="block leading-tight">{words[0]}</span>
+          <span className="block leading-tight">{words[1]}</span>
+        </>
+      );
+    }
+    
+    // For 3+ words, try to balance the lines
     const midPoint = Math.ceil(words.length / 2);
     const firstLine = words.slice(0, midPoint).join(' ');
     const secondLine = words.slice(midPoint).join(' ');
@@ -61,16 +82,16 @@ export function CategoryCard({
   };
 
   return (
-    <div className="group flex flex-col items-center gap-3 transition-all duration-500 ease-out">
+    <div className="group flex flex-col items-center transition-all duration-500 ease-out">
       {/* Unified background container */}
       <div 
         className={`
-          relative rounded-2xl overflow-hidden transition-all duration-500 ease-out
+          relative rounded-xl overflow-hidden transition-all duration-500 ease-out
           ${isActive 
             ? 'bg-white/20 backdrop-blur-sm border-2 border-white shadow-xl shadow-white/25 scale-110' 
             : 'bg-white/5 backdrop-blur-sm border border-white/40 hover:bg-white/10 hover:border-white/60 hover:scale-105'
           }
-          p-4 min-h-[120px] flex flex-col items-center justify-center gap-3
+          p-3 min-h-[90px] w-[85px] flex flex-col items-center justify-center gap-2
         `}
       >
         {/* Category Image */}
@@ -99,10 +120,10 @@ export function CategoryCard({
 
         {/* Category Title */}
         <div className={`
-          text-center transition-all duration-300 min-h-[2.5rem] flex items-center justify-center
+          text-center transition-all duration-300 min-h-[2rem] flex items-center justify-center px-1
           ${isActive 
-            ? 'text-white font-bold text-sm' 
-            : 'text-white/90 group-hover:text-white font-medium text-xs'
+            ? 'text-white font-bold text-xs leading-tight' 
+            : 'text-white/90 group-hover:text-white font-medium text-xs leading-tight'
           }
         `}>
           {formatTitle(title)}

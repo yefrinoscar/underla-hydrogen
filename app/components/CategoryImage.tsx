@@ -33,17 +33,8 @@ export function CategoryCard({
   size = 'normal'
 }: CategoryCardProps) {
   
-  // Determine size classes based on the size prop
-  const sizeClasses = {
-    small: 'w-[40px] h-[40px]',
-    normal: 'w-[50px] h-[50px]',
-    large: 'w-[60px] h-[60px]'
-  }[size];
-
-  // Get the appropriate image
   const imageUrl = image || fallbackImage || getDefaultImage(handle);
 
-  // Simple function to format titles - let CSS handle line breaks
   const formatTitle = (title: string) => {
     return title;
   };
@@ -51,46 +42,35 @@ export function CategoryCard({
   return (
     <div 
       className={`
-        group relative rounded-xl overflow-hidden transition-all duration-500 ease-out
-        ${isActive 
-          ? 'bg-white/20 backdrop-blur-sm border-2 border-white shadow-xl shadow-white/25 scale-110' 
-          : 'bg-white/5 backdrop-blur-sm border border-white/40 hover:bg-white/10 hover:border-white/60 hover:scale-105'
-        }
-        p-2 w-[110px] h-[100px] flex flex-col items-center justify-center gap-2
+        group flex flex-col items-center gap-2 transition-all duration-300
+        w-[110px]
+        ${isActive ? 'scale-110' : 'hover:scale-105'}
       `}
     >
-      {/* Category Image */}
+      {/* Image Box */}
       <div 
         className={`
-          relative rounded-full overflow-hidden ${sizeClasses}
-          transition-all duration-300 flex-shrink-0
+          relative rounded-xl overflow-hidden transition-all duration-500 ease-out w-full h-[100px]
           ${isActive 
-            ? 'ring-2 ring-white/80 shadow-lg' 
-            : 'ring-1 ring-white/40'
+            ? 'border-2 border-white shadow-xl shadow-white/25' 
+            : 'border border-white/40 group-hover:border-white'
           }
         `}
       >
-        {/* Background Image */}
         <div 
-          className="absolute inset-0 bg-cover bg-center"
+          className="absolute inset-0 bg-cover bg-center transition-transform duration-500 group-hover:scale-110"
           style={{ backgroundImage: `url(${imageUrl})` }}
         />
-        
-        {/* Subtle overlay for better contrast */}
-        <div className={`
-          absolute inset-0 transition-all duration-300
-          ${isActive ? 'bg-black/5' : 'bg-black/20 group-hover:bg-black/10'}
-        `} />
+        <div className="absolute inset-0 bg-black/20 group-hover:bg-black/10" />
       </div>
 
       {/* Category Title */}
       <div className={`
-        text-center transition-all duration-300 w-full flex-1 flex items-center justify-center
+        text-center transition-all duration-300 w-full h-8 flex items-center justify-center
         ${isActive 
-          ? 'text-white font-bold text-xs leading-tight' 
-          : 'text-white/90 group-hover:text-white font-medium text-xs leading-tight'
+          ? 'text-white font-bold text-xs'
+          : 'text-white/90 group-hover:text-white font-medium text-xs'
         }
-        overflow-hidden
       `}>
         <span className="text-wrap break-words line-clamp-2">
           {formatTitle(title)}
@@ -99,7 +79,7 @@ export function CategoryCard({
 
       {/* Active indicator */}
       {isActive && (
-        <div className="absolute -bottom-1 left-1/2 transform -translate-x-1/2 w-6 h-1 bg-white rounded-full opacity-80" />
+        <div className="w-8 h-1 bg-white rounded-full" />
       )}
     </div>
   );

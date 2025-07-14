@@ -65,14 +65,10 @@ export async function loader(args: LoaderFunctionArgs): Promise<LoaderData | Res
   const { baseCollection, subcategory } = getSpecialCollection(handle);
   
   // Check if the handle exists in SPECIAL_COLLECTIONS_CONFIG and redirect if needed
-  if (baseCollection && !subcategory) {
-    const config = SPECIAL_COLLECTIONS_CONFIG[baseCollection as SpecialCollectionHandle];
-    if (config?.redirectUrl) {
-      return redirect(config.redirectUrl);
-    }
-  } else if(!baseCollection) {
-    return redirect('/');
-  }
+  if (!baseCollection) return redirect('/');
+
+  const config = SPECIAL_COLLECTIONS_CONFIG[baseCollection as SpecialCollectionHandle];
+  if (config?.redirectUrl && !subcategory) return redirect(config.redirectUrl);
 
   const criticalData = await loadCriticalData({ ...args, baseCollection });
   
@@ -149,9 +145,6 @@ async function loadCriticalData({ context, request, params, baseCollection }: Lo
     }
   });
 
-  console.log('collection.nodes', JSON.stringify(collections?.nodes));
-  console.log('collection.products.nodes', JSON.stringify(collection?.products.nodes));
-  
   // If no products found, fall back to regular products
   if (!collection || collection.products.nodes.length === 0) {
     const { products: fallbackProducts } = await context.storefront.query(PAGINATION_PRODUCTS_QUERY, {
@@ -193,7 +186,7 @@ export default function SpecialCollections() {
       setShowProducts(true);
     }
   }, [handle, isNavigating, showProducts]);
-  
+    
   // Filter collections for tennis-related collections
   const filteredCollections = filterCollections(collections.nodes, `${baseCollection}_`);
    

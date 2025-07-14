@@ -249,7 +249,7 @@ export const COLLECTIONS_QUERY = `#graphql
     }
   }
   query StoreCollections {
-    collections(first: 50) {
+    collections(first: 100) {
       nodes {
         ...Collection
       }

@@ -3,6 +3,10 @@ import mundo_tennis_bg from '../assets/images-categories/mundo-tennis-bg.jpg'
 import for_girls_bg from '../assets/images-categories/for-girls-bg.jpg'
 import apple_bg from '../assets/images-categories/apple-bg.jpg'
 import streetwear_bg from '../assets/images-categories/streetwear-bg.jpg'
+import audio_bg from '../assets/images-categories/audio-bg.jpg'
+import phones_bg from '../assets/images-categories/celulares-bg.jpg'
+import exclusive_bg from '../assets/images-categories/exclusivo-bg.jpg'
+import perfumes_bg from '../assets/images-categories/perfumes-bg.jpg'
 
 
 /**
@@ -14,7 +18,11 @@ export enum SpecialCollectionHandle {
   ZONA_GAMER = 'zona-gamer',
   FOR_GIRLS = 'para-ellas',
   APPLE = 'mundo-apple',
-  STREET_WEAR = 'streetwear'
+  STREET_WEAR = 'streetwear',
+  AUDIO = 'audio-sonido',
+  PHONES = 'celulares',
+  EXCLUSIVE = 'exclusivo',
+  PERFUMES = 'perfumes'
 }
 
 /**
@@ -55,6 +63,34 @@ export const SPECIAL_COLLECTIONS_CONFIG = {
     title: 'Streetwear',
     description: 'Estilo urbano con actitud: ropa y accesorios que marcan tendencia en la calle. Diseños frescos, cómodos y llenos de personalidad para destacar en cualquier lugar.',
     replace: /\b(de\s+)?[Ss]treetwear\b/
+  },
+  [SpecialCollectionHandle.AUDIO]: {
+    redirectUrl: '/collections/special/audio-sonido_samsung',
+    backgroundImage: audio_bg,
+    title: 'Audio y sonido',
+    description: 'Sumérgete en el mundo del sonido con nuestra selección premium de audífonos, parlantes y accesorios de audio. Calidad, innovación y estilo para cada experiencia auditiva.',
+    replace: /\b(de\s+)?(audio\s*y\s*sonido|audio|sonido)\b/gi
+  },
+  [SpecialCollectionHandle.PHONES]: {
+    redirectUrl: '/collections/special/celulares_samsung',
+    backgroundImage: phones_bg,
+    title: 'Celulares',
+    description: 'Explora la mejor tecnología móvil: smartphones, accesorios y lo último en innovación para mantenerte siempre conectado.',
+    replace: /\b(de\s+)?(celulares|celular|celular[-\s]?y[-\s]?accesorios)\b/gi
+  },
+  [SpecialCollectionHandle.EXCLUSIVE]: {
+    redirectUrl: '/collections/special/exclusivo_beats',
+    backgroundImage: exclusive_bg,
+    title: 'Exclusivo',
+    description: 'Colecciones únicas y productos de edición limitada seleccionados para quienes buscan lo extraordinario y exclusivo.',
+    replace: /\b(de\s+)?[Ee]xclusivo\b/
+  },
+  [SpecialCollectionHandle.PERFUMES]: {
+    redirectUrl: '/collections/special/perfumes_arabes',
+    backgroundImage: perfumes_bg,
+    title: 'Perfumes',
+    description: 'Fragancias originales y sofisticadas para cada ocasión. Descubre perfumes de las mejores marcas y encuentra tu aroma ideal.',
+    replace: /\b(de\s+)?[Pp]erfumes\b/
   }
 };
 

@@ -7,6 +7,7 @@ import audio_bg from '../assets/images-categories/audio-bg.jpg'
 import phones_bg from '../assets/images-categories/celulares-bg.jpg'
 import exclusive_bg from '../assets/images-categories/exclusivo-bg.jpg'
 import perfumes_bg from '../assets/images-categories/perfumes-bg.jpg'
+import premium_bg from '../assets/images-categories/premium-bg.jpg'
 
 
 /**
@@ -22,7 +23,8 @@ export enum SpecialCollectionHandle {
   AUDIO = 'audio-sonido',
   PHONES = 'celulares',
   EXCLUSIVE = 'exclusivo',
-  PERFUMES = 'perfumes'
+  PERFUMES = 'perfumes',
+  PREMIUM = 'premium'
 }
 
 /**
@@ -91,6 +93,13 @@ export const SPECIAL_COLLECTIONS_CONFIG = {
     title: 'Perfumes',
     description: 'Fragancias originales y sofisticadas para cada ocasión. Descubre perfumes de las mejores marcas y encuentra tu aroma ideal.',
     replace: /\b(de\s+)?[Pp]erfumes\b/
+  },
+  [SpecialCollectionHandle.PREMIUM]: {
+    redirectUrl: '/collections/special/premium_stanley',
+    backgroundImage: premium_bg,
+    title: 'Premium',
+    description: 'Colecciones únicas y productos de edición limitada seleccionados para quienes buscan lo extraordinario y exclusivo.',
+    replace: /\b(de\s+)?[Pp]remium\b/
   }
 };
 

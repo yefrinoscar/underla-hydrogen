@@ -12,8 +12,6 @@ import { getVariantUrl } from '~/lib/variants';
 import { ProductPrice } from '~/components/ProductPrice';
 import { ProductImage } from '~/components/ProductImage';
 import { ProductForm } from '~/components/ProductForm';
-import { Modal } from '~/components/Modal';
-import { RequestForm } from '~/components/RequestForm';
 import { RelatedProducts } from '~/components/RelatedProducts';
 import { RELATED_PRODUCTS_QUERY, processRelatedProducts } from '~/lib/related-products';
 
@@ -57,6 +55,8 @@ async function loadCriticalData({
   if (!product?.id) {
     throw new Response(null, { status: 404 });
   }
+
+  console.log(product.variants.nodes);
 
   const firstVariant = product.variants.nodes[0];
   const firstVariantIsDefault = Boolean(

@@ -1,6 +1,7 @@
 import { Link } from '@remix-run/react';
 import { type VariantOption, VariantSelector } from '@shopify/hydrogen';
 import { Plane } from 'lucide-react';
+import React from 'react';
 import type {
   ProductFragment,
   ProductVariantFragment,
@@ -21,17 +22,30 @@ export function ProductForm({
 }) {
   const { open } = useAside();
   const { open: openModal } = useModal();
+  
+  /**
+   * Determines if the product has only a default variant
+   * A default variant is one with a single 'Title' option set to 'Default Title'
+   */
+  const hasOnlyDefaultVariant = React.useMemo(() => {
+    return variants.length === 1 && 
+           variants[0].selectedOptions.some(option => 
+             option.name === 'Title' && option.value === 'Default Title'
+           );
+  }, [variants]);
 
   return (
     <div className="flex flex-col gap-5">
       <div className='flex flex-col gap-4'>
-        <VariantSelector
-          handle={product.handle}
-          options={product.options}
-          variants={variants}
-        >
-          {({ option }) => <ProductOptions key={option.name} option={option} />}
-        </VariantSelector>
+        {!hasOnlyDefaultVariant && (
+          <VariantSelector
+            handle={product.handle}
+            options={product.options}
+            variants={variants}
+          >
+            {({ option }) => <ProductOptions key={option.name} option={option} />}
+          </VariantSelector>
+        )}
       </div>
 
       {/* Conditional Rendering: Add to Cart or Special Order */}

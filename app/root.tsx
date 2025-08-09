@@ -17,6 +17,7 @@ import resetStyles from '~/styles/reset.css?url';
 import appStyles from '~/styles/app.css?url';
 import tailwindCss from './styles/tailwind.css?url';
 import categoryTransitions from './styles/category-transitions.css?url';
+import exclusiveAnimation from './styles/exclusive-animation.css?url';
 import { PageLayout } from '~/components/PageLayout';
 import { FOOTER_QUERY, HEADER_QUERY } from '~/lib/fragments';
 import type { Promotion } from '~/types/promotion';
@@ -48,6 +49,7 @@ export function links() {
     { rel: 'stylesheet', href: resetStyles },
     { rel: 'stylesheet', href: appStyles },
     { rel: 'stylesheet', href: categoryTransitions },
+    { rel: 'stylesheet', href: exclusiveAnimation },
     {
       rel: 'preconnect',
       href: 'https://cdn.shopify.com',

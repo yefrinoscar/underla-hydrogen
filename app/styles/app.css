@@ -28,9 +28,11 @@ aside {
   box-shadow: 0 0 50px rgba(0, 0, 0, 0.3);
   height: 100vh;
   position: fixed;
-  right: calc(-1 * var(--aside-width));
+  right: 0;
+  transform: translateX(100%);
   top: 0;
   transition: transform 200ms ease-in-out;
+  max-width: 100%;
 }
 
 aside header {
@@ -123,7 +125,7 @@ aside li {
 }
 /* reveal aside */
 .overlay.expanded aside {
-  transform: translateX(calc(var(--aside-width) * -1));
+  transform: translateX(0);
 }
 
 button.reset {

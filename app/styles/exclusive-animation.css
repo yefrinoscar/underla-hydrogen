@@ -1,0 +1,14 @@
+/* Gold gradient animation for exclusive items */
+.exclusive-text {
+  background: linear-gradient(to right, #BF953F, #FCF6BA, #B38728, #FBF5B7, #AA771C);
+  background-size: 200% auto;
+  color: transparent;
+  -webkit-background-clip: text;
+  background-clip: text;
+  animation: shine 3s linear infinite;
+  text-shadow: 0 0 3px rgba(255, 215, 0, 0.1);
+}
+
+@keyframes shine {
+  to { background-position: 200% center; }
+}

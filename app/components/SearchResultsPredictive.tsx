@@ -133,27 +133,58 @@ function SearchResultsPredictiveCollections({
 }) {
   if (!collections.length) return null;
   
+  // Check if collection is exclusive
+  const isExclusive = (handle: string) => {
+    return handle.includes('exclusivo') || handle.includes('exclusive');
+  };
+  
   return (
-    <div className="py-4">
-      <h3 className="font-medium text-sm text-neutral-500 uppercase mb-3">Categorías</h3>
-      <ul className="grid grid-cols-1 gap-2">
+    <div className="py-2">
+      <h3 className="font-medium text-xs text-gray-400 uppercase mb-2">Categorías</h3>
+      <ul className="grid grid-cols-1 gap-1.5">
         {collections.map((collection) => {
           const gradientClass = getCategoryColor(collection.handle);
+          const exclusive = isExclusive(collection.handle);
+          const collectionUrl = exclusive ? '#' : getCollectionUrl(collection.handle);
           
           return (
-            <li key={collection.id}>
+            <li key={collection.id} className="group">
               <Link
-                to={getCollectionUrl(collection.handle)}
-                className="flex items-center gap-3 p-2 hover:bg-neutral-100 rounded-lg transition-colors"
-                onClick={closeSearch}
-                prefetch="intent"
+                to={collectionUrl}
+                onClick={(e) => {
+                  if (exclusive) {
+                    e.preventDefault();
+                  } else {
+                    closeSearch();
+                  }
+                }}
+                className="flex items-center gap-2 p-1.5 hover:bg-gray-50 rounded-md transition-colors duration-200 group"
               >
-                <div className={`flex items-center justify-center h-10 w-10 rounded-full bg-gradient-to-br ${gradientClass} text-white`}>
-                  <CategoryIcon handle={collection.handle} size="small" />
+                <div className={`w-8 h-8 flex items-center justify-center rounded-md ${gradientClass}`}>
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    className="h-4 w-4 text-white group-hover:scale-110 transition-transform duration-200"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"
+                    />
+                  </svg>
                 </div>
-                <div>
-                  <p className="font-medium text-neutral-800">{collection.title}</p>
-                  <p className="text-xs text-neutral-500">Ver productos</p>
+                <div className="flex-grow">
+                  <p className="font-medium text-sm text-neutral-800 group-hover:text-primary transition-colors duration-200">{collection.title}</p>
+                  <div className="flex justify-between items-center">
+                    {exclusive ? (
+                      <span className="text-[10px] bg-gray-100 text-gray-600 px-1.5 py-0.5 rounded-full">Muy Pronto</span>
+                    ) : (
+                      <p className="text-[10px] text-gray-400">Ver productos</p>
+                    )}
+                  </div>
                 </div>
               </Link>
             </li>
@@ -203,37 +234,71 @@ function SearchResultsPredictiveProducts({
   closeSearch,
 }: PartialPredictiveSearchResult<'products'>) {
   if (!products.length) return null;
+  
+  // Check if product is exclusive
+  const isExclusive = (handle: string) => {
+    return handle.includes('exclusivo') || handle.includes('exclusive');
+  };
 
   return (
-    <div className="predictive-search-result" key="products">
-      <h5>Products</h5>
-      <ul>
+    <div className="py-2" key="products">
+      <h3 className="font-medium text-xs text-gray-400 uppercase mb-2">Productos</h3>
+      <ul className="grid grid-cols-1 gap-1.5">
         {products.map((product) => {
-          const productUrl = urlWithTrackingParams({
+          const productUrl = isExclusive(product.handle) ? '#' : urlWithTrackingParams({
             baseUrl: `/products/${product.handle}`,
             trackingParams: product.trackingParameters,
             term: term.current,
           });
 
           const image = product?.variants?.nodes?.[0].image;
+          const price = product?.variants?.nodes?.[0].price;
+          const exclusive = isExclusive(product.handle);
+          
           return (
-            <li className="predictive-search-result-item" key={product.id}>
-              <Link to={productUrl} onClick={closeSearch}>
-                {image && (
-                  <Image
-                    alt={image.altText ?? ''}
-                    src={image.url}
-                    width={50}
-                    height={50}
-                  />
-                )}
-                <div>
-                  <p>{product.title}</p>
-                  <small>
-                    {product?.variants?.nodes?.[0].price && (
-                      <Money data={product.variants.nodes[0].price} />
+            <li className="group" key={product.id}>
+              <Link 
+                to={productUrl} 
+                onClick={(e) => {
+                  if (exclusive) {
+                    e.preventDefault();
+                  } else {
+                    closeSearch();
+                  }
+                }}
+                className="flex items-center gap-2 p-1.5 hover:bg-gray-50 rounded-md transition-colors duration-200 group"
+              >
+                <div className="relative w-10 h-10 rounded-md border border-gray-200 overflow-hidden bg-gray-100">
+                  {image && (
+                    <Image
+                      alt={product.title}
+                      aspectRatio="1/1"
+                      data={image}
+                      loading="lazy"
+                      sizes="(min-width: 768px) 10vw, 25vw"
+                      className="object-cover w-full h-full"
+                    />
+                  )}
+                  {exclusive && (
+                    <div className="absolute inset-0 bg-black bg-opacity-40 flex items-center justify-center">
+                      <span className="text-white text-[10px] font-medium px-1.5 py-0.5 bg-primary rounded-full animate-pulse">Muy Pronto</span>
+                    </div>
+                  )}
+                </div>
+                <div className="flex-grow">
+                  <p className="font-medium text-sm text-neutral-800 group-hover:text-primary transition-colors duration-200 line-clamp-1">{product.title}</p>
+                  <div className="flex justify-between items-center">
+                    <div className="text-xs font-bold text-primary">
+                      {price && (
+                        <Money data={price} />
+                      )}
+                    </div>
+                    {exclusive ? (
+                      <span className="text-[10px] bg-gray-100 text-gray-600 px-1.5 py-0.5 rounded-full">Muy Pronto</span>
+                    ) : (
+                      <span className="text-[10px] text-gray-400">Ver detalles</span>
                     )}
-                  </small>
+                  </div>
                 </div>
               </Link>
             </li>

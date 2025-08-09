@@ -55,18 +55,12 @@ export function Aside({
   return (
     <div
       aria-modal
-      className={`overlay ${expanded ? 'expanded' : ''}`}
+      className={`overlay ${expanded ? 'expanded overlay-enter' : 'overlay-exit'}`}
       role="dialog"
     >
       <button className="close-outside" onClick={close} />
-      <aside className="w-2/3 md:1/3 lg:w-[400px]">
-        <header>
-          <h3>{heading}</h3>
-          <button className="close reset" onClick={close}>
-            &times;
-          </button>
-        </header>
-        <main>{children}</main>
+      <aside className={`w-full sm:w-4/5 md:w-2/3 lg:w-[400px] ${expanded ? 'cart-aside-enter' : 'cart-aside-exit'}`}>
+        <main className="cart-aside">{children}</main>
       </aside>
     </div>
   );

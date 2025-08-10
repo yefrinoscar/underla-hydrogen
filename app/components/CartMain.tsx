@@ -4,7 +4,7 @@ import type {CartApiQueryFragment} from 'storefrontapi.generated';
 import {useAside} from '~/components/Aside';
 import {CartLineItem} from '~/components/CartLineItem';
 import {CartSummary} from './CartSummary';
-import {useEffect} from 'react';
+import {useEffect, useState, useRef} from 'react';
 
 export type CartLayout = 'page' | 'aside';
 
@@ -23,9 +23,6 @@ export function CartMain({layout, cart: originalCart}: CartMainProps) {
   const cart = useOptimisticCart(originalCart);
 
   const linesCount = Boolean(cart?.lines?.nodes?.length || 0);
-  const withDiscount =
-    cart &&
-    Boolean(cart?.discountCodes?.filter((code) => code.applicable)?.length);
   const cartHasItems = cart?.totalQuantity! > 0;
   
   // Get the current aside state
@@ -46,10 +43,38 @@ export function CartMain({layout, cart: originalCart}: CartMainProps) {
     };
   }, [layout, asideType]);
 
+  // State to track scroll position within cart
+  const [isCartScrolled, setIsCartScrolled] = useState(false);
+  const cartRef = useRef<HTMLDivElement>(null);
+  
+  // Add scroll event listener to cart container
+  useEffect(() => {
+    const cartContainer = cartRef.current;
+    if (!cartContainer) return;
+    
+    const handleCartScroll = () => {
+      if (cartContainer.scrollTop > 10) {
+        setIsCartScrolled(true);
+      } else {
+        setIsCartScrolled(false);
+      }
+    };
+    
+    cartContainer.addEventListener('scroll', handleCartScroll);
+    return () => {
+      cartContainer.removeEventListener('scroll', handleCartScroll);
+    };
+  }, []);
+  
   return (
-    <div className="flex flex-col h-[calc(100vh-2rem)] ">
-      {/* Header */}
-      <div className="bg-white py-4 border-b border-gray-200 w-full">
+    <div 
+      ref={cartRef}
+      className={`flex flex-col ${layout === 'aside' ? 'md:h-[calc(100vh-2rem)] h-[calc(90vh-2rem)] overflow-y-auto' : 'h-auto'}`}
+    >
+      {/* Header - with blur effect and diffused border on scroll */}
+      <div 
+        className={`sticky top-0 py-4 w-full transition-all duration-300 diffused-border-bottom ${isCartScrolled ? 'bg-white/80 backdrop-blur-md scrolled' : 'bg-white'}`}
+      >
         <div className="w-full md:max-w-3xl mx-auto flex items-center justify-between px-4">
           <h1 className="text-xl font-bold text-gray-900">Tu carrito</h1>
           <div className="flex items-center gap-3">

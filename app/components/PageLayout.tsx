@@ -8,6 +8,7 @@ import type {
 import { Aside } from '~/components/Aside';
 import { Footer } from '~/components/Footer';
 import { Header, HeaderMenu } from '~/components/Header';
+import { MobileHeader } from '~/components/MobileHeader';
 import { CartMain } from '~/components/CartMain';
 import {
   SEARCH_ENDPOINT,
@@ -61,12 +62,23 @@ export function PageLayout({
         )}
 
         {header && (
-          <Header
-            header={header}
-            cart={cart}
-            isLoggedIn={isLoggedIn}
-            publicStoreDomain={publicStoreDomain}
-          />
+          <>
+            {/* Desktop Header - hidden on mobile */}
+            <Header
+              header={header}
+              cart={cart}
+              isLoggedIn={isLoggedIn}
+              publicStoreDomain={publicStoreDomain}
+            />
+            
+            {/* Mobile Header - only shown on mobile */}
+            <MobileHeader
+              header={header}
+              cart={cart}
+              isLoggedIn={isLoggedIn}
+              publicStoreDomain={publicStoreDomain}
+            />
+          </>
         )}
         <main>
           <Outlet context={{ promotions }} />

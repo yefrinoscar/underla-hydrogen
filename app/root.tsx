@@ -52,6 +52,7 @@ export function links() {
     { rel: 'stylesheet', href: categoryTransitions },
     { rel: 'stylesheet', href: exclusiveAnimation },
     { rel: 'stylesheet', href: mobileCss },
+
     {
       rel: 'preconnect',
       href: 'https://cdn.shopify.com',

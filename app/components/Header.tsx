@@ -110,6 +110,7 @@ export function Header({
   const headerClasses = isSpecialRoute 
     ? `header w-full mb-8 md:mb-16 ${isScrolled ? 'bg-white/90 backdrop-blur-md' : 'bg-transparent'} border-b-0 transition-all duration-300`
     : `header w-full mb-8 md:mb-16 ${isScrolled ? 'bg-white/90 backdrop-blur-md' : 'bg-white'} border-b-0 transition-all duration-300`;
+
     
   // Determine text/icon color classes based on route and scroll state
   const textColorClasses = (isSpecialRoute && !isScrolled) ? 'text-white' : 'text-neutral-800';
@@ -122,6 +123,7 @@ export function Header({
       {isScrolled && (
         <div className="absolute bottom-0 left-0 right-0 h-[1px] bg-gradient-to-r from-transparent via-gray-200 to-transparent opacity-70 transition-opacity duration-300"></div>
       )}
+
       <div className={`flex items-center w-full px-4 md:px-8 max-w-7xl mx-auto h-16 ${textColorClasses} relative z-10`}>
         {/* Overlay for blur effect when search is focused */}
         {isSearchFocused && (
@@ -374,6 +376,7 @@ export function HeaderMenu({
                 {isExclusive ? (
                   <>
                     <span className="absolute -bottom-3 right-0 text-[10px] bg-gray-100 text-gray-600 px-1.5 py-0.5 rounded-full whitespace-nowrap z-10">Muy Pronto</span>
+
                     <span className="exclusive-text relative inline-block font-bold">{item.title}</span>
                   </>
                 ) : (

@@ -35,7 +35,7 @@ export function ProductForm({
   }, [variants]);
 
   return (
-    <div className="flex flex-col gap-5">
+    <div className="flex flex-col gap-10">
       <div className='flex flex-col gap-4'>
         {!hasOnlyDefaultVariant && (
           <VariantSelector
@@ -108,11 +108,90 @@ export function ProductForm({
 }
 
 function ProductOptions({ option }: { option: VariantOption }) {
+  const isColorOption = option.name.startsWith('CustomColor');
+  
+  // Helper function to extract display name (text after underscore)
+  const getDisplayName = (value: string): string => {
+    const fullValue = value.trim();
+    return fullValue.includes('_') ? fullValue.split('_')[1].trim() : fullValue;
+  };
+  
+  // Get the display name for the variant heading
+  const displayHeading = getDisplayName(option.name);
+  
+  // Find the active value for this option (if any)
+  const activeValue = option.values.find(({ isActive }) => isActive);
+  const activeDisplayName = activeValue ? getDisplayName(activeValue.value.split('|')[0]) : '';
+  
   return (
     <div className="flex flex-col gap-2" key={option.name}>
-      <h5>{option.name}</h5>
+      <h5>
+        {displayHeading}{activeDisplayName ? `: ${activeDisplayName}` : ''}
+      </h5>
       <div className="flex flex-wrap gap-2">
         {option.values.map(({ value, isAvailable, isActive, to }) => {
+          // Handle color options specially
+          if (isColorOption) {
+            // Extract the color value after the | character
+            const parts = value.split('|');
+            const fullName = parts[0].trim();
+            const displayName = getDisplayName(fullName);
+            const colorValue = parts.length > 1 ? parts[1].trim() : '';
+            
+            return (
+              <Link
+                className={`group relative flex items-center justify-center p-1.5 m-1`}
+                key={option.name + value}
+                prefetch="intent"
+                preventScrollReset
+                replace
+                to={to}
+                // style={{
+                //   opacity: isAvailable ? 1 : 0.3,
+                // }}
+                title={displayName}
+                aria-label={`Color: ${displayName}`}
+              >
+                {/* Selection indicator for active state */}
+                {isActive && (
+                  <span className="absolute inset-0 rounded-xl animate-pulse" 
+                    style={{
+                      boxShadow: `0 0 0 2px ${colorValue || '#4D2DDA'}, 0 0 0 4px rgba(255,255,255,0.5)`,
+                      zIndex: 0
+                    }}
+                  />
+                )}
+                
+                {/* Color square */}
+                {colorValue ? (
+                  <span 
+                    className={`relative z-10 inline-block w-9 h-9 rounded-xl transition-transform duration-200 ${isActive ? 'scale-105' : 'group-hover:scale-102'}`}
+                    style={{ 
+                      backgroundColor: colorValue,
+                      boxShadow: isActive 
+                        ? '0 4px 8px rgba(0,0,0,0.15), inset 0 0 0 1px rgba(0,0,0,0.1)'
+                        : '0 2px 4px rgba(0,0,0,0.1), inset 0 0 0 1px rgba(0,0,0,0.1)'
+                    }}
+                  />
+                ) : (
+                  <span 
+                    className={`relative z-10 flex w-9 h-9 rounded-xl bg-gray-200 items-center justify-center text-sm font-medium transition-transform duration-200 ${isActive ? 'scale-105' : 'group-hover:scale-102'}`}
+                    style={{
+                      boxShadow: isActive 
+                        ? '0 4px 8px rgba(0,0,0,0.15), inset 0 0 0 1px rgba(0,0,0,0.1)'
+                        : '0 2px 4px rgba(0,0,0,0.1), inset 0 0 0 1px rgba(0,0,0,0.1)'
+                    }}
+                  >
+                    {displayName.substring(0, 1)}
+                  </span>
+                )}
+              </Link>
+            );
+          }
+          
+          // Default rendering for non-color options
+          const displayName = getDisplayName(value);
+          
           return (
             <Link
               className={`px-4 py-2.5 md:py-3.5 text-sm rounded-xl ${isActive ? 'bg-neutral-900 text-white hover:bg-neutral-950' : 'bg-neutral-200 hover:bg-neutral-900 text-neutral-600 hover:text-white'}`}
@@ -124,10 +203,9 @@ function ProductOptions({ option }: { option: VariantOption }) {
               style={{
                 opacity: isAvailable ? 1 : 0.2,
               }}
+              title={value}
             >
-              {/* test
-              {isAvailable ? 1 : 0} */}
-              {value}
+              {displayName}
             </Link>
           );
         })}

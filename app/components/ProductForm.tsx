@@ -108,7 +108,7 @@ export function ProductForm({
 }
 
 function ProductOptions({ option }: { option: VariantOption }) {
-  const isColorOption = option.name === 'Custom_Color';
+  const isColorOption = option.name.startsWith('CustomColor');
   
   // Helper function to extract display name (text after underscore)
   const getDisplayName = (value: string): string => {
@@ -146,9 +146,9 @@ function ProductOptions({ option }: { option: VariantOption }) {
                 preventScrollReset
                 replace
                 to={to}
-                style={{
-                  opacity: isAvailable ? 1 : 0.3,
-                }}
+                // style={{
+                //   opacity: isAvailable ? 1 : 0.3,
+                // }}
                 title={displayName}
                 aria-label={`Color: ${displayName}`}
               >

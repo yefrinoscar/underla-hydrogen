@@ -120,7 +120,7 @@ async function loadCriticalData({ context, request, params, baseCollection }: Lo
   const description = specialCollectionData?.description || '';
   const image = specialCollectionData?.image?.url;
   // backgroundImage will still come from local config as it's specific to UI
-  const backgroundImage = SPECIAL_COLLECTIONS_CONFIG[handle as SpecialCollectionHandle]?.backgroundImage || ''; 
+  const backgroundImage = SPECIAL_COLLECTIONS_CONFIG[baseCollection as SpecialCollectionHandle]?.backgroundImage || '';
   // Construct specialCollectionInfo with data from API and config
   const specialCollectionInfo = {
     title,
@@ -136,23 +136,45 @@ async function loadCriticalData({ context, request, params, baseCollection }: Lo
 
   // Load collections in all cases
   const { collections } = await context.storefront.query(COLLECTIONS_QUERY);
-  
+
   // Query for products in the collection with filters
-  const { collection } = await context.storefront.query(COLLECTION_QUERY, {
-    variables: { 
-      handle: handle as string, 
-      ...variables 
+  const { collection: rawCollection } = await context.storefront.query(COLLECTION_QUERY, {
+    variables: {
+      handle: handle as string,
+      ...variables
     }
   });
+
+  // Adjust collection to match LoaderData interface
+  const collection = rawCollection ? {
+    ...rawCollection,
+    products: {
+      ...rawCollection.products,
+      pageInfo: {
+        ...rawCollection.products.pageInfo,
+        startCursor: rawCollection.products.pageInfo.startCursor || null,
+        endCursor: rawCollection.products.pageInfo.endCursor || null,
+      }
+    }
+  } : undefined;
 
   // If no products found, fall back to regular products
   if (!collection || collection.products.nodes.length === 0) {
     const { products: fallbackProducts } = await context.storefront.query(PAGINATION_PRODUCTS_QUERY, {
       variables
     });
+    // Ensure pageInfo cursors are string | null to match LoaderData interface
+    const products = {
+      ...fallbackProducts,
+      pageInfo: {
+        ...fallbackProducts.pageInfo,
+        startCursor: fallbackProducts.pageInfo.startCursor || null,
+        endCursor: fallbackProducts.pageInfo.endCursor || null,
+      }
+    };
     // Pass the API-derived title/desc and config-derived backgroundImage
-    return { collections, products: fallbackProducts, specialCollectionInfo };
-  } 
+    return { collections, products, specialCollectionInfo };
+  }
   
   return { 
     collections, 

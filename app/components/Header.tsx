@@ -88,7 +88,7 @@ export function Header({
   const queriesDatalistId = useId();
   
   // Check if we're on a special route that should have transparent header with white text
-  const isSpecialRoute = location.pathname.includes('/collections/special/');
+  const isSpecialRoute = location.pathname.includes('/collections/special/') && !location.pathname.includes('/v2');
 
   useEffect(() => {
     const handleScroll = () => {
@@ -108,8 +108,8 @@ export function Header({
 
   // Determine header classes based on route and scroll state
   const headerClasses = isSpecialRoute 
-    ? `header w-full mb-8 md:mb-16 ${isScrolled ? 'bg-white/90 backdrop-blur-md' : 'bg-transparent'} border-b-0 transition-all duration-300`
-    : `header w-full mb-8 md:mb-16 ${isScrolled ? 'bg-white/90 backdrop-blur-md' : 'bg-white'} border-b-0 transition-all duration-300`;
+    ? `header w-full mb-8 md:mb-10 ${isScrolled ? 'bg-white/90 backdrop-blur-md' : 'bg-transparent'} border-b-0 transition-all duration-300`
+    : `header w-full mb-8 md:mb-10 ${isScrolled ? 'bg-white/90 backdrop-blur-md' : 'bg-white'} border-b-0 transition-all duration-300`;
 
     
   // Determine text/icon color classes based on route and scroll state

@@ -23,7 +23,7 @@ export default async function handleRequest(
     mediaSrc: ["'self'", 'https://cdn.shopify.com', 'https://shopify.com', 'https://xq66ct-0b.myshopify.com'], 
     connectSrc: [
       "'self'",
-      'https://dashboard.underla.lat/',
+      'https://dashboard.underla.store/',
       'https://underlastore.myshopify.com/',
       'https://xq66ct-0b.myshopify.com'
     ],

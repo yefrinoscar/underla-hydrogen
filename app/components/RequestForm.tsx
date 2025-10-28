@@ -76,7 +76,7 @@ export function RequestForm({ request }: { request: string }) {
     setCloseDisabled(true);
 
     try {
-      const response = await fetch('https://dashboard.underla.lat/api/requests', {
+      const response = await fetch('https://dashboard.underla.store/api/requests', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

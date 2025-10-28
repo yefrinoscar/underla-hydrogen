@@ -108,7 +108,7 @@ async function loadCriticalData({ context }: LoaderFunctionArgs) {
         headerMenuHandle: 'main-menu', // Adjust to your header menu handle
       },
     }),
-    fetch('https://dashboard.underla.lat/api/promotions')
+    fetch('https://dashboard.underla.store/api/promotions')
   ]));
 
   // Error

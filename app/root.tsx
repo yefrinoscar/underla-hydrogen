@@ -108,8 +108,8 @@ async function loadCriticalData({ context }: LoaderFunctionArgs) {
         headerMenuHandle: 'main-menu', // Adjust to your header menu handle
       },
     }),
-    fetch('https://dashboard.underla.store/api/promotions')
-  ]));
+/*     fetch('https://dashboard.underla.store/api/promotions')
+ */  ]));
 
   // Error
   if (error) {
@@ -127,10 +127,9 @@ async function loadCriticalData({ context }: LoaderFunctionArgs) {
     return { header, promotions: [] };
   }
 
-  const [header, promotionsResponse] = data;
-  const promotions = await promotionsResponse.json() as Promotion[];
+  const [header] = data;
 
-  return { header, promotions };
+  return { header, promotions: [] }
 }
 
 /**

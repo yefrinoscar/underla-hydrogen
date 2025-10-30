@@ -1,6 +1,6 @@
 import { Suspense } from 'react';
-import { redirect, type LoaderFunctionArgs } from '@shopify/remix-oxygen';
-import { Await, useLoaderData, type MetaFunction } from '@remix-run/react';
+import { redirect, type LoaderFunctionArgs } from 'react-router';
+import { Await, useLoaderData, type MetaFunction } from 'react-router';
 import type { ProductFragment } from 'storefrontapi.generated';
 import {
   getSelectedProductOptions,

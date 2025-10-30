@@ -1,33 +1,23 @@
-import {defineConfig} from 'vite';
-import {hydrogen} from '@shopify/hydrogen/vite';
-import {oxygen} from '@shopify/mini-oxygen/vite';
-import {vitePlugin as remix} from '@remix-run/dev';
+import { defineConfig } from 'vite';
+import { hydrogen } from '@shopify/hydrogen/vite';
+import { oxygen } from '@shopify/mini-oxygen/vite';
+import { reactRouter } from '@react-router/dev/vite';
 import tsconfigPaths from 'vite-tsconfig-paths';
 import tailwindcss from '@tailwindcss/vite';
 
-declare module "@remix-run/server-runtime" {
-  interface Future {
-    v3_singleFetch: true;
-  }
-}
+// Remove the module declaration as it's not needed for React Router
 
 export default defineConfig({
   plugins: [
-    tailwindcss(),
     hydrogen(),
     oxygen(),
-    remix({
-      presets: [hydrogen.preset()],
-      future: {
-        v3_fetcherPersist: true,
-        v3_relativeSplatPath: true,
-        v3_throwAbortReason: true,
-        v3_lazyRouteDiscovery: true,
-        v3_singleFetch: true
-      },
-    }),
+    reactRouter(),
     tsconfigPaths(),
+    tailwindcss(),
   ],
+  resolve: {
+    dedupe: ['react', 'react-dom'],
+  },
   build: {
     // Allow a strict Content-Security-Policy
     // withtout inlining assets as base64:
@@ -45,10 +35,18 @@ export default defineConfig({
        * Include 'example-dep' in the array below.
        * @see https://vitejs.dev/config/dep-optimization-options
        */
-      include: [],
+      include: ['react', 'react-dom', 'cookie', 'react-router', 'react-router-dom'],
     },
   },
+  optimizeDeps: {
+    include: ['react', 'react-dom', 'cookie', 'react-router', 'react-router-dom'],
+  },
   server: {
-    port: 4000
+    port: 4000,
+    warmup: {
+      clientFiles: [
+        './app/**/!(*.server|*.test)*.tsx', // Include all .tsx files except server and test files (add more patterns if required)
+      ],
+    },
   }
 });

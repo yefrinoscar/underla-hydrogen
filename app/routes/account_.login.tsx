@@ -1,6 +1,6 @@
-import type {LoaderFunctionArgs} from '@shopify/remix-oxygen';
-import {redirect} from '@shopify/remix-oxygen';
-import {useLoaderData} from '@remix-run/react';
+import type {LoaderFunctionArgs} from 'react-router';
+import {redirect} from 'react-router';
+import {useLoaderData} from 'react-router';
 
 type LoaderData = {
   error: string;

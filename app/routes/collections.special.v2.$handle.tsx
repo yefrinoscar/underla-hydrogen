@@ -1,6 +1,6 @@
-import { useLoaderData, Link, useParams, useNavigation } from '@remix-run/react';
+import { useLoaderData, Link, useParams, useNavigation } from 'react-router';
 import { useState, useEffect, useRef, Suspense, memo } from 'react';
-import { type LoaderFunctionArgs, MetaFunction, redirect, json } from '@shopify/remix-oxygen';
+import { type LoaderFunctionArgs, MetaFunction, redirect, json } from 'react-router';
 import { getPaginationVariables, Pagination } from '@shopify/hydrogen';
 import type { ProductItemFragment, CollectionFragment } from 'storefrontapi.generated';
 import { COLLECTION_QUERY, COLLECTIONS_QUERY, PRODUCT_ITEM_FRAGMENT } from '~/lib/fragments';

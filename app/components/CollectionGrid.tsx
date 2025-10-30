@@ -1,4 +1,4 @@
-import { Link, useNavigate, useLocation } from '@remix-run/react';
+import { Link, useNavigate, useLocation } from 'react-router';
 import type { CollectionFragment, CollectionQuery, ProductItemFragment } from 'storefrontapi.generated';
 import { useEffect, useState, useRef, useCallback } from 'react';
 import { useInView } from 'react-intersection-observer';

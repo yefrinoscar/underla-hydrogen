@@ -1,5 +1,5 @@
 import { Suspense } from 'react';
-import { Await } from '@remix-run/react';
+import { Await } from 'react-router';
 import type { ProductItemFragment } from 'storefrontapi.generated';
 import { ProductItem } from './ProductItem';
 import { ProductSkeleton } from './ProductSkeleton';

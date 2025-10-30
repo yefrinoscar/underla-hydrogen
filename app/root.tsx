@@ -1,5 +1,5 @@
 import { useNonce, getShopAnalytics, Analytics } from '@shopify/hydrogen';
-import { type LoaderFunctionArgs } from '@shopify/remix-oxygen';
+import { type LoaderFunctionArgs } from 'react-router';
 import {
   Links,
   Meta,
@@ -11,7 +11,7 @@ import {
   isRouteErrorResponse,
   type ShouldRevalidateFunction,
   useNavigation,
-} from '@remix-run/react';
+} from 'react-router';
 import favicon from '~/assets/favicon.ico';
 import resetStyles from '~/styles/reset.css?url';
 import appStyles from '~/styles/app.css?url';
@@ -148,7 +148,7 @@ function loadDeferredData({ context }: LoaderFunctionArgs) {
         footerMenuHandle: 'footer', // Adjust to your footer menu handle
       },
     })
-    .catch((error) => {
+    .catch((error: Error) => {
       // Log query errors, but don't throw them so the page can still render
       console.error(error);
       return null;

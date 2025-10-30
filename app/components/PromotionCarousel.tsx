@@ -1,4 +1,4 @@
-import { Link } from "@remix-run/react";
+import { Link } from "react-router";
 import { useEffect, useState, useCallback } from "react";
 import { Promotion } from "~/types/promotion";
 import { ChevronLeft, ChevronRight, Play, Pause, ShoppingBag, ShoppingCart } from "lucide-react";

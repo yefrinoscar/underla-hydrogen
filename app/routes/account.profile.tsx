@@ -4,14 +4,14 @@ import {CUSTOMER_UPDATE_MUTATION} from '~/graphql/customer-account/CustomerUpdat
 import {
   type ActionFunctionArgs,
   type LoaderFunctionArgs,
-} from '@shopify/remix-oxygen';
+} from 'react-router';
 import {
   Form,
   useActionData,
   useNavigation,
   useOutletContext,
   type MetaFunction,
-} from '@remix-run/react';
+} from 'react-router';
 
 export type ActionResponse = {
   error: string | null;

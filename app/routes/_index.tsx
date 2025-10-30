@@ -1,5 +1,5 @@
-import { type LoaderFunctionArgs } from '@shopify/remix-oxygen';
-import { Await, useLoaderData, Link, type MetaFunction, useOutletContext } from '@remix-run/react';
+import { type LoaderFunctionArgs } from 'react-router';
+import { Await, useLoaderData, Link, type MetaFunction, useOutletContext } from 'react-router';
 import { ContextType, Suspense, useEffect, useState } from 'react';
 import { Money } from '@shopify/hydrogen';
 import type {

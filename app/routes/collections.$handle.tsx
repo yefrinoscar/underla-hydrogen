@@ -1,5 +1,5 @@
-import { useLoaderData } from '@remix-run/react';
-import { type LoaderFunctionArgs } from '@shopify/remix-oxygen';
+import { useLoaderData } from 'react-router';
+import { type LoaderFunctionArgs } from 'react-router';
 import { getPaginationVariables } from '@shopify/hydrogen';
 import type { ProductItemFragment } from 'storefrontapi.generated';
 import { COLLECTION_QUERY, COLLECTIONS_QUERY, PRODUCT_ITEM_FRAGMENT } from '~/lib/fragments';

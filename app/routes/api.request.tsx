@@ -1,4 +1,4 @@
-import { type ActionFunctionArgs } from '@shopify/remix-oxygen';
+import { type ActionFunctionArgs } from 'react-router';
 
 export async function action({ request }: ActionFunctionArgs) {
   if (request.method !== 'POST') {

@@ -1,7 +1,7 @@
-import { Link } from "@remix-run/react";
+import { Link } from "react-router";
 import { Image, Money } from "@shopify/hydrogen";
 import { Suspense } from "react";
-import { Await } from "@remix-run/react";
+import { Await } from "react-router";
 import type { HomeProductsQuery, RecommendedProductsQuery } from "storefrontapi.generated";
 import type * as StorefrontAPI from '@shopify/hydrogen/storefront-api-types';
 import { DiscountBadge } from "./DiscountBadge";

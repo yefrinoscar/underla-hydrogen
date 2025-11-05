@@ -20,6 +20,8 @@ interface SpecialCollectionInfo {
   image?: string;
   backgroundImage: string;
   replace: RegExp;
+  bannerUrl: string | null;
+  videoUrl: string | null;
 }
 
 interface LoaderData {
@@ -127,6 +129,21 @@ async function loadCriticalData({ context, request, params, baseCollection }: Lo
     },
   );
 
+  // Fetch banner and video URLs from custom API
+  let bannerUrl: string | null = null;
+  let videoUrl: string | null = null;
+  
+  try {
+    const apiResponse = await fetch(`https://dashboard.underla.store/api/collections/${baseCollection}`);
+    if (apiResponse.ok) {
+      const apiData = await apiResponse.json() as { handle: string; banner_url: string | null; video_url: string | null };
+      bannerUrl = apiData.banner_url;
+      videoUrl = apiData.video_url;
+    }
+  } catch (error) {
+    console.error('Error fetching collection media:', error);
+  }
+
   const title = specialCollectionData?.title || 'Collection';
   const description = specialCollectionData?.description || '';
   const image = specialCollectionData?.image?.url;
@@ -138,7 +155,9 @@ async function loadCriticalData({ context, request, params, baseCollection }: Lo
     description,
     image,
     backgroundImage,
-    replace: SPECIAL_COLLECTIONS_CONFIG[baseCollection as SpecialCollectionHandle]?.replace
+    replace: SPECIAL_COLLECTIONS_CONFIG[baseCollection as SpecialCollectionHandle]?.replace,
+    bannerUrl,
+    videoUrl
   };
 
   const variables = getPaginationVariables(request, {
@@ -315,34 +334,43 @@ function SpecialCollections() {
 
           <div className='h-[250px] flex space-x-4'>
             <div className='w-1/3 h-full relative overflow-hidden rounded-lg'>
-              <video
-                className="w-full h-full object-cover"
-                autoPlay
-                muted
-                loop
-                playsInline
-              >
-                <source src="https://cdn.shopify.com/videos/c/o/v/4ec3ca46ef7a449d9138190633f090df.mp4" type="video/mp4" />
-                Your browser does not support the video tag.
-              </video>
-              {/* <div className="absolute inset-0 bg-black/20"></div>
-              <div className="absolute bottom-4 left-4 z-10">
-                <span className="text-white font-bold text-lg">Video Banner</span>
-              </div> */}
+              {specialCollectionInfo.videoUrl ? (
+                <video
+                  className="w-full h-full object-cover"
+                  autoPlay
+                  muted
+                  loop
+                  playsInline
+                >
+                  <source src={specialCollectionInfo.videoUrl} type="video/mp4" />
+                  Your browser does not support the video tag.
+                </video>
+              ) : (
+                <div 
+                  className="w-full h-full bg-gradient-to-br from-gray-200 to-gray-300 flex items-center justify-center"
+                >
+                  <span className="text-gray-500 text-sm">Video placeholder</span>
+                </div>
+              )}
             </div>
-            <div
-              className='w-2/3 h-full relative overflow-hidden rounded-lg'
-              style={{
-                backgroundImage: `url(${backgroundImage || 'https://via.placeholder.com/800x250/4f46e5/ffffff?text=Banner+2'})`,
-                backgroundSize: 'cover',
-                backgroundPosition: 'center center',
-                backgroundRepeat: 'no-repeat'
-              }}
-            >
-              {/* <div className="absolute inset-0 bg-black/30"></div>
-              <div className="relative z-10 h-full flex items-center justify-center">
-                <span className="text-white font-bold text-lg">Banner 2</span>
-              </div> */}
+            <div className='w-2/3 h-full relative overflow-hidden rounded-lg'>
+              {specialCollectionInfo.bannerUrl ? (
+                <div
+                  className='w-full h-full'
+                  style={{
+                    backgroundImage: `url(${specialCollectionInfo.bannerUrl})`,
+                    backgroundSize: 'cover',
+                    backgroundPosition: 'center center',
+                    backgroundRepeat: 'no-repeat'
+                  }}
+                />
+              ) : (
+                <div 
+                  className="w-full h-full bg-gradient-to-br from-gray-200 to-gray-300 flex items-center justify-center"
+                >
+                  <span className="text-gray-500 text-sm">Banner placeholder</span>
+                </div>
+              )}
             </div>
           </div>
 

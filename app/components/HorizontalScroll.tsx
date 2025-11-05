@@ -23,6 +23,7 @@ export function HorizontalScroll({
   const [canScrollLeft, setCanScrollLeft] = useState(false);
   const [canScrollRight, setCanScrollRight] = useState(false);
   const [shouldCenter, setShouldCenter] = useState(false);
+  const [isLoaded, setIsLoaded] = useState(false);
 
   const checkScrollPosition = useCallback(() => {
     if (!scrollRef.current) return;
@@ -62,6 +63,14 @@ export function HorizontalScroll({
   };
 
   useEffect(() => {
+    const timer = setTimeout(() => {
+      setIsLoaded(true);
+    }, 200); // Slight delay for smooth enter
+
+    return () => clearTimeout(timer);
+  }, []);
+
+  useEffect(() => {
     const scrollElement = scrollRef.current;
     if (!scrollElement) return;
     
@@ -80,7 +89,7 @@ export function HorizontalScroll({
       />
 
       {/* Floating scroll container */}
-      <div className="absolute left-0 right-0 h-[240px] z-[1000] pointer-events-none">
+      <div className="absolute left-0 right-0 h-[240px] z-0 pointer-events-none">
         
         {/* Left Arrow - Simple and clean */}
         {showArrows && canScrollLeft && (
@@ -112,6 +121,8 @@ export function HorizontalScroll({
             backdrop-blur-xl rounded-2xl border border-white/20
             scrollbar-hide
             ${shouldCenter ? 'justify-center' : ''}
+            transition-all duration-500 ease-out
+            ${isLoaded ? 'translate-x-0 opacity-100' : 'translate-x-4 opacity-0'}
           `}
           style={{
             scrollbarWidth: 'none',

@@ -295,6 +295,7 @@ function SpecialCollections() {
 
   const showProducts = useCollectionTransition(handle);
   const isLoading = navigation.state === 'loading';
+  const [bannerLoaded, setBannerLoaded] = useState(false);
 
   // Filter collections with memoization
   const filteredCollections = filterCollections(collections.nodes, `${baseCollection}_`);
@@ -312,6 +313,15 @@ function SpecialCollections() {
       endCursor: null,
     }
   };
+
+  // Trigger banner animation
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setBannerLoaded(true);
+    }, 100); // Quick enter
+
+    return () => clearTimeout(timer);
+  }, []);
 
   return (
     <div className='space-y-4'>
@@ -332,7 +342,7 @@ function SpecialCollections() {
 
           {/* Banner */}
 
-          <div className='h-[250px] flex space-x-4'>
+          <div className={`h-[250px] flex space-x-4 transition-all duration-500 ease-out ${bannerLoaded ? 'translate-y-0 opacity-100' : 'translate-y-8 opacity-0'}`}>
             <div className='w-1/3 h-full relative overflow-hidden rounded-lg'>
               {specialCollectionInfo.videoUrl ? (
                 <video
@@ -379,7 +389,7 @@ function SpecialCollections() {
       </div>
 
       <nav
-        className="flex flex-wrap"
+        className="flex flex-wrap relative z-0"
         aria-label="Collection categories"
       >
         <HorizontalScroll
@@ -422,7 +432,7 @@ function SpecialCollections() {
 
       <div>
         <section
-          className="container-app !py-0 min-h-[1000px] transition-opacity duration-300"
+          className="container-app !py-0 min-h-[500px] transition-opacity duration-300"
           aria-label="Collection products"
         >
           <Suspense fallback={<CollectionSkeleton />}>

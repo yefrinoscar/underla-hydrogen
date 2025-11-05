@@ -88,7 +88,7 @@ export function Header({
   const queriesDatalistId = useId();
   
   // Check if we're on a special route that should have transparent header with white text
-  const isSpecialRoute = location.pathname.includes('/collections/special/') && !location.pathname.includes('/v2');
+  const isSpecialRoute = location.pathname.includes('/collections/special/');
 
   useEffect(() => {
     const handleScroll = () => {
@@ -107,13 +107,11 @@ export function Header({
   }, [])
 
   // Determine header classes based on route and scroll state
-  const headerClasses = isSpecialRoute 
-    ? `header w-full mb-8 md:mb-10 ${isScrolled ? 'bg-white/90 backdrop-blur-md' : 'bg-transparent'} border-b-0 transition-all duration-300`
-    : `header w-full mb-8 md:mb-10 ${isScrolled ? 'bg-white/90 backdrop-blur-md' : 'bg-white'} border-b-0 transition-all duration-300`;
+  const headerClasses = `header w-full ${isScrolled ? 'bg-white/90 backdrop-blur-md' : 'bg-white'} border-b-0 transition-all duration-300 sticky top-0 z-[9999]`;
 
     
   // Determine text/icon color classes based on route and scroll state
-  const textColorClasses = (isSpecialRoute && !isScrolled) ? 'text-white' : 'text-neutral-800';
+  const textColorClasses = 'text-neutral-800';
 
   // No need for toggle as search is always expanded
 

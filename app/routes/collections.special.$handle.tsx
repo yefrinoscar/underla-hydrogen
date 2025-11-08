@@ -13,12 +13,12 @@ import {
   SpecialCollectionHandle,
   SPECIAL_COLLECTIONS_CONFIG
 } from '~/utils/special-collections';
+import bgImage from '~/assets/bg-image.png';
 
 interface SpecialCollectionInfo {
   title: string;
   description: string;
   image?: string;
-  backgroundImage: string;
   replace: RegExp;
   bannerUrl: string | null;
   videoUrl: string | null;
@@ -53,28 +53,18 @@ interface LoaderData {
   subcategory?: string;
 }
 
-/**
- * Meta function with enhanced SEO
- */
 export const meta: MetaFunction<typeof loader> = ({data}) => {
   const loaderData = data as LoaderData;
   return [{ title: `${loaderData?.specialCollectionInfo.title}` }];
 };
 
-/**
- * Enhanced loader with better error handling and performance optimizations
- */
 export async function loader(args: LoaderFunctionArgs): Promise<LoaderData | Response> {
   const { params, context, request } = args;
   const { handle } = params;
 
-  if (!handle) {
-    return redirect('/');
-  }
+  if (!handle) return redirect('/');
 
   const { baseCollection, subcategory } = getSpecialCollection(handle);
-  
-  // Check if the handle exists in SPECIAL_COLLECTIONS_CONFIG and redirect if needed
   if (!baseCollection) return redirect('/');
 
   const config = SPECIAL_COLLECTIONS_CONFIG[baseCollection as SpecialCollectionHandle];
@@ -82,16 +72,16 @@ export async function loader(args: LoaderFunctionArgs): Promise<LoaderData | Res
 
   const criticalData = await loadCriticalData({ ...args, baseCollection });
   
-  return { ...criticalData, baseCollection, subcategory: subcategory || undefined };
+  return {
+    ...criticalData,
+    baseCollection,
+    subcategory: subcategory || undefined
+  };
 }
 
-/**
- * Optimized data loading function with better error handling
- */
 async function loadCriticalData({ context, request, params, baseCollection }: LoaderFunctionArgs & { baseCollection: string }) {
   const { handle } = params;
 
-  // Fragment for fetching basic special collection information
   const SPECIAL_COLLECTION_DATA_FRAGMENT = `#graphql
     fragment SpecialCollectionData on Collection {
       id
@@ -107,7 +97,6 @@ async function loadCriticalData({ context, request, params, baseCollection }: Lo
     }
   ` as const;
 
-  // Query to get special collection title and description by handle
   const GET_SPECIAL_COLLECTION_DATA_QUERY = `#graphql
     ${SPECIAL_COLLECTION_DATA_FRAGMENT}
     query GetSpecialCollectionData(
@@ -121,7 +110,6 @@ async function loadCriticalData({ context, request, params, baseCollection }: Lo
     }
   ` as const;
 
-  // Fetch special collection title and description from Shopify API
   const { collection: specialCollectionData } = await context.storefront.query(
     GET_SPECIAL_COLLECTION_DATA_QUERY,
     {
@@ -129,10 +117,9 @@ async function loadCriticalData({ context, request, params, baseCollection }: Lo
     },
   );
 
-  // Fetch banner and video URLs from custom API
   let bannerUrl: string | null = null;
   let videoUrl: string | null = null;
-  
+
   try {
     const apiResponse = await fetch(`https://dashboard.underla.store/api/collections/${baseCollection}`);
     if (apiResponse.ok) {
@@ -147,27 +134,22 @@ async function loadCriticalData({ context, request, params, baseCollection }: Lo
   const title = specialCollectionData?.title || 'Collection';
   const description = specialCollectionData?.description || '';
   const image = specialCollectionData?.image?.url;
-  // backgroundImage will still come from local config as it's specific to UI
-  const backgroundImage = SPECIAL_COLLECTIONS_CONFIG[baseCollection as SpecialCollectionHandle]?.backgroundImage || '';
-  // Construct specialCollectionInfo with data from API and config
+
   const specialCollectionInfo = {
     title,
     description,
     image,
-    backgroundImage,
     replace: SPECIAL_COLLECTIONS_CONFIG[baseCollection as SpecialCollectionHandle]?.replace,
     bannerUrl,
     videoUrl
   };
 
   const variables = getPaginationVariables(request, {
-    pageBy: 8, // 8 products per page for better initial load
+    pageBy: 8,
   });
 
-  // Load collections in all cases
   const { collections } = await context.storefront.query(COLLECTIONS_QUERY);
 
-  // Query for products in the collection with filters
   const { collection: rawCollection } = await context.storefront.query(COLLECTION_QUERY, {
     variables: {
       handle: handle as string,
@@ -175,7 +157,6 @@ async function loadCriticalData({ context, request, params, baseCollection }: Lo
     }
   });
 
-  // Adjust collection to match LoaderData interface
   const collection = rawCollection ? {
     ...rawCollection,
     products: {
@@ -188,12 +169,10 @@ async function loadCriticalData({ context, request, params, baseCollection }: Lo
     }
   } : undefined;
 
-  // If no products found, fall back to regular products
   if (!collection || collection.products.nodes.length === 0) {
     const { products: fallbackProducts } = await context.storefront.query(PAGINATION_PRODUCTS_QUERY, {
       variables
     });
-    // Ensure pageInfo cursors are string | null to match LoaderData interface
     const products = {
       ...fallbackProducts,
       pageInfo: {
@@ -202,75 +181,12 @@ async function loadCriticalData({ context, request, params, baseCollection }: Lo
         endCursor: fallbackProducts.pageInfo.endCursor || null,
       }
     };
-    // Pass the API-derived title/desc and config-derived backgroundImage
-    return { collections, products, specialCollectionInfo };
+    return { collections, products, specialCollectionInfo, collection: undefined };
   }
-  
-  return { 
-    collections, 
-    collection,
-    // Pass the API-derived title/desc and config-derived backgroundImage
-    specialCollectionInfo
-  };
+
+  return { collections, collection, specialCollectionInfo, products: undefined };
 }
 
-/**
- * Custom hook for managing collection transitions
- */
-function useCollectionTransition(handle: string | undefined) {
-  const [showProducts, setShowProducts] = useState(true);
-  const previousHandleRef = useRef(handle);
-
-  useEffect(() => {
-    if (handle !== previousHandleRef.current) {
-      setShowProducts(false);
-      const timer = setTimeout(() => {
-        previousHandleRef.current = handle;
-        setShowProducts(true);
-      }, 300);
-      return () => clearTimeout(timer);
-    } else if (!showProducts) {
-      setShowProducts(true);
-    }
-  }, [handle, showProducts]);
-
-  return showProducts;
-}
-
-/**
- * Memoized category card component for better performance
- */
-const MemoizedCategoryCard = memo<{
-  category: any;
-  isActive: boolean;
-  specialCollectionInfo: any;
-  handle: string;
-}>(({ category, isActive, specialCollectionInfo, handle }) => {
-  const categoryTitle = category.title.replace(specialCollectionInfo.replace, '').trim();
-
-  return (
-    <Link
-      to={`/collections/special/${category.handle}`}
-      className="transition-all duration-300 hover:scale-105"
-      aria-label={`View ${categoryTitle} collection`}
-    >
-      <CategoryCard
-        handle={category.handle}
-        title={categoryTitle}
-        isActive={isActive}
-        size="normal"
-        image={category.image?.url}
-        fallbackImage={specialCollectionInfo.image}
-      />
-    </Link>
-  );
-});
-
-MemoizedCategoryCard.displayName = 'MemoizedCategoryCard';
-
-/**
- * Loading skeleton component
- */
 function CollectionSkeleton() {
   return (
     <div className="animate-pulse">
@@ -293,15 +209,11 @@ function SpecialCollections() {
   const { handle } = useParams();
   const navigation = useNavigation();
 
-  const showProducts = useCollectionTransition(handle);
   const isLoading = navigation.state === 'loading';
   const [bannerLoaded, setBannerLoaded] = useState(false);
 
   // Filter collections with memoization
   const filteredCollections = filterCollections(collections.nodes, `${baseCollection}_`);
-
-  // Get background image with error handling
-  const backgroundImage = SPECIAL_COLLECTIONS_CONFIG[baseCollection as SpecialCollectionHandle]?.backgroundImage;
 
   // Get connection for pagination
   const connection = collection?.products || {
@@ -324,17 +236,29 @@ function SpecialCollections() {
   }, []);
 
   return (
-    <div className='space-y-4'>
-      <div
-        className={`w-full ${isLoading ? 'opacity-75 transition-opacity' : ''}`}
-        role="main"
-        aria-labelledby="collection-title"
-      >
-        <section className='container-app !py-0 space-y-4'>
+    <>
+      {/* Fixed gradient background */}
+      <div 
+        className='fixed inset-0 -z-10'
+        style={{
+          backgroundImage: `url(${bgImage})`,
+          backgroundSize: 'cover',
+          backgroundPosition: 'center',
+          backgroundRepeat: 'no-repeat'
+        }}
+      />
+      
+      <div className='space-y-4 relative min-h-screen mt-0 md:mt-4'>
+        <div
+          className={`w-full ${isLoading ? 'opacity-75 transition-opacity' : ''}`}
+          role="main"
+          aria-labelledby="collection-title"
+        >
+        <section className='container-app py-0! space-y-4'>
           <div>
             <h1
               id="collection-title"
-              className="text-4xl md:text-6xl lg:text-3xl font-bold mb-6 leading-tight"
+              className="text-2xl md:text-6xl lg:text-5xl font-bold mb-6 leading-tight"
             >
               {specialCollectionInfo.title}
             </h1>
@@ -342,8 +266,8 @@ function SpecialCollections() {
 
           {/* Banner */}
 
-          <div className={`h-[250px] flex space-x-4 transition-all duration-500 ease-out ${bannerLoaded ? 'translate-y-0 opacity-100' : 'translate-y-8 opacity-0'}`}>
-            <div className='w-1/3 h-full relative overflow-hidden rounded-lg'>
+          <div className={`flex flex-row gap-4 transition-all duration-500 ease-out ${bannerLoaded ? 'translate-y-0 opacity-100' : 'translate-y-8 opacity-0'}`}>
+            <div className='w-1/3 md:w-1/3 h-[200px] md:h-[250px] relative overflow-hidden rounded-lg'>
               {specialCollectionInfo.videoUrl ? (
                 <video
                   className="w-full h-full object-cover"
@@ -363,7 +287,7 @@ function SpecialCollections() {
                 </div>
               )}
             </div>
-            <div className='w-2/3 h-full relative overflow-hidden rounded-lg'>
+            <div className='w-2/3 md:w-2/3 h-[200px] md:h-[250px] relative overflow-hidden rounded-lg'>
               {specialCollectionInfo.bannerUrl ? (
                 <div
                   className='w-full h-full'
@@ -386,14 +310,14 @@ function SpecialCollections() {
 
 
         </section>
-      </div>
+        </div>
 
-      <nav
-        className="flex flex-wrap relative z-0"
-        aria-label="Collection categories"
-      >
+        <nav
+          className="flex flex-wrap relative z-0 px-4 md:px-0"
+          aria-label="Collection categories"
+        >
         <HorizontalScroll
-          itemWidth={180}
+          itemWidth={170}
           arrowSize="md"
         >
           {filteredCollections.map((category) => {
@@ -404,12 +328,12 @@ function SpecialCollections() {
               <Link
                 key={category.handle}
                 to={`/collections/special/${category.handle}`}
-                className={`relative h-[240px] w-[170px] rounded-lg flex-shrink-0 flex flex-col justify-between text-sm font-medium relative p-4 transition-all duration-200 hover:shadow-lg ${isActive ? 'bg-stone-900 text-white' : 'bg-[#EFEFEF] hover:bg-[#E5E5E5]'}`}
+                className={`relative h-[180px] md:h-[240px] w-[120px] md:w-[170px] rounded-lg shrink-0 flex flex-col justify-between text-sm font-medium p-4 transition-all duration-200 hover:shadow-lg ${isActive ? 'bg-stone-900 text-white' : 'bg-[#EFEFEF] hover:bg-[#E5E5E5]'}`}
                 aria-label={`View ${categoryTitle} collection`}
               >
-                <div className='flex flex-col'>
+                <div className='flex flex-col mb-4'>
                   <span className='text-[16px] font-bold'>{categoryTitle}</span>
-                  <span className='text-[12px]'>Reflejo de tu esencia</span>
+                  <span className='hidden md:block text-[12px]'>Reflejo de tu esencia</span>
                 </div>
 
                 {
@@ -418,8 +342,8 @@ function SpecialCollections() {
                       <img src={category.image?.url || ''} alt={category.title} className='object-fit w-[90%]' />
                     </div>
                   ) : (
-                    <div className={`self-center bottom-2 right-2 rounded-full ${category.description === '2' ? '' : 'overflow-hidden'}`}>
-                      <img src={category.image?.url || ''} alt={category.title} className='w-[120px] h-[120px]' />
+                    <div className={`self-center rounded-full w-full aspect-square ${category.description === '2' ? '' : 'overflow-hidden'}`}>
+                      <img src={category.image?.url || ''} alt={category.title} className='w-full h-full object-cover' />
                     </div>
                   )
                 }
@@ -427,14 +351,14 @@ function SpecialCollections() {
             );
           })}
         </HorizontalScroll>
-      </nav>
+        </nav>
 
 
-      <div>
-        <section
-          className="container-app !py-0 min-h-[500px] transition-opacity duration-300"
-          aria-label="Collection products"
-        >
+        <div>
+          <section
+            className="container-app !py-0 min-h-[500px] transition-opacity duration-300"
+            aria-label="Collection products"
+          >
           <Suspense fallback={<CollectionSkeleton />}>
             {connection.nodes.length === 0 ? (
               <div className="flex flex-col items-center justify-center min-h-[400px] text-center space-y-6">
@@ -453,72 +377,28 @@ function SpecialCollections() {
                 </div>
               </div>
             ) : (
-              <div className="grid gap-6 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-                {showProducts && (
-                  <Pagination connection={connection}>
-                    {({ nodes, NextLink, hasNextPage, nextPageUrl, state }) => (
-                      <InfiniteProductGrid
-                        products={nodes as ProductItemFragment[]}
-                        hasNextPage={hasNextPage}
-                        nextPageUrl={nextPageUrl}
-                        state={state}
-                        NextLink={NextLink}
-                      />
-                    )}
-                  </Pagination>
-                )}
+              <div className="grid gap-4 grid-cols-2 md:gap-6 lg:grid-cols-3 xl:grid-cols-4">
+                <Pagination connection={connection}>
+                  {({ nodes, NextLink, hasNextPage, nextPageUrl, state }) => (
+                    <InfiniteProductGrid
+                      products={nodes as ProductItemFragment[]}
+                      hasNextPage={hasNextPage}
+                      nextPageUrl={nextPageUrl}
+                      state={state}
+                      NextLink={NextLink}
+                      whiteBackground={true}
+                    />
+                  )}
+                </Pagination>
               </div>
             )}
           </Suspense>
-        </section>
+          </section>
+        </div>
       </div>
-
-    </div>
-
+    </>
   );
 }
-
-/**
- * Export with ErrorBoundary wrapper for enhanced error handling
- */
-const SpecialCollectionsWithErrorBoundary = () => (
-  <ErrorBoundary>
-    <SpecialCollections />
-  </ErrorBoundary>
-);
-
-// Query for products in a special collection
-export const SPECIAL_COLLECTION_PRODUCTS_QUERY = `#graphql
-  ${PRODUCT_ITEM_FRAGMENT}
-  query SpecialCollectionProducts(
-    $specialHandle: String!
-    $country: CountryCode
-    $language: LanguageCode
-    $first: Int
-    $last: Int
-    $startCursor: String
-    $endCursor: String
-  ) @inContext(country: $country, language: $language) {
-    products(
-      first: $first, 
-      last: $last, 
-      before: $startCursor, 
-      after: $endCursor, 
-      sortKey: UPDATED_AT,
-      query: $specialHandle
-    ) {
-      nodes {
-        ...ProductItem
-      }
-      pageInfo {
-        hasPreviousPage
-        hasNextPage
-        startCursor
-        endCursor
-      }
-    }
-  }
-` as const;
 
 // Query for all products (used as fallback)
 export const PAGINATION_PRODUCTS_QUERY = `#graphql
@@ -544,5 +424,11 @@ export const PAGINATION_PRODUCTS_QUERY = `#graphql
     }
   }
 ` as const;
+
+const SpecialCollectionsWithErrorBoundary = () => (
+  <ErrorBoundary>
+    <SpecialCollections />
+  </ErrorBoundary>
+);
 
 export default SpecialCollectionsWithErrorBoundary;

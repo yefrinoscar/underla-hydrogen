@@ -210,13 +210,15 @@ export function InfiniteProductGrid({
   hasNextPage,
   nextPageUrl,
   state,
-  NextLink
+  NextLink,
+  whiteBackground = false
 }: {
   products: ProductItemFragment[];
   hasNextPage: boolean;
   nextPageUrl: string;
   state: any;
   NextLink: any;
+  whiteBackground?: boolean;
 }) {
   const navigate = useNavigate();
   const [isLoading, setIsLoading] = useState(false);
@@ -295,7 +297,7 @@ export function InfiniteProductGrid({
               ease: "easeOut" 
             }}
           >
-            <ProductItem product={product} />
+            <ProductItem product={product} whiteBackground={whiteBackground} />
           </motion.div>
         ))}
       </AnimatePresence>

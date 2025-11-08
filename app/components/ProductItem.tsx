@@ -19,9 +19,11 @@ type VariantNode = {
 export function ProductItem({
     product,
     loading,
+    whiteBackground = false,
 }: {
     product: ProductItemFragment;
     loading?: 'eager' | 'lazy';
+    whiteBackground?: boolean;
 }) {
     // Get the first available variant or the first variant if none are available
     const firstVariant = product.variants.nodes[0] as VariantNode;
@@ -109,7 +111,7 @@ export function ProductItem({
     return (
         <Link
             key={product.id}
-            className="bg-neutral-100 rounded-[20px] p-5 col-span-1 flex flex-col h-[470px] space-y-4"
+            className={`${whiteBackground ? 'bg-white' : 'bg-neutral-100'} rounded-[20px] p-3 md:p-5 col-span-1 flex flex-col h-[380px] md:h-[470px] space-y-2 md:space-y-4`}
             prefetch="intent"
             to={productUrl}
         >
@@ -119,34 +121,34 @@ export function ProductItem({
                     data={product.featuredImage}
                     aspectRatio="1/1"
                     loading={loading}
-                    className='w-full rounded-[20px]! bg-white'
+                    className='w-full rounded-[12px] md:rounded-[20px] bg-white'
                     width={200}
                     height={200}
                 />
             )}
-            <div className="flex flex-col justify-between space-y-2  h-full">
+            <div className="flex flex-col justify-between space-y-1 md:space-y-2 h-full">
                 <div className="">
-                    <h4 className='text-sm font-medium text-neutral-800 text-ellipsis whitespace-nowrap overflow-hidden'>{product.title}</h4>
-                    <div className="flex flex-col flex-wrap gap-1">
-                        <div className="flex items-center gap-2">
-                            <DiscountBadge
-                                discountPercentage={discountPercentage}
-                                size="sm"
-                                className="text-black"
-                                showIcon={false}
-                            />
+                    <h4 className='text-xs md:text-sm font-medium text-neutral-800 line-clamp-2 md:line-clamp-1'>{product.title}</h4>
+                    <div className="flex flex-col gap-1">
+                        {/* Mobile: Stack vertically, Desktop: Horizontal */}
+                        <div className="flex flex-col md:flex-row md:items-center gap-1 md:gap-2">
+                            {hasDiscount && (
+                                <DiscountBadge
+                                    discountPercentage={discountPercentage}
+                                    size="sm"
+                                    className="text-black text-[10px] md:text-xs px-1.5 py-0.5 md:px-2 md:py-1 self-start"
+                                    showIcon={false}
+                                />
+                            )}
                             <small className="flex items-center">
-                                <Money data={product.priceRange.minVariantPrice} className='text-base text-underla-500 font-semibold' />
-                                {/* {!product.availableForSale && <span className="text-red-500 ml-2">Sold Out</span>} */}
+                                <Money data={product.priceRange.minVariantPrice} className='text-sm md:text-base text-underla-500 font-semibold' />
                             </small>
                         </div>
 
                         {hasDiscount && (
-                            <>
-                                <small className="text-gray-400 line-through text-sm font-semibold flex gap-1">
-                                    Antes <Money data={product.compareAtPriceRange.minVariantPrice} />
-                                </small>
-                            </>
+                            <small className="text-gray-400 line-through text-xs md:text-sm font-semibold flex gap-1">
+                                Antes <Money data={product.compareAtPriceRange.minVariantPrice} />
+                            </small>
                         )}
                     </div>
                 </div>
@@ -154,48 +156,45 @@ export function ProductItem({
                     {product.availableForSale ? (
                         <>
                             {hasMultipleVariants && (
-                                <div className="relative mt-2">
-                                    {/* Premium variant indicator with better colors */}
-                                    <div className="bg-white rounded-lg overflow-hidden shadow border border-gray-200">
-                                        <div className="p-2 flex items-center justify-between">
-                                            <div className="flex items-center gap-1.5">
-                                                <div className="w-2 h-2 rounded-full bg-underla-500"></div>
-                                                <span className="text-gray-800 text-xs font-medium">Variantes</span>
-                                                <span className="bg-underla-100 text-underla-700 text-xs px-1.5 py-0.5 rounded-full font-semibold">
-                                                    {inStockVariantsCount}
-                                                </span>
-                                            </div>
-                                            <span className="text-xs text-underla-600 font-semibold hover:text-underla-700 transition-colors cursor-pointer">
-                                                Ver opciones
+                                <div className="relative mt-1 md:mt-2">
+                                    {/* Simplified variant indicator */}
+                                    <div className="bg-white rounded-lg border border-gray-200 px-2 py-1.5 md:p-2 flex items-center justify-between">
+                                        <div className="flex items-center gap-1 md:gap-1.5">
+                                            <span className="text-gray-800 text-[10px] md:text-xs font-medium">Variantes</span>
+                                            <span className="bg-underla-100 text-underla-700 text-[10px] md:text-xs px-1 md:px-1.5 py-0.5 rounded-full font-semibold">
+                                                {inStockVariantsCount}
                                             </span>
                                         </div>
+                                        <span className="text-[10px] md:text-xs text-underla-600 font-semibold">
+                                            Ver
+                                        </span>
                                     </div>
                                 </div>
                             )}
                             {!hasMultipleVariants &&
-                                <button className="bg-underla-500 text-white mb-1.5 px-3.5 py-2.5 rounded-[10px] font-semibold cursor-pointer hover:bg-underla-600 transition-colors duration-200 ease-in-out w-full">
-                                    Agregar al carrito
+                                <button className="bg-underla-500 text-white px-2 py-1.5 md:px-3.5 md:py-2.5 rounded-[10px] text-xs md:text-sm font-semibold cursor-pointer hover:bg-underla-600 transition-colors duration-200 ease-in-out w-full">
+                                    Agregar
                                 </button>
                             }
                         </>
                     ) : (
                         <>
                             <span 
-                                className="relative inline-block text-white px-2.5 py-1.5 rounded-[10px] text-[12px] font-medium overflow-hidden animate-gradient"
+                                className="relative inline-block text-white px-2 py-1 md:px-2.5 md:py-1.5 rounded-[10px] text-[10px] md:text-[12px] font-medium overflow-hidden animate-gradient"
                                 style={{
                                     background: 'linear-gradient(-45deg, #22c55e, #16a34a, #15803d, #166534)',
                                     backgroundSize: '400% 400%',
                                 }}
                             >
-                                Entrega en 15 días hábiles
+                                Entrega en 15 días
                             </span>
 
                             <button 
                                 onClick={(e) => {
-                                    e.preventDefault(); // Prevent navigation
+                                    e.preventDefault();
                                     open('default', `Solicitud de producto agotado: ${product.title}`);
                                 }}
-                                className="bg-zinc-800 text-white mb-1.5 px-3.5 py-2.5 rounded-[10px] font-semibold cursor-pointer hover:bg-zinc-700 transition-colors duration-200 ease-in-out"
+                                className="bg-zinc-800 text-white px-2 py-1.5 md:px-3.5 md:py-2.5 rounded-[10px] text-xs md:text-sm font-semibold cursor-pointer hover:bg-zinc-700 transition-colors duration-200 ease-in-out w-full"
                             >
                                 Hacer pedido
                             </button>

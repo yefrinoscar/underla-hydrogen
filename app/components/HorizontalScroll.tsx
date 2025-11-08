@@ -85,11 +85,11 @@ export function HorizontalScroll({
       {/* Placeholder to maintain layout space */}
       <div
         ref={containerRef}
-        className={`relative h-[240px] w-screen ${className}`}
+        className={`relative h-[180px] md:h-[240px] w-screen ${className}`}
       />
 
       {/* Floating scroll container */}
-      <div className="absolute left-0 right-0 h-[240px] z-0 pointer-events-none">
+      <div className="absolute left-0 right-0 h-[180px] md:h-[240px] z-0 pointer-events-none">
         
         {/* Left Arrow - Simple and clean */}
         {showArrows && canScrollLeft && (
@@ -117,8 +117,8 @@ export function HorizontalScroll({
           ref={scrollRef}
           className={`
             w-full pointer-events-auto
-            flex gap-4 overflow-x-auto scroll-smooth pl-4 md:pl-8 xl:pl-0
-            backdrop-blur-xl rounded-2xl border border-white/20
+            flex gap-4 overflow-x-auto scroll-smooth pl-4 pr-4 md:pl-8 md:pr-8 xl:pl-0 xl:pr-0
+            rounded-2xl
             scrollbar-hide
             ${shouldCenter ? 'justify-center' : ''}
             transition-all duration-500 ease-out

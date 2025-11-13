@@ -248,7 +248,7 @@ function SpecialCollections() {
         }}
       />
       
-      <div className='space-y-4 relative min-h-screen mt-0 md:mt-4'>
+      <div className='space-y-4 relative min-h-screen'>
         <div
           className={`w-full ${isLoading ? 'opacity-75 transition-opacity' : ''}`}
           role="main"

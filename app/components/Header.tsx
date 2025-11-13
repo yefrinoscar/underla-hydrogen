@@ -107,11 +107,11 @@ export function Header({
   }, [])
 
   // Determine header classes based on route and scroll state
-  const headerClasses = `header w-full ${isSpecialRoute && !isScrolled ? 'bg-transparent' : 'bg-white/95 backdrop-blur-lg shadow-sm'} border-b-0 transition-all duration-500 ease-out sticky top-0 z-[9999]`;
+  const headerClasses = `header w-full ${isSpecialRoute && !isScrolled ? 'bg-transparent' : 'bg-white/95 backdrop-blur-lg'} ${isScrolled ? 'shadow-sm' : ''} border-b-0 transition-all duration-500 ease-out sticky top-0 z-[9999] mb-8`;
 
     
   // Determine text/icon color classes based on route and scroll state
-  const textColorClasses = isSpecialRoute && !isScrolled ? 'text-white' : 'text-neutral-800';
+  const textColorClasses = isSpecialRoute && !isScrolled ? 'text-neutral-800' : 'text-neutral-800';
 
   // No need for toggle as search is always expanded
 

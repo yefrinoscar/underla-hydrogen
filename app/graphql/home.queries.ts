@@ -93,3 +93,39 @@ export const HOME_PRODUCTS_QUERY = `#graphql
       }
   }
 ` as const;
+
+export const COLLECTION_PRODUCTS_QUERY = `#graphql
+  fragment CollectionProduct on Product {
+    id
+    title
+    handle
+    tags
+    priceRange {
+      minVariantPrice {
+        amount
+        currencyCode
+      }
+    }
+    images(first: 1) {
+      nodes {
+        id
+        url
+        altText
+        width
+        height
+      }
+    }
+  }
+  query CollectionProducts($handle: String!, $first: Int!) {
+    collection(handle: $handle) {
+      id
+      title
+      handle
+      products(first: $first) {
+        nodes {
+          ...CollectionProduct
+        }
+      }
+    }
+  }
+` as const;

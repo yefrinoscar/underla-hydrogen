@@ -19,8 +19,8 @@ export default async function handleRequest(
     fontSrc: ["'self'", 'https://fonts.gstatic.com'],
     styleSrc: ["'self'", 'https://fonts.googleapis.com', "'unsafe-inline'"],
     defaultSrc: ["'self'", 'https://cdn.shopify.com', 'https://shopify.com', 'nonce-550972a1de313ef2c81bf5ab065f96ef'],
-    imgSrc: ["'self'", 'https://cdn.shopify.com', 'https://shopify.com', 'https://vvdxlmnopqkikvevuedb.supabase.co'],
-    mediaSrc: ["'self'", 'https://cdn.shopify.com', 'https://shopify.com', 'https://xq66ct-0b.myshopify.com', 'https://vvdxlmnopqkikvevuedb.supabase.co'], 
+    imgSrc: ["'self'", 'https://cdn.shopify.com', 'https://shopify.com', 'https://vvdxlmnopqkikvevuedb.supabase.co', 'https://images.unsplash.com'],
+    mediaSrc: ["'self'", 'https://cdn.shopify.com', 'https://shopify.com', 'https://xq66ct-0b.myshopify.com', 'https://vvdxlmnopqkikvevuedb.supabase.co', 'https://assets.mixkit.co'], 
     connectSrc: [
       "'self'",
       'https://dashboard.underla.store/',

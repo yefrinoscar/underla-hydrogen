@@ -1,16 +1,20 @@
 import { type LoaderFunctionArgs } from 'react-router';
-import { useLoaderData, type MetaFunction, useOutletContext } from 'react-router';
+import { useLoaderData, type MetaFunction } from 'react-router';
 import { useEffect } from 'react';
 import type { Promotion } from '~/types/promotion';
 import { HomeBanner, type HomeProductsQueryResult } from '~/components/HomeBanner';
 import { FeaturedCollection, type FeaturedCollectionQuery } from '~/components/FeaturedCollection';
 import { RecommendedProducts, type RecommendedProductsQueryResult } from '~/components/RecommendedProducts';
+import { CategoryCollection } from '~/components/CategoryCollection';
 import { Promotions } from '~/components/Promotions';
+import { PromotionCarousel } from '~/components/PromotionCarousel';
 import { CtaRequest } from '~/components/CtaRequest';
+import { tryCatch } from '~/utils/tryCatch';
 import {
   FEATURED_COLLECTION_QUERY,
   RECOMMENDED_PRODUCTS_QUERY,
   HOME_PRODUCTS_QUERY,
+  COLLECTION_PRODUCTS_QUERY,
 } from '~/graphql/home.queries';
 
 export const meta: MetaFunction = () => {
@@ -34,6 +38,7 @@ export async function loader(args: LoaderFunctionArgs) {
  */
 async function loadCriticalData({ context }: LoaderFunctionArgs): Promise<{
   collections: Promise<FeaturedCollectionQuery | null>;
+  promotions: Promotion[];
 }> {
   const collections = context.storefront
     .query(FEATURED_COLLECTION_QUERY)
@@ -43,8 +48,19 @@ async function loadCriticalData({ context }: LoaderFunctionArgs): Promise<{
       return null;
     });
 
+  // Fetch promotions
+  const { data: promotionsResponse, error } = await tryCatch(
+    fetch('https://dashboard.underla.store/api/promotions')
+  );
+
+  let promotions: Promotion[] = [];
+  if (!error && promotionsResponse) {
+    promotions = await promotionsResponse.json() as Promotion[];
+  }
+
   return {
     collections,
+    promotions,
   };
 }
 
@@ -55,6 +71,9 @@ async function loadCriticalData({ context }: LoaderFunctionArgs): Promise<{
  */
 function loadDeferredData({ context }: LoaderFunctionArgs): {
   recommendedProducts: Promise<RecommendedProductsQueryResult | null>;
+  lipsProducts: Promise<any>;
+  sneakersProducts: Promise<any>;
+  perfumesProducts: Promise<any>;
 } {
   const recommendedProducts = context.storefront
     .query(RECOMMENDED_PRODUCTS_QUERY, {
@@ -66,8 +85,47 @@ function loadDeferredData({ context }: LoaderFunctionArgs): {
       return null;
     });
 
+  const lipsProducts = context.storefront
+    .query(COLLECTION_PRODUCTS_QUERY, {
+      variables: { 
+        handle: 'para-ellas_labios',
+        first: 6
+      }
+    })
+    .catch((error: unknown) => {
+      console.error(error);
+      return null;
+    });
+
+  const sneakersProducts = context.storefront
+    .query(COLLECTION_PRODUCTS_QUERY, {
+      variables: { 
+        handle: 'streetwear_zapatillas',
+        first: 6
+      }
+    })
+    .catch((error: unknown) => {
+      console.error(error);
+      return null;
+    });
+
+  const perfumesProducts = context.storefront
+    .query(COLLECTION_PRODUCTS_QUERY, {
+      variables: { 
+        handle: 'perfumes_disenador',
+        first: 6
+      }
+    })
+    .catch((error: unknown) => {
+      console.error(error);
+      return null;
+    });
+
   return {
     recommendedProducts,
+    lipsProducts,
+    sneakersProducts,
+    perfumesProducts,
   };
 }
 
@@ -91,7 +149,7 @@ function loadHomeProducts({ context }: LoaderFunctionArgs): {
 
 export default function Homepage() {
   const data = useLoaderData<typeof loader>();
-  const { promotions } = useOutletContext<{ promotions: Promotion[] }>();
+  const { promotions } = data;
 
   // Handle scroll to categories if URL has hash
   useEffect(() => {
@@ -109,9 +167,17 @@ export default function Homepage() {
   }, []);
 
   return (
-    <div className="bg-gradient-to-b from-white to-neutral-50 space-y-8">
-      {/* Hero Banner with 3 Featured Products */}
-      <HomeBanner products={data.homeProducts} />
+    <>
+
+      <div className="space-y-8">
+      {/* Promotions Carousel */}
+      {promotions && promotions.length > 0 && (
+        <PromotionCarousel promotions={promotions} />
+      )}
+      
+        
+        {/* Hero Banner with 3 Featured Products */}
+        <HomeBanner products={data.homeProducts} />
       
       {/* Categories Horizontal Scroll */}
       <FeaturedCollection collections={data.collections} />
@@ -119,16 +185,42 @@ export default function Homepage() {
       {/* Best Sellers */}
       <RecommendedProducts products={data.recommendedProducts} />
       
-      {/* Promotions Banner */}
-      {promotions && promotions.length > 0 && (
-        <Promotions promotions={promotions} />
-      )}
+      {/* Lips Collection */}
+      <CategoryCollection 
+        products={data.lipsProducts}
+        collection={data.collections}
+        title='Labios que <span class="text-pink-500">Enamoran</span>'
+        subtitle="Dale vida a tu sonrisa con nuestra colección exclusiva"
+        accentColor="pink"
+        categoryHandle="para-ellas_labios"
+        backgroundColor="bg-pink-50"
+      />
+
+      {/* Sneakers Collection */}
+      <CategoryCollection 
+        products={data.sneakersProducts}
+        collection={data.collections}
+        title='Streetwear <span class="text-orange-500">Urbano</span>'
+        subtitle="Las zapatillas más cool para tu estilo único"
+        accentColor="orange"
+        categoryHandle="streetwear_zapatillas"
+        backgroundColor="bg-gray-100"
+      />
+
+      {/* Perfumes Collection */}
+      <CategoryCollection 
+        products={data.perfumesProducts}
+        collection={data.collections}
+        title='Perfumes de <span class="text-neutral-900">Diseñador</span>'
+        subtitle="Fragancias exclusivas que definen tu personalidad"
+        accentColor="black"
+        categoryHandle="perfumes_disenador"
+        backgroundColor="bg-neutral-100"
+      />
       
-      {/* Another Featured Products Section */}
-      <RecommendedProducts products={data.recommendedProducts} />
-      
-      {/* CTA Request Form */}
-      <CtaRequest />
-    </div>
+        {/* CTA Request Form */}
+        <CtaRequest />
+      </div>
+    </>
   );
 }

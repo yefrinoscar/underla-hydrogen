@@ -15,8 +15,6 @@ import {
   SearchFormPredictive,
 } from '~/components/SearchFormPredictive';
 import { SearchResultsPredictive } from '~/components/SearchResultsPredictive';
-import { Promotion } from '~/types/promotion';
-import { PromotionCarousel } from './PromotionCarousel';
 import { Modal } from './Modal';
 import { RequestForm } from './RequestForm';
 
@@ -27,7 +25,6 @@ interface PageLayoutProps {
   isLoggedIn: Promise<boolean>;
   publicStoreDomain: string;
   children?: React.ReactNode;
-  promotions: Promotion[];
 }
 
 export function PageLayout({
@@ -35,18 +32,9 @@ export function PageLayout({
   children = null,
   footer,
   header,
-  promotions,
   isLoggedIn,
   publicStoreDomain,
 }: PageLayoutProps) {
-  const { pathname } = useLocation();
-  const isPromotionsPage = pathname.startsWith('/promotions') || pathname.startsWith('/collections/special');
-  
-  // Debug logging
-  console.log('PageLayout: promotions count:', promotions.length);
-  console.log('PageLayout: pathname:', pathname);
-  console.log('PageLayout: isPromotionsPage:', isPromotionsPage);
-
   return (
     <Modal.Provider>
       <Aside.Provider>
@@ -56,10 +44,6 @@ export function PageLayout({
         </Modal>
         <SearchAside />
         <MobileMenuAside cart={cart} header={header} publicStoreDomain={publicStoreDomain} isLoggedIn={isLoggedIn} />
-
-        {promotions.length > 0 && !isPromotionsPage && (
-          <PromotionCarousel promotions={promotions} />
-        )}
 
         {header && (
           <>
@@ -81,7 +65,7 @@ export function PageLayout({
           </>
         )}
         <main>
-          <Outlet context={{ promotions }} />
+          <Outlet />
         </main>
         <Footer />
       </Aside.Provider>

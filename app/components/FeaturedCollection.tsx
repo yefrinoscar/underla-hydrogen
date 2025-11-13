@@ -89,7 +89,7 @@ export function FeaturedCollection({ collections }: FeaturedCollectionProps) {
                 )}
 
                 {/* Scroll Wrapper - Sin overflow visible */}
-                <div className='overflow-hidden py-6'>
+                <div className='overflow-hidden'>
                   {/* Categories Container */}
                   <div 
                     ref={scrollContainerRef}
@@ -106,7 +106,7 @@ export function FeaturedCollection({ collections }: FeaturedCollectionProps) {
                         className={`shrink-0 w-[160px] md:w-[180px] motion-preset-slide-up motion-delay-${Math.min(index, 9) * 100}`}
                         to={getCollectionUrl(collection.handle)}
                       >
-                        <div className='group relative h-[200px] md:h-[220px] rounded-xl transition-all duration-300 shadow-md hover:shadow-2xl'>
+                        <div className='group relative h-[200px] md:h-[220px] rounded-xl transition-all duration-300'>
                           {/* Image Container with overflow hidden */}
                           <div className='absolute inset-0 rounded-xl overflow-hidden'>
                             {/* Image or Gradient Background */}
@@ -129,7 +129,7 @@ export function FeaturedCollection({ collections }: FeaturedCollectionProps) {
                           
                           {/* Content */}
                           <div className="absolute bottom-0 left-0 right-0 p-4 z-10">
-                            <h3 className="font-bold text-lg text-white drop-shadow-lg mb-1.5 line-clamp-2 group-hover:translate-y-[-2px] transition-transform">
+                            <h3 className="font-bold text-lg text-white drop-shadow-lg mb-1.5 line-clamp-2">
                               {collection.title}
                             </h3>
                             <div className="flex items-center text-white/90 group-hover:text-white transition-colors">

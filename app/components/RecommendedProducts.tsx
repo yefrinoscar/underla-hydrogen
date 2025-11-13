@@ -1,7 +1,7 @@
-import { Suspense, useState, useEffect } from 'react';
+import { Suspense, useState, useEffect, useRef } from 'react';
 import { Await, Link } from 'react-router';
 import { Money } from '@shopify/hydrogen';
-import { ShoppingBag } from 'lucide-react';
+import { ShoppingBag, ChevronLeft, ChevronRight, Sparkles } from 'lucide-react';
 import type { ProductItemFragment } from 'storefrontapi.generated';
 
 // Reuse and extend ProductItemFragment with only what's different
@@ -24,79 +24,132 @@ interface RecommendedProductsProps {
 }
 
 export function RecommendedProducts({ products, title = "Los Más Vendidos" }: RecommendedProductsProps) {
-  const isMobile = useMediaQuery('(max-width: 768px)');
+  const scrollContainerRef = useRef<HTMLDivElement>(null);
+  const [showLeftArrow, setShowLeftArrow] = useState(false);
+  const [showRightArrow, setShowRightArrow] = useState(true);
+
+  const handleScroll = () => {
+    if (!scrollContainerRef.current) return;
+    const { scrollLeft, scrollWidth, clientWidth } = scrollContainerRef.current;
+    setShowLeftArrow(scrollLeft > 10);
+    setShowRightArrow(scrollLeft < scrollWidth - clientWidth - 10);
+  };
+
+  const scroll = (direction: 'left' | 'right') => {
+    if (!scrollContainerRef.current) return;
+    const scrollAmount = 320;
+    const newScrollLeft = scrollContainerRef.current.scrollLeft + (direction === 'left' ? -scrollAmount : scrollAmount);
+    scrollContainerRef.current.scrollTo({
+      left: newScrollLeft,
+      behavior: 'smooth'
+    });
+  };
 
   return (
-    <div className="container-app py-16 md:py-20">
-      <div className="flex items-center justify-between mb-8">
-        <h2 className='text-3xl md:text-4xl font-bold text-neutral-800 motion-preset-blur-down'>
-          {title}
-        </h2>
-        <div className="hidden md:flex items-center space-x-2 text-underla-500 font-medium hover:text-underla-600 transition-colors cursor-pointer">
-          <span className="text-sm">Ver todos</span>
-          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M13 7l5 5m0 0l-5 5m5-5H6" />
-          </svg>
-        </div>
-      </div>
+    <div className="w-full bg-white">
+      {/* Special Box */}
+      <div className="relative overflow-hidden max-w-[1400px] mx-auto px-4 md:px-8 py-8 md:py-12">
+          {/* Header */}
+          <div className="flex items-center justify-between mb-8 max-w-7xl mx-auto">
+            <div className="flex items-center gap-4">
+              <div className="bg-gradient-to-br from-purple-500 via-pink-500 to-orange-500 p-3 rounded-2xl">
+                <Sparkles className="w-8 h-8 text-white" fill="white" />
+              </div>
+              <div>
+                <h2 className='text-3xl md:text-5xl font-black text-neutral-900'>
+                  {title}
+                </h2>
+                <p className="text-neutral-600 mt-1">Los productos favoritos de nuestros clientes</p>
+              </div>
+            </div>
+          </div>
 
-      <Suspense fallback={
-        <div className="flex overflow-x-auto gap-5 md:gap-6 pb-6 px-1">
-          {[1, 2, 3, 4].map((i) => (
-            <div key={i} className="flex-shrink-0 w-[240px] md:w-[280px] h-[340px] rounded-2xl bg-gray-200 animate-pulse"></div>
-          ))}
-        </div>
-      }>
-        <Await resolve={products}>
-          {(response) => {
-            if (!response || response.products.nodes.length === 0) return null;
-            
-            return (
-              <div className="flex overflow-x-auto gap-5 md:gap-6 pb-6 scrollbar-hide snap-x snap-mandatory px-1">
-                {response.products.nodes.map((product, index) => (
-                  <Link
-                    key={product.id}
-                    className={`group flex-shrink-0 w-[240px] md:w-[280px] snap-start motion-preset-fade motion-delay-${index * 100}`}
-                    to={`/products/${product.handle}`}
-                  >
-                    <div className="h-full rounded-2xl overflow-hidden shadow-lg group-hover:shadow-2xl transition-shadow duration-300">
-                      <div className="bg-white h-full flex flex-col">
-                        {/* Product Image */}
-                        <div className="relative bg-neutral-50 h-[200px] md:h-[240px] flex items-center justify-center p-4 overflow-hidden">
-                          <img
-                            src={product.images.nodes[0]?.url}
-                            width={240}
-                            height={240}
-                            className='object-contain w-full h-full transition-transform duration-300 group-hover:scale-110'
-                            alt={product.images.nodes[0]?.altText || product.title}
-                            loading="lazy"
-                          />
-                        </div>
-                        
-                        {/* Product Info */}
-                        <div className="p-4 flex-1 flex flex-col justify-between">
-                          <h4 className='font-semibold text-neutral-800 text-sm md:text-base line-clamp-2 mb-2 min-h-[40px]'>
-                            {product.title}
-                          </h4>
-                          <div className="flex items-center justify-between">
-                            <Money 
-                              data={product.priceRange.minVariantPrice} 
-                              className='text-underla-500 font-bold text-lg' 
-                            />
-                            <div className="bg-underla-500 text-white p-2 rounded-full opacity-0 group-hover:opacity-100 transition-opacity">
-                              <ShoppingBag className="w-4 h-4" />
+              <Suspense fallback={
+            <div className="flex overflow-x-auto gap-6 pb-6">
+              {[1, 2, 3, 4].map((i) => (
+                <div key={i} className="flex-shrink-0 w-[280px] h-[380px] rounded-2xl bg-gray-200 animate-pulse"></div>
+              ))}
+            </div>
+          }>
+            <Await resolve={products}>
+              {(response) => {
+                if (!response || response.products.nodes.length === 0) return null;
+                
+                return (
+                  <div className="relative group/carousel">
+                    {/* Left Arrow */}
+                    {showLeftArrow && (
+                      <button
+                        onClick={() => scroll('left')}
+                        className='absolute left-0 top-1/2 -translate-y-1/2 z-20 bg-gradient-to-br from-purple-500 via-pink-500 to-orange-500 text-white shadow-xl rounded-full p-3 transition-all duration-300 opacity-0 group-hover/carousel:opacity-100 hover:scale-110'
+                        aria-label="Scroll left"
+                      >
+                        <ChevronLeft className='w-6 h-6' />
+                      </button>
+                    )}
+
+                    {/* Right Arrow */}
+                    {showRightArrow && (
+                      <button
+                        onClick={() => scroll('right')}
+                        className='absolute right-0 top-1/2 -translate-y-1/2 z-20 bg-gradient-to-br from-purple-500 via-pink-500 to-orange-500 text-white shadow-xl rounded-full p-3 transition-all duration-300 opacity-0 group-hover/carousel:opacity-100 hover:scale-110'
+                        aria-label="Scroll right"
+                      >
+                        <ChevronRight className='w-6 h-6' />
+                      </button>
+                    )}
+
+                    <div 
+                      ref={scrollContainerRef}
+                      onScroll={handleScroll}
+                      className="flex overflow-x-auto gap-6 pb-6 scrollbar-hide scroll-smooth"
+                      style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
+                    >
+                      {response.products.nodes.map((product) => (
+                        <Link
+                          key={product.id}
+                          className="group flex-shrink-0 w-[280px]"
+                          to={`/products/${product.handle}`}
+                        >
+                          <div className="h-full rounded-2xl overflow-hidden bg-gradient-to-br from-purple-50 via-pink-50 to-orange-50 transition-all duration-300">
+                            {/* Product Image */}
+                            <div className="relative bg-white m-4 rounded-xl h-[240px] flex items-center justify-center p-6 overflow-hidden">
+                              <img
+                                src={product.images.nodes[0]?.url}
+                                width={240}
+                                height={240}
+                                className='object-contain w-full h-full transition-transform duration-500 group-hover:scale-110'
+                                alt={product.images.nodes[0]?.altText || product.title}
+                                loading="lazy"
+                              />
+                            </div>
+                            
+                            {/* Product Info */}
+                            <div className="px-5 pb-5 space-y-3">
+                              <h4 className='font-bold text-neutral-900 text-base line-clamp-2 leading-tight min-h-[2.5rem]'>
+                                {product.title}
+                              </h4>
+                              <div className="flex items-center justify-between">
+                                <Money 
+                                  data={product.priceRange.minVariantPrice} 
+                                  className='font-black text-xl bg-gradient-to-r from-purple-600 via-pink-600 to-orange-600 bg-clip-text text-transparent' 
+                                />
+                                <div className="bg-gradient-to-br from-purple-500 via-pink-500 to-orange-500 text-white p-2 rounded-full opacity-0 group-hover:opacity-100 transition-opacity">
+                                  <ShoppingBag className="w-4 h-4" />
+                                </div>
+                              </div>
                             </div>
                           </div>
-                        </div>
-                      </div>
+                        </Link>
+                      ))}
+                      <div className='shrink-0 w-1'></div>
                     </div>
-                  </Link>
-                ))}
-              </div>
-            );
-          }}
-        </Await>
-      </Suspense>
+                  </div>
+                );
+              }}
+            </Await>
+          </Suspense>
+      </div>
     </div>
   );
 }

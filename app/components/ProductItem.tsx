@@ -1,20 +1,18 @@
 import { Link } from "react-router";
 import { Image } from "@shopify/hydrogen";
-import { ProductItemFragment } from "storefrontapi.generated";
+import type { ProductItemFragment } from "storefrontapi.generated";
 import { useVariantUrl } from "~/lib/variants";
 import React from 'react';
 import { DiscountBadge } from "./DiscountBadge";
 import { Money } from "./Money";
 import { useModal } from "~/components/Modal";
 
-// Define a custom type for variant nodes that includes availableForSale
-type VariantNode = {
-    selectedOptions: Array<{
-        name: string;
-        value: string;
-    }>;
-    availableForSale: boolean;
-};
+// Extract types from ProductItemFragment for better type safety
+type ProductVariantNode = ProductItemFragment['variants']['nodes'][number];
+type SelectedOption = ProductVariantNode['selectedOptions'][number];
+type ProductImage = NonNullable<ProductItemFragment['featuredImage']>;
+type PriceRange = ProductItemFragment['priceRange'];
+type CompareAtPriceRange = ProductItemFragment['compareAtPriceRange'];
 
 export function ProductItem({
     product,
@@ -26,7 +24,7 @@ export function ProductItem({
     whiteBackground?: boolean;
 }) {
     // Get the first available variant or the first variant if none are available
-    const firstVariant = product.variants.nodes[0] as VariantNode;
+    const firstVariant = product.variants.nodes[0];
     
     // Always use the product handle for the URL without variant parameters
     const productUrl = `/products/${product.handle}`;
@@ -69,7 +67,7 @@ export function ProductItem({
         const counts: Record<string, number> = {};
         
         // Get variants that are available for sale
-        const inStockVariants = product.variants.nodes.filter(v => (v as VariantNode).availableForSale === true);
+        const inStockVariants = product.variants.nodes.filter(v => v.availableForSale === true);
         
         // For each option type, count how many unique values are available
         variantOptions.forEach(option => {
@@ -89,7 +87,7 @@ export function ProductItem({
     };
     
     // Get count of in-stock variants
-    const inStockVariantsCount = product.variants.nodes.filter(v => (v as VariantNode).availableForSale === true).length;
+    const inStockVariantsCount = product.variants.nodes.filter(v => v.availableForSale === true).length;
     
     const availableVariantCounts = getAvailableVariantCounts();
     

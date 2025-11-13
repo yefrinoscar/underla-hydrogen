@@ -2,35 +2,40 @@ import { Link } from "react-router";
 import { Image, Money } from "@shopify/hydrogen";
 import { Suspense } from "react";
 import { Await } from "react-router";
-import type { HomeProductsQuery, RecommendedProductsQuery } from "storefrontapi.generated";
-import type * as StorefrontAPI from '@shopify/hydrogen/storefront-api-types';
-import { DiscountBadge } from "./DiscountBadge";
-import badge_percent from '../assets/badge-percent.svg';
+import type { ProductItemFragment } from 'storefrontapi.generated';
+import badge_percent from '~/assets/badge-percent.svg';
+
+// Reuse and extend ProductItemFragment with only what's different
+type HomeProduct = Omit<ProductItemFragment, 'featuredImage' | 'variants'> & {
+    images: {
+        nodes: Array<NonNullable<ProductItemFragment['featuredImage']>>;
+    };
+    tags: string[];
+};
+
+export interface HomeProductsQueryResult {
+    products: {
+        nodes: HomeProduct[];
+    };
+}
 
 // Helper function to get the first PNG image
-function getFirstPngImage(images: Array<Pick<StorefrontAPI.Image, 'id' | 'url' | 'altText' | 'width' | 'height'>>) {
-    for (const image of images) {
-        if (image && typeof image === 'object' && image.url) {
-            if (image.url.toLowerCase().endsWith('.png')) {
-                return image; // Found the first PNG image, return the object
-            }
-        }
-    }
-
-    return images[0]; // No PNG image found in the array
+function getFirstPngImage(images: Array<NonNullable<ProductItemFragment['featuredImage']>>): NonNullable<ProductItemFragment['featuredImage']> {
+    const pngImage = images.find(img => img?.url?.toLowerCase().endsWith('.png'));
+    return pngImage || images[0];
 }
 
 export function HomeBanner({
     products,
 }: {
-    products: Promise<HomeProductsQuery | null>;
+    products: Promise<HomeProductsQueryResult | null>;
 }) {
     return (
-        <div className='container-app py-8 md:py-12'>
+        <div className='container-app'>
             {/* Section Title */}
             <div className="mb-8">
                 <h2 className='text-3xl md:text-4xl font-bold text-neutral-800 motion-preset-blur-down'>
-                    Productos Especiales de la Semana
+                    Los productos de la semana
                 </h2>
             </div>
 
@@ -49,7 +54,7 @@ export function HomeBanner({
                                 return null;
                             }
 
-                            return response.products.nodes.slice(0, 3).map((product, index) => {
+                            return response.products.nodes.slice(0, 3).map((product: HomeProduct, index: number) => {
                                 // Calculate real discount percentage
                                 const compareAtPrice = product.compareAtPriceRange?.minVariantPrice?.amount;
                                 const currentPrice = product.priceRange.minVariantPrice.amount;

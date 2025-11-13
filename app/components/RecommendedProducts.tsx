@@ -2,10 +2,24 @@ import { Suspense, useState, useEffect } from 'react';
 import { Await, Link } from 'react-router';
 import { Money } from '@shopify/hydrogen';
 import { ShoppingBag } from 'lucide-react';
-import type { RecommendedProductsQuery } from 'storefrontapi.generated';
+import type { ProductItemFragment } from 'storefrontapi.generated';
+
+// Reuse and extend ProductItemFragment with only what's different
+type RecommendedProduct = Omit<ProductItemFragment, 'featuredImage' | 'variants' | 'compareAtPriceRange' | 'availableForSale'> & {
+  images: {
+    nodes: Array<NonNullable<ProductItemFragment['featuredImage']>>;
+  };
+  tags: string[];
+};
+
+export interface RecommendedProductsQueryResult {
+  products: {
+    nodes: RecommendedProduct[];
+  };
+}
 
 interface RecommendedProductsProps {
-  products: Promise<RecommendedProductsQuery | null>;
+  products: Promise<RecommendedProductsQueryResult | null>;
   title?: string;
 }
 

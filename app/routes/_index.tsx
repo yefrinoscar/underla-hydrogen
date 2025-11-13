@@ -2,9 +2,9 @@ import { type LoaderFunctionArgs } from 'react-router';
 import { useLoaderData, type MetaFunction, useOutletContext } from 'react-router';
 import { useEffect } from 'react';
 import type { Promotion } from '~/types/promotion';
-import { HomeBanner } from '~/components/HomeBanner';
-import { FeaturedCollection } from '~/components/FeaturedCollection';
-import { RecommendedProducts } from '~/components/RecommendedProducts';
+import { HomeBanner, type HomeProductsQueryResult } from '~/components/HomeBanner';
+import { FeaturedCollection, type FeaturedCollectionQuery } from '~/components/FeaturedCollection';
+import { RecommendedProducts, type RecommendedProductsQueryResult } from '~/components/RecommendedProducts';
 import { Promotions } from '~/components/Promotions';
 import { CtaRequest } from '~/components/CtaRequest';
 import {
@@ -32,7 +32,9 @@ export async function loader(args: LoaderFunctionArgs) {
  * Load data necessary for rendering content above the fold. This is the critical data
  * needed to render the page. If it's unavailable, the whole page should 400 or 500 error.
  */
-async function loadCriticalData({ context }: LoaderFunctionArgs) {
+async function loadCriticalData({ context }: LoaderFunctionArgs): Promise<{
+  collections: Promise<FeaturedCollectionQuery | null>;
+}> {
   const collections = context.storefront
     .query(FEATURED_COLLECTION_QUERY)
     .catch((error: unknown) => {
@@ -51,7 +53,9 @@ async function loadCriticalData({ context }: LoaderFunctionArgs) {
  * fetched after the initial page load. If it's unavailable, the page should still 200.
  * Make sure to not throw any errors here, as it will cause the page to 500.
  */
-function loadDeferredData({ context }: LoaderFunctionArgs) {
+function loadDeferredData({ context }: LoaderFunctionArgs): {
+  recommendedProducts: Promise<RecommendedProductsQueryResult | null>;
+} {
   const recommendedProducts = context.storefront
     .query(RECOMMENDED_PRODUCTS_QUERY, {
       variables: { query: 'tag:top-selling' }
@@ -67,7 +71,9 @@ function loadDeferredData({ context }: LoaderFunctionArgs) {
   };
 }
 
-function loadHomeProducts({ context }: LoaderFunctionArgs) {
+function loadHomeProducts({ context }: LoaderFunctionArgs): {
+  homeProducts: Promise<HomeProductsQueryResult | null>;
+} {
   const homeProducts = context.storefront
     .query(HOME_PRODUCTS_QUERY, {
       variables: { query: 'tag:Home' }
@@ -103,7 +109,7 @@ export default function Homepage() {
   }, []);
 
   return (
-    <div className="bg-gradient-to-b from-white to-neutral-50">
+    <div className="bg-gradient-to-b from-white to-neutral-50 space-y-8">
       {/* Hero Banner with 3 Featured Products */}
       <HomeBanner products={data.homeProducts} />
       

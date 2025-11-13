@@ -32,3 +32,8 @@ declare module 'react-router' {
     // declare local additions to the React Router session data here
   }
 }
+
+declare module '*.svg' {
+  const content: string;
+  export default content;
+}

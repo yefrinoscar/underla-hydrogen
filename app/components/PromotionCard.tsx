@@ -3,7 +3,7 @@ import { useEffect, useState } from "react";
 import { Promotion } from "~/types/promotion";
 
 
-export function PromotionCard({ promotion, className }: { promotion: Promotion, className: string    }) {
+export function PromotionCard({ promotion, className = '' }: { promotion: Promotion, className?: string }) {
 
     return (
         <div

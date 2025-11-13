@@ -26,114 +26,95 @@ export function HomeBanner({
     products: Promise<HomeProductsQuery | null>;
 }) {
     return (
-        <div className='container-app grid grid-cols-1 md:grid-cols-2 gap-10 md:gap-5 h-auto md:h-[500px]'>
-            <div className='col-span-1 md:grid-cols-6 flex items-center justify-center md:justify-start'>
-                <h1 className='font-bold text-3xl md:text-5xl motion-preset-blur-down motion-delay-300 text-center md:text-start'>Todo lo que <br />
-                    <span className='text-underla-yellow '>necesitas</span>, <br />
-                    en un solo lugar</h1>
+        <div className='container-app py-8 md:py-12'>
+            {/* Section Title */}
+            <div className="mb-8">
+                <h2 className='text-3xl md:text-4xl font-bold text-neutral-800 motion-preset-blur-down'>
+                    Productos Especiales de la Semana
+                </h2>
             </div>
 
-            <div className='grid col-span-1 md:grid-cols-10 grid-rows-2 gap-5 *:bg-underla-50 *:rounded-default md:*:rounded-[49px] md:h-auto'>
-                <Suspense fallback={<div>Loading...</div>}>
+            {/* Hero Banner - 3 Equal Width Elements */}
+            <div className='grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6 h-auto'>
+                <Suspense fallback={
+                    <div className="col-span-3 grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6">
+                        {[1, 2, 3].map((i) => (
+                            <div key={i} className="bg-gray-200 animate-pulse rounded-3xl h-[320px]"></div>
+                        ))}
+                    </div>
+                }>
                     <Await resolve={products}>
-                        {
-                            (response) => {
-                                return response
-                                    ? response.products.nodes.map((product, index) => {
-                                        // Calculate real discount percentage
-                                        const compareAtPrice = product.compareAtPriceRange?.minVariantPrice?.amount;
-                                        const currentPrice = product.priceRange.minVariantPrice.amount;
-                                        const hasDiscount = compareAtPrice && Number(compareAtPrice) > Number(currentPrice);
-
-                                        // Calculate actual discount percentage if available
-                                        const discountPercentage = hasDiscount
-                                            ? Math.round((1 - (Number(currentPrice) / Number(compareAtPrice))) * 100)
-                                            : 0;
-
-                                        const aling = `${product.tags.includes('order-3') ? '' : 'justify-center items-center'}`
-                                        const className = `relative flex ${aling} motion-preset-fade motion-delay-${(index + 1) * 200} ${product.tags.includes('order-3') ? `col-span-10` : `col-span-5`} ${product.tags.join(' ')} h-44 md:h-auto`;
-
-                                        return (
-                                            <Link
-                                                key={index}
-                                                to={`/products/${product.handle}`}
-                                                prefetch="intent"
-                                                className={className}
-                                            >
-                                                {
-                                                    product.tags.indexOf('order-3') === index ? (<>
-                                                        <div className="rounded-l-default md:rounded-l-[49px] overflow-hidden w-[280px] h-full">
-                                                            <div className="bg-underla-500 h-7/10 p-3 text-center pt-4 flex flex-col justify-between">
-                                                                <p className="text-white font-medium !text-xs md:!text-sm !pt-3">
-                                                                    {product.title}
-                                                                </p>
-                                                                <div>
-                                                                    {hasDiscount && compareAtPrice && (
-                                                                        <span className="text-neutral-400 line-through text-xs md:text-sm">
-                                                                            {compareAtPrice} {product.priceRange.minVariantPrice.currencyCode}
-                                                                        </span>
-                                                                    )}
-                                                                    <Money
-                                                                        data={product.priceRange.minVariantPrice}
-                                                                        className='text-white font-semibold text-xs md:text-sm'
-                                                                    />
-                                                                </div>
-                                                            </div>
-                                                            <div className="bg-underla-yellow h-3/10 p-3 flex justify-center items-center space-x-2">
-
-                                                                <img src={badge_percent} className="h-5 w-5 stroke-white" alt="%" />
-
-                                                                <span className="text-white font-semibold text-sm md:text-lg">
-                                                                    {discountPercentage}% off
-                                                                </span>
-                                                            </div>
-                                                        </div>
-                                                        <div className="relative w-full h-full rounded-r-[49px]">
-                                                            <Image
-                                                                width={400}
-                                                                height={400}
-                                                                data={getFirstPngImage(product.images.nodes)}
-                                                                className='object-contain h-full absolute motion-preset-scale-up'
-                                                            />
-                                                        </div>
-                                                    </>) : (
-                                                        <>
-                                                            <div className='absolute top-0 left-0 -translate-x-2.5 -translate-y-3.5 flex space-x-1 md:space-x-2'>
-                                                                <div className="bottom-2 md:space-x-2 flex flex-col text-center bg-underla-500 px-3 py-1 rounded-full">
-                                                                    {hasDiscount && compareAtPrice && (
-                                                                        <span className="text-neutral-400 line-through text-xs">
-                                                                            {compareAtPrice} {product.priceRange.minVariantPrice.currencyCode}
-                                                                        </span>
-                                                                    )}
-                                                                    <Money
-                                                                        data={product.priceRange.minVariantPrice}
-                                                                        className='text-white font-semibold text-xs'
-                                                                    />
-                                                                </div>
-                                                                {discountPercentage > 0 && (
-                                                                    <DiscountBadge
-                                                                        discountPercentage={discountPercentage}
-                                                                        className="self-start shrink-0 motion-delay-${(index + 1) * 300}"
-                                                                        size="md"
-                                                                    />
-                                                                )}
-                                                            </div>
-
-                                                            <Image
-                                                                width={150}
-                                                                height={150}
-                                                                data={getFirstPngImage(product.images.nodes)}
-                                                                className='object-contain h-3/5! absolute motion-preset-scale-up'
-                                                            />
-                                                        </>
-                                                    )
-                                                }
-
-                                            </Link>
-                                        );
-                                    }) : null
+                        {(response) => {
+                            if (!response || response.products.nodes.length === 0) {
+                                return null;
                             }
-                        }
+
+                            return response.products.nodes.slice(0, 3).map((product, index) => {
+                                // Calculate real discount percentage
+                                const compareAtPrice = product.compareAtPriceRange?.minVariantPrice?.amount;
+                                const currentPrice = product.priceRange.minVariantPrice.amount;
+                                const hasDiscount = compareAtPrice && Number(compareAtPrice) > Number(currentPrice);
+
+                                // Calculate actual discount percentage if available
+                                const discountPercentage = hasDiscount
+                                    ? Math.round((1 - (Number(currentPrice) / Number(compareAtPrice))) * 100)
+                                    : 0;
+
+                                return (
+                                    <Link
+                                        key={product.id}
+                                        to={`/products/${product.handle}`}
+                                        prefetch="intent"
+                                        className={`group relative overflow-hidden bg-gradient-to-br from-underla-50 to-underla-100 rounded-3xl h-[320px] md:h-[380px] flex flex-col justify-between p-6 transition-all duration-300 hover:shadow-2xl hover:scale-[1.02] motion-preset-fade motion-delay-${index * 150}`}
+                                    >
+                                        {/* Discount Badge */}
+                                        {discountPercentage > 0 && (
+                                            <div className="absolute top-4 right-4 z-10">
+                                                <div className="bg-underla-yellow text-white font-bold px-4 py-2 rounded-full shadow-lg flex items-center space-x-1">
+                                                    <img src={badge_percent} className="h-4 w-4" alt="%" />
+                                                    <span className="text-sm">{discountPercentage}% OFF</span>
+                                                </div>
+                                            </div>
+                                        )}
+
+                                        {/* Product Image */}
+                                        <div className="flex-1 flex items-center justify-center relative">
+                                            <Image
+                                                width={280}
+                                                height={280}
+                                                data={getFirstPngImage(product.images.nodes)}
+                                                className='object-contain max-h-[200px] md:max-h-[240px] w-auto transition-transform duration-300 group-hover:scale-110 motion-preset-scale-up'
+                                            />
+                                        </div>
+
+                                        {/* Product Info */}
+                                        <div className="space-y-2">
+                                            <h3 className="font-semibold text-neutral-800 text-sm md:text-base line-clamp-2 min-h-[40px]">
+                                                {product.title}
+                                            </h3>
+                                            
+                                            <div className="flex items-center justify-between">
+                                                <div className="flex flex-col">
+                                                    {hasDiscount && compareAtPrice && (
+                                                        <span className="text-neutral-400 line-through text-xs">
+                                                            {compareAtPrice} {product.priceRange.minVariantPrice.currencyCode}
+                                                        </span>
+                                                    )}
+                                                    <Money
+                                                        data={product.priceRange.minVariantPrice}
+                                                        className='text-underla-500 font-bold text-lg md:text-xl'
+                                                    />
+                                                </div>
+                                                
+                                                <div className="bg-underla-500 text-white px-4 py-2 rounded-full text-sm font-medium transition-colors group-hover:bg-underla-600">
+                                                    Ver más
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </Link>
+                                );
+                            });
+                        }}
                     </Await>
                 </Suspense>
             </div>

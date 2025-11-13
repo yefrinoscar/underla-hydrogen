@@ -21,8 +21,6 @@ import exclusiveAnimation from './styles/exclusive-animation.css?url';
 import mobileCss from './styles/mobile.css?url';
 import { PageLayout } from '~/components/PageLayout';
 import { FOOTER_QUERY, HEADER_QUERY } from '~/lib/fragments';
-import type { Promotion } from '~/types/promotion';
-import { tryCatch } from './utils/tryCatch';
 
 export type RootLoader = typeof loader;
 
@@ -100,37 +98,15 @@ export async function loader(args: LoaderFunctionArgs) {
 async function loadCriticalData({ context }: LoaderFunctionArgs) {
   const { storefront } = context;
 
-  // Fetch header data in parallel
-  const { data, error } = await tryCatch(Promise.all([
-    storefront.query(HEADER_QUERY, {
-      cache: storefront.CacheLong(),
-      variables: {
-        headerMenuHandle: 'main-menu', // Adjust to your header menu handle
-      },
-    }),
-    fetch('https://dashboard.underla.store/api/promotions')
-   ]));
+  // Fetch header data only
+  const header = await storefront.query(HEADER_QUERY, {
+    cache: storefront.CacheLong(),
+    variables: {
+      headerMenuHandle: 'main-menu', // Adjust to your header menu handle
+    },
+  });
 
-  // Error
-  if (error) {
-    console.error('Error loading critical data:', error);
-    // Return header data even if promotions fetch fails
-    const [header] = await Promise.all([
-      storefront.query(HEADER_QUERY, {
-        cache: storefront.CacheLong(),
-        variables: {
-          headerMenuHandle: 'main-menu',
-        },
-      }),
-    ]);
-
-    return { header, promotions: [] };
-  }
-
-  const [header, promotionsResponse] = data;
-  const promotions = await promotionsResponse.json() as Promotion[];
-
-  return { header, promotions }
+  return { header }
 }
 
 /**

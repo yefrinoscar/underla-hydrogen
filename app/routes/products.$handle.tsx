@@ -96,7 +96,7 @@ function loadDeferredData({ context, params }: LoaderFunctionArgs, productId: st
     .query(VARIANTS_QUERY, {
       variables: { handle: params.handle! },
     })
-    .catch((error) => {
+    .catch((error: unknown) => {
       // Log query errors, but don't throw them so the page can still render
       console.error(error);
       return null;
@@ -111,11 +111,11 @@ function loadDeferredData({ context, params }: LoaderFunctionArgs, productId: st
         first: 8 // Fetch 8 products to have enough for rotation
       },
     })
-    .then((result) => {
+    .then((result: any) => {
       // Use the improved processing function with multiple strategies
       return processRelatedProducts(result, params.handle!, 8);
     })
-    .catch((error) => {
+    .catch((error: unknown) => {
       // Log query errors, but don't throw them so the page can still render
       console.error('Error loading related products:', error);
       return { products: [] };

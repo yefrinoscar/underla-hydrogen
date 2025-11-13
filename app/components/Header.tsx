@@ -328,7 +328,7 @@ export function HeaderMenu({
   return (
     <nav className={className}>
       {viewport === 'desktop' &&
-        (menu || FALLBACK_HEADER_MENU).items.map((item: any) => {
+        (menu || FALLBACK_HEADER_MENU).items.map((item) => {
           if (!item.url) return null;
           // if the url is internal, we strip the domain
           const url =

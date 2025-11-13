@@ -10,6 +10,7 @@ import {useAside} from './Aside';
 import { getCollectionUrl } from '~/utils/special-collections';
 import { getCategoryColor } from '~/components/CategoryIcon';
 import { CategoryIcon } from '~/components/CategoryIcon';
+import type { PredictiveCollectionFragment } from 'storefrontapi.generated';
 
 type PredictiveSearchItems = PredictiveSearchReturn['result']['items'];
 
@@ -128,7 +129,7 @@ function SearchResultsPredictiveCollections({
   collections,
   closeSearch
 }: {
-  collections: any[];
+  collections: PredictiveCollectionFragment[];
   closeSearch: () => void;
 }) {
   if (!collections.length) return null;

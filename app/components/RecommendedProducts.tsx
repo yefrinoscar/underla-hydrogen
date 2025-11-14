@@ -46,11 +46,11 @@ export function RecommendedProducts({ products, title = "Los Más Vendidos" }: R
   };
 
   return (
-    <div className="w-full bg-white">
+    <div className="container-app py-8">
       {/* Special Box */}
-      <div className="relative overflow-hidden max-w-[1400px] mx-auto px-4 md:px-8 py-8 md:py-12">
+      <div className="relative overflow-hidden bg-white rounded-3xl">
           {/* Header */}
-          <div className="flex items-center justify-between mb-8 max-w-7xl mx-auto">
+          <div className="flex items-center justify-between mb-8">
             <div className="flex items-center gap-4">
               <div className="bg-gradient-to-br from-purple-500 via-pink-500 to-orange-500 p-3 rounded-2xl">
                 <Sparkles className="w-8 h-8 text-white" fill="white" />
@@ -65,9 +65,9 @@ export function RecommendedProducts({ products, title = "Los Más Vendidos" }: R
           </div>
 
               <Suspense fallback={
-            <div className="flex overflow-x-auto gap-6 pb-6">
+            <div className="flex overflow-x-auto gap-4 md:gap-6 pb-6">
               {[1, 2, 3, 4].map((i) => (
-                <div key={i} className="flex-shrink-0 w-[280px] h-[380px] rounded-2xl bg-gray-200 animate-pulse"></div>
+                <div key={i} className="flex-shrink-0 w-[200px] md:w-[280px] h-[300px] md:h-[380px] rounded-2xl bg-gray-200 animate-pulse"></div>
               ))}
             </div>
           }>
@@ -102,18 +102,18 @@ export function RecommendedProducts({ products, title = "Los Más Vendidos" }: R
                     <div 
                       ref={scrollContainerRef}
                       onScroll={handleScroll}
-                      className="flex overflow-x-auto gap-6 pb-6 scrollbar-hide scroll-smooth"
+                      className="flex overflow-x-auto gap-4 md:gap-6 pb-6 scrollbar-hide scroll-smooth"
                       style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
                     >
                       {response.products.nodes.map((product) => (
                         <Link
                           key={product.id}
-                          className="group flex-shrink-0 w-[280px]"
+                          className="group flex-shrink-0 w-[200px] md:w-[280px]"
                           to={`/products/${product.handle}`}
                         >
                           <div className="h-full rounded-2xl overflow-hidden bg-gradient-to-br from-purple-50 via-pink-50 to-orange-50 transition-all duration-300">
                             {/* Product Image */}
-                            <div className="relative bg-white m-4 rounded-xl h-[240px] flex items-center justify-center p-6 overflow-hidden">
+                            <div className="relative bg-white m-3 md:m-4 rounded-xl h-[180px] md:h-[240px] flex items-center justify-center p-4 md:p-6 overflow-hidden">
                               <img
                                 src={product.images.nodes[0]?.url}
                                 width={240}
@@ -125,14 +125,14 @@ export function RecommendedProducts({ products, title = "Los Más Vendidos" }: R
                             </div>
                             
                             {/* Product Info */}
-                            <div className="px-5 pb-5 space-y-3">
-                              <h4 className='font-bold text-neutral-900 text-base line-clamp-2 leading-tight min-h-[2.5rem]'>
+                            <div className="px-3 md:px-5 pb-3 md:pb-5 space-y-2 md:space-y-3">
+                              <h4 className='font-bold text-neutral-900 text-sm md:text-base line-clamp-2 leading-tight min-h-[2rem] md:min-h-[2.5rem]'>
                                 {product.title}
                               </h4>
                               <div className="flex items-center justify-between">
                                 <Money 
                                   data={product.priceRange.minVariantPrice} 
-                                  className='font-black text-xl bg-gradient-to-r from-purple-600 via-pink-600 to-orange-600 bg-clip-text text-transparent' 
+                                  className='font-black text-lg md:text-xl bg-gradient-to-r from-purple-600 via-pink-600 to-orange-600 bg-clip-text text-transparent' 
                                 />
                                 <div className="bg-gradient-to-br from-purple-500 via-pink-500 to-orange-500 text-white p-2 rounded-full opacity-0 group-hover:opacity-100 transition-opacity">
                                   <ShoppingBag className="w-4 h-4" />

@@ -4,7 +4,8 @@ import type { HeaderQuery, CartApiQueryFragment } from 'storefrontapi.generated'
 import { useAside } from '~/components/Aside';
 import { SearchFormPredictive } from '~/components/SearchFormPredictive';
 import { SearchResultsPredictive } from '~/components/SearchResultsPredictive';
-import logo from "../assets/underla_logo.svg";
+//import logo from "../assets/underla_logo.svg";
+import logo from "../assets/logo_navidad.svg";
 import menu from "../assets/menu.svg";
 import { ShoppingCart, User, UserCheck, UserX } from 'lucide-react';
 

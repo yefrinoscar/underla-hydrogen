@@ -206,7 +206,7 @@ export function CategoryCollection({
                   <div 
                     ref={scrollContainerRef}
                     onScroll={handleScroll}
-                    className='flex gap-6 overflow-x-auto scrollbar-hide scroll-smooth pb-4'
+                    className='flex gap-4 md:gap-6 overflow-x-auto scrollbar-hide scroll-smooth pb-4'
                     style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
                   >
                     {categoryProducts.map((product) => {
@@ -214,30 +214,30 @@ export function CategoryCollection({
                         <Link
                           key={product.id}
                           to={`/products/${product.handle}`}
-                          className={`group shrink-0 w-[280px] ${backgroundColor} rounded-2xl overflow-hidden transition-all duration-300`}
+                          className={`group shrink-0 w-[200px] md:w-[280px] ${backgroundColor} rounded-2xl overflow-hidden transition-all duration-300`}
                         >
                           {/* Image Container */}
-                          <div className="relative aspect-square overflow-hidden p-4">
+                          <div className="relative aspect-square overflow-hidden p-3 md:p-4">
                             {product.images.nodes[0] && (
                               <div className="w-full h-full bg-white rounded-2xl overflow-hidden">
                                 <Image
                                   data={product.images.nodes[0]}
-                                  className='w-full h-full object-contain p-4 transition-transform duration-500 group-hover:scale-110'
-                                  sizes="280px"
+                                  className='w-full h-full object-contain p-3 md:p-4 transition-transform duration-500 group-hover:scale-110'
+                                  sizes="(max-width: 768px) 200px, 280px"
                                 />
                               </div>
                             )}
                           </div>
 
                           {/* Product Info */}
-                          <div className="p-5 space-y-3">
-                            <h3 className="font-bold text-neutral-900 text-base line-clamp-2 leading-tight min-h-[2.5rem]">
+                          <div className="p-3 md:p-5 space-y-2 md:space-y-3">
+                            <h3 className="font-bold text-neutral-900 text-sm md:text-base line-clamp-2 leading-tight min-h-[2rem] md:min-h-[2.5rem]">
                               {product.title}
                             </h3>
                             <div className="flex items-center gap-3">
                               <Money
                                 data={product.priceRange.minVariantPrice}
-                                className={`font-black text-xl ${colors.price}`}
+                                className={`font-black text-lg md:text-xl ${colors.price}`}
                               />
                             </div>
                           </div>

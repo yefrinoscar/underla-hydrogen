@@ -379,13 +379,17 @@ function SpecialCollections() {
             ) : (
               <div className="grid gap-4 grid-cols-2 md:gap-6 lg:grid-cols-3 xl:grid-cols-4">
                 <Pagination connection={connection}>
-                  {({ nodes, NextLink, hasNextPage, nextPageUrl, state }) => (
+                  {({ nodes, isLoading, NextLink, hasNextPage, nextPageUrl, state }) => (
                     <InfiniteProductGrid
                       products={nodes as ProductItemFragment[]}
                       hasNextPage={hasNextPage}
                       nextPageUrl={nextPageUrl}
-                      state={state}
-                      NextLink={NextLink}
+                      state={{
+                        pageBy: connection.pageInfo.hasNextPage ? nodes.length : 0,
+                        startCursor: connection.pageInfo.startCursor ?? '',
+                        endCursor: connection.pageInfo.endCursor ?? '',
+                      }}
+                      NextLink={NextLink as any}
                       whiteBackground={true}
                     />
                   )}

@@ -68,8 +68,10 @@ export function HomeBanner({
 
             {/* Hero Grid: 2 Videos + 3 Columns Products */}
             <div className='flex flex-col md:flex-row gap-4 md:gap-6 md:h-[350px]'>
+                {/* Videos Container - 50/50 on mobile */}
+                <div className='flex md:contents gap-3 md:gap-4'>
                 {/* Video 1 */}
-                <div className='relative h-[400px] md:h-full aspect-[9/16] rounded-2xl overflow-hidden bg-gradient-to-br from-underla-100 to-underla-200 motion-preset-slide-right group'>
+                <div className='relative flex-1 aspect-[9/16] md:flex-none md:h-full md:aspect-[9/16] rounded-2xl overflow-hidden bg-gradient-to-br from-underla-100 to-underla-200 motion-preset-slide-right group'>
                     {!videoError1 ? (
                         <video
                             ref={videoRef1}
@@ -100,7 +102,7 @@ export function HomeBanner({
                 </div>
 
                 {/* Video 2 */}
-                <div className='relative h-[400px] md:h-full aspect-[9/16] rounded-2xl overflow-hidden bg-gradient-to-br from-underla-200 to-underla-300 motion-preset-slide-right motion-delay-150 group'>
+                <div className='relative flex-1 aspect-[9/16] md:flex-none md:h-full md:aspect-[9/16] rounded-2xl overflow-hidden bg-gradient-to-br from-underla-200 to-underla-300 motion-preset-slide-right motion-delay-150 group'>
                     {!videoError2 ? (
                         <video
                             ref={videoRef2}
@@ -128,6 +130,7 @@ export function HomeBanner({
                             </svg>
                         </div>
                     </Link>
+                </div>
                 </div>
 
                 {/* Products Grid: 2 Columns Layout - Left (1 large), Right (2 stacked) */}

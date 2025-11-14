@@ -56,12 +56,12 @@ export function VideoReel() {
 
       {/* Video Reels Grid */}
       <div className="relative">
-        <div className="flex gap-4 overflow-x-auto pb-4 snap-x snap-mandatory scrollbar-hide">
+        <div className="grid grid-cols-2 md:flex gap-3 md:gap-4 md:overflow-x-auto pb-4 md:snap-x md:snap-mandatory scrollbar-hide">
           {SAMPLE_REELS.map((reel, index) => (
             <button
               key={reel.id}
               onClick={() => setSelectedVideo(reel)}
-              className={`group relative flex-shrink-0 w-[140px] md:w-[180px] h-[240px] md:h-[320px] rounded-2xl overflow-hidden snap-start motion-preset-slide-up motion-delay-${index * 100}`}
+              className={`group relative flex-shrink-0 w-full md:w-[180px] h-[240px] md:h-[320px] rounded-2xl overflow-hidden md:snap-start motion-preset-slide-up motion-delay-${index * 100}`}
             >
               {/* Thumbnail */}
               <img

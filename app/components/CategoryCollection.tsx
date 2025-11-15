@@ -41,9 +41,8 @@ interface CategoryCollectionProps {
   collection: Promise<FeaturedCollectionQuery | null>;
   title: string;
   subtitle?: string;
-  accentColor?: string;
   categoryHandle: string;
-  backgroundColor?: string;
+  titleAccentColor?: string;
 }
 
 export function CategoryCollection({ 
@@ -51,9 +50,8 @@ export function CategoryCollection({
   collection,
   title, 
   subtitle = "Descubre nuestra colección exclusiva",
-  accentColor = "pink",
   categoryHandle,
-  backgroundColor = "bg-white"
+  titleAccentColor = "text-underla-500"
 }: CategoryCollectionProps) {
   const scrollContainerRef = useRef<HTMLDivElement>(null);
   const [showLeftArrow, setShowLeftArrow] = useState(false);
@@ -76,53 +74,6 @@ export function CategoryCollection({
     });
   };
 
-  // Color classes mapping
-  const colorClasses = {
-    pink: {
-      icon: 'text-pink-500',
-      titleAccent: 'text-pink-500',
-      button: 'bg-pink-500 hover:bg-pink-600',
-      cardBg: 'from-pink-50 to-rose-50',
-      price: 'text-pink-500'
-    },
-    purple: {
-      icon: 'text-purple-500',
-      titleAccent: 'text-purple-500',
-      button: 'bg-purple-500 hover:bg-purple-600',
-      cardBg: 'from-purple-50 to-violet-50',
-      price: 'text-purple-500'
-    },
-    blue: {
-      icon: 'text-blue-500',
-      titleAccent: 'text-blue-500',
-      button: 'bg-blue-500 hover:bg-blue-600',
-      cardBg: 'from-blue-50 to-cyan-50',
-      price: 'text-blue-500'
-    },
-    green: {
-      icon: 'text-green-500',
-      titleAccent: 'text-green-500',
-      button: 'bg-green-500 hover:bg-green-600',
-      cardBg: 'from-green-50 to-emerald-50',
-      price: 'text-green-500'
-    },
-    orange: {
-      icon: 'text-orange-500',
-      titleAccent: 'text-orange-500',
-      button: 'bg-orange-500 hover:bg-orange-600',
-      cardBg: 'from-orange-50 to-amber-50',
-      price: 'text-orange-500'
-    },
-    black: {
-      icon: 'text-neutral-900',
-      titleAccent: 'text-neutral-900',
-      button: 'bg-neutral-900 hover:bg-neutral-800',
-      cardBg: 'from-neutral-100 to-neutral-200',
-      price: 'text-neutral-900'
-    }
-  };
-
-  const colors = colorClasses[accentColor as keyof typeof colorClasses] || colorClasses.pink;
 
   return (
     <div className='container-app'>
@@ -145,13 +96,12 @@ export function CategoryCollection({
                       />
                     </div>
                   ) : (
-                    <Sparkles className={`w-8 h-8 ${colors.icon}`} fill="currentColor" />
+                    <Sparkles className="w-8 h-8 text-underla-500" fill="currentColor" />
                   )}
                   <div>
-                    <h2 
-                      className='text-3xl md:text-4xl font-black text-neutral-900'
-                      dangerouslySetInnerHTML={{ __html: title }}
-                    />
+                    <h2 className={`text-3xl md:text-4xl font-black ${titleAccentColor}`}>
+                      {title}
+                    </h2>
                     <p className="text-sm md:text-base text-neutral-600 mt-1">
                       {subtitle}
                     </p>
@@ -159,7 +109,7 @@ export function CategoryCollection({
                 </div>
                 <Link
                   to={`/collections/special/${categoryHandle}`}
-                  className={`hidden md:flex items-center gap-2 px-6 py-3 ${colors.button} text-white font-bold rounded-full transition-all duration-300 hover:scale-105 shadow-lg hover:shadow-xl`}
+                  className="hidden md:flex items-center gap-2 px-6 py-3 bg-underla-500 hover:bg-underla-600 text-white font-bold rounded-full transition-all duration-300 hover:scale-105 shadow-lg hover:shadow-xl"
                 >
                   Ver todo
                   <ChevronRight className="w-5 h-5" />
@@ -214,7 +164,7 @@ export function CategoryCollection({
                         <Link
                           key={product.id}
                           to={`/products/${product.handle}`}
-                          className={`group shrink-0 w-[200px] md:w-[280px] ${backgroundColor} rounded-2xl overflow-hidden transition-all duration-300`}
+                          className="group shrink-0 w-[200px] md:w-[280px] bg-gray-100 rounded-2xl overflow-hidden transition-all duration-300 hover:shadow-lg"
                         >
                           {/* Image Container */}
                           <div className="relative aspect-square overflow-hidden p-3 md:p-4">
@@ -237,7 +187,7 @@ export function CategoryCollection({
                             <div className="flex items-center gap-3">
                               <Money
                                 data={product.priceRange.minVariantPrice}
-                                className={`font-black text-lg md:text-xl ${colors.price}`}
+                                className="font-black text-lg md:text-xl text-underla-500"
                               />
                             </div>
                           </div>
@@ -258,7 +208,7 @@ export function CategoryCollection({
       <div className="mt-8 md:hidden flex justify-center">
         <Link
           to={`/collections/special/${categoryHandle}`}
-          className={`flex items-center gap-2 px-8 py-3 ${colors.button} text-white font-bold rounded-full transition-all duration-300 hover:scale-105 shadow-lg`}
+          className="flex items-center gap-2 px-8 py-3 bg-underla-500 hover:bg-underla-600 text-white font-bold rounded-full transition-all duration-300 hover:scale-105 shadow-lg"
         >
           Ver toda la colección
           <ChevronRight className="w-5 h-5" />

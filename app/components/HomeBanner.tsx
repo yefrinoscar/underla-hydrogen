@@ -5,7 +5,8 @@ import { Await } from "react-router";
 import type { ProductItemFragment } from 'storefrontapi.generated';
 import badge_percent from '~/assets/badge-percent.svg';
 import { Play, X } from 'lucide-react';
-import exampleVideo from '~/assets/videos/example.mp4';
+import home1 from '~/assets/videos/home-1.mp4';
+import home2 from '~/assets/videos/home-2.mp4';
 
 // Reuse and extend ProductItemFragment with only what's different
 type HomeProduct = Omit<ProductItemFragment, 'featuredImage' | 'variants'> & {
@@ -38,8 +39,8 @@ export function HomeBanner({
     const [videoError2, setVideoError2] = useState(false);
     
     // URLs de videos verticales estilo reels/TikTok (formato 9:16)
-    const verticalVideoUrl1 = exampleVideo;
-    const verticalVideoUrl2 = exampleVideo;
+    const verticalVideoUrl1 = home1;
+    const verticalVideoUrl2 = home2;
 
     // Intentar reproducir los videos cuando se montan
     useEffect(() => {
@@ -90,7 +91,7 @@ export function HomeBanner({
                             <Play className="w-12 h-12 text-underla-400" />
                         </div>
                     )}
-                    <Link to="/collections/all" className="absolute bottom-0 left-0 right-0 p-4 text-white group-hover:pb-5 transition-all duration-300 bg-gradient-to-t from-underla-500/80 via-underla-500/40 to-transparent">
+                    <Link to="/collections/special/para-ellas" className="absolute bottom-0 left-0 right-0 p-4 text-white group-hover:pb-5 transition-all duration-300 bg-gradient-to-t from-underla-500/80 via-underla-500/40 to-transparent">
                         <h3 className="text-lg md:text-xl font-bold mb-2">Nuevos Productos</h3>
                         <div className="flex items-center gap-2 text-sm font-medium opacity-90 group-hover:opacity-100 transition-opacity">
                             <span>Ver más</span>
@@ -121,8 +122,8 @@ export function HomeBanner({
                             <Play className="w-12 h-12 text-underla-400" />
                         </div>
                     )}
-                    <Link to="/collections/all" className="absolute bottom-0 left-0 right-0 p-4 text-white group-hover:pb-5 transition-all duration-300 bg-gradient-to-t from-underla-500/80 via-underla-500/40 to-transparent">
-                        <h3 className="text-lg md:text-xl font-bold mb-2">Ofertas</h3>
+                    <Link to="/collections/special/para-ellas" className="absolute bottom-0 left-0 right-0 p-4 text-white group-hover:pb-5 transition-all duration-300 bg-gradient-to-t from-underla-500/80 via-underla-500/40 to-transparent">
+                        <h3 className="text-lg md:text-xl font-bold mb-2"></h3>
                         <div className="flex items-center gap-2 text-sm font-medium opacity-90 group-hover:opacity-100 transition-opacity">
                             <span>Ver más</span>
                             <svg className="w-4 h-4 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">

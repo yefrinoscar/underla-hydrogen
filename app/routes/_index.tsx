@@ -87,7 +87,7 @@ function loadDeferredData({ context }: LoaderFunctionArgs): {
 
   const lipsProducts = context.storefront
     .query(COLLECTION_PRODUCTS_QUERY, {
-      variables: { 
+      variables: {
         handle: 'para-ellas_labios',
         first: 6
       }
@@ -99,7 +99,7 @@ function loadDeferredData({ context }: LoaderFunctionArgs): {
 
   const sneakersProducts = context.storefront
     .query(COLLECTION_PRODUCTS_QUERY, {
-      variables: { 
+      variables: {
         handle: 'streetwear_zapatillas',
         first: 6
       }
@@ -111,7 +111,7 @@ function loadDeferredData({ context }: LoaderFunctionArgs): {
 
   const perfumesProducts = context.storefront
     .query(COLLECTION_PRODUCTS_QUERY, {
-      variables: { 
+      variables: {
         handle: 'perfumes_disenador',
         first: 6
       }
@@ -157,7 +157,7 @@ export default function Homepage() {
       setTimeout(() => {
         const categoriesSection = document.getElementById('categorias');
         if (categoriesSection) {
-          categoriesSection.scrollIntoView({ 
+          categoriesSection.scrollIntoView({
             behavior: 'smooth',
             block: 'start'
           });
@@ -170,54 +170,54 @@ export default function Homepage() {
     <>
 
       <div className="space-y-8">
-      {/* Promotions Carousel */}
-      {promotions && promotions.length > 0 && (
-        <PromotionCarousel promotions={promotions} />
-      )}
-      
-        
+
+        {/* CTA Hero - Above "Los productos de la semana" */}
+        <CtaRequest variant="emoji" />
+
+        {/* Promotions Carousel */}
+        {promotions && promotions.length > 0 && (
+          <PromotionCarousel promotions={promotions} />
+        )}
+
         {/* Hero Banner with 3 Featured Products */}
         <HomeBanner products={data.homeProducts} />
-      
-      {/* Categories Horizontal Scroll */}
-      <FeaturedCollection collections={data.collections} />
-      
-      {/* Best Sellers */}
-      <RecommendedProducts products={data.recommendedProducts} />
-      
-      {/* Lips Collection */}
-      <CategoryCollection 
-        products={data.lipsProducts}
-        collection={data.collections}
-        title='Labios que <span class="text-pink-500">Enamoran</span>'
-        subtitle="Dale vida a tu sonrisa con nuestra colección exclusiva"
-        accentColor="pink"
-        categoryHandle="para-ellas_labios"
-        backgroundColor="bg-pink-50"
-      />
 
-      {/* Sneakers Collection */}
-      <CategoryCollection 
-        products={data.sneakersProducts}
-        collection={data.collections}
-        title='Streetwear <span class="text-orange-500">Urbano</span>'
-        subtitle="Las zapatillas más cool para tu estilo único"
-        accentColor="orange"
-        categoryHandle="streetwear_zapatillas"
-        backgroundColor="bg-gray-100"
-      />
+        {/* Categories Horizontal Scroll */}
+        <FeaturedCollection collections={data.collections} />
 
-      {/* Perfumes Collection */}
-      <CategoryCollection 
-        products={data.perfumesProducts}
-        collection={data.collections}
-        title='Perfumes de <span class="text-neutral-900">Diseñador</span>'
-        subtitle="Fragancias exclusivas que definen tu personalidad"
-        accentColor="black"
-        categoryHandle="perfumes_disenador"
-        backgroundColor="bg-neutral-100"
-      />
-      
+        {/* Best Sellers */}
+        <RecommendedProducts products={data.recommendedProducts} />
+
+        {/* Lips Collection */}
+        <CategoryCollection
+          products={data.lipsProducts}
+          collection={data.collections}
+          title="Labios que Enamoran"
+          subtitle="Dale vida a tu sonrisa con nuestra colección exclusiva"
+          categoryHandle="para-ellas_labios"
+          titleAccentColor="text-pink-500"
+        />
+
+        {/* Sneakers Collection */}
+        <CategoryCollection
+          products={data.sneakersProducts}
+          collection={data.collections}
+          title="Streetwear Urbano"
+          subtitle="Las zapatillas más cool para tu estilo único"
+          categoryHandle="streetwear_zapatillas"
+          titleAccentColor="text-neutral-900"
+        />
+
+        {/* Perfumes Collection */}
+        <CategoryCollection
+          products={data.perfumesProducts}
+          collection={data.collections}
+          title="Perfumes de Diseñador"
+          subtitle="Fragancias exclusivas que definen tu personalidad"
+          categoryHandle="perfumes_disenador"
+          titleAccentColor="text-neutral-900"
+        />
+
         {/* CTA Request Form */}
         <CtaRequest />
       </div>

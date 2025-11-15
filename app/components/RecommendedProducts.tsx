@@ -46,7 +46,7 @@ export function RecommendedProducts({ products, title = "Los Más Vendidos" }: R
   };
 
   return (
-    <div className="container-app py-8">
+    <div className="container-app">
       {/* Special Box */}
       <div className="relative overflow-hidden bg-white rounded-3xl">
           {/* Header */}

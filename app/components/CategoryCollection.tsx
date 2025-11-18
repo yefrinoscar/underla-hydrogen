@@ -1,0 +1,238 @@
+import { Suspense, useRef, useState } from 'react';
+import { Await, Link } from 'react-router';
+import { ChevronLeft, ChevronRight, Sparkles } from 'lucide-react';
+import { Image, Money } from '@shopify/hydrogen';
+import type { RecommendedProductsQueryResult } from './RecommendedProducts';
+import type { FeaturedCollectionQuery } from './FeaturedCollection';
+
+interface CollectionProductsResult {
+  collection: {
+    id: string;
+    title: string;
+    handle: string;
+    products: {
+      nodes: Array<{
+        id: string;
+        title: string;
+        handle: string;
+        tags: string[];
+        priceRange: {
+          minVariantPrice: {
+            amount: string;
+            currencyCode: any;
+          };
+        };
+        images: {
+          nodes: Array<{
+            id: string;
+            url: string;
+            altText: string | null;
+            width: number;
+            height: number;
+          }>;
+        };
+      }>;
+    };
+  };
+}
+
+interface CategoryCollectionProps {
+  products: Promise<CollectionProductsResult | null>;
+  collection: Promise<FeaturedCollectionQuery | null>;
+  title: string;
+  subtitle?: string;
+  categoryHandle: string;
+  titleAccentColor?: string;
+}
+
+export function CategoryCollection({ 
+  products, 
+  collection,
+  title, 
+  subtitle = "Descubre nuestra colección exclusiva",
+  categoryHandle,
+  titleAccentColor = "text-underla-500"
+}: CategoryCollectionProps) {
+  const scrollContainerRef = useRef<HTMLDivElement>(null);
+  const [showLeftArrow, setShowLeftArrow] = useState(false);
+  const [showRightArrow, setShowRightArrow] = useState(true);
+
+  const handleScroll = () => {
+    if (!scrollContainerRef.current) return;
+    const { scrollLeft, scrollWidth, clientWidth } = scrollContainerRef.current;
+    setShowLeftArrow(scrollLeft > 10);
+    setShowRightArrow(scrollLeft < scrollWidth - clientWidth - 10);
+  };
+
+  const scroll = (direction: 'left' | 'right') => {
+    if (!scrollContainerRef.current) return;
+    const scrollAmount = 320;
+    const newScrollLeft = scrollContainerRef.current.scrollLeft + (direction === 'left' ? -scrollAmount : scrollAmount);
+    scrollContainerRef.current.scrollTo({
+      left: newScrollLeft,
+      behavior: 'smooth'
+    });
+  };
+
+
+  return (
+    <div className='container-app'>
+      <Suspense fallback={<div>Cargando...</div>}>
+        <Await resolve={collection}>
+          {(collectionData) => {
+            const categoryImage = collectionData?.collections.nodes.find(
+              c => c.handle === categoryHandle
+            )?.image;
+
+            return (
+              <div className="mb-8 flex items-center justify-between">
+                <div className="flex items-center gap-4">
+                  {categoryImage ? (
+                    <div className="w-16 h-16 md:w-20 md:h-20 rounded-2xl overflow-hidden shadow-lg flex-shrink-0 bg-white">
+                      <Image
+                        data={categoryImage}
+                        className="w-full h-full object-cover"
+                        sizes="80px"
+                      />
+                    </div>
+                  ) : (
+                    <Sparkles className="w-8 h-8 text-underla-500" fill="currentColor" />
+                  )}
+                  <div>
+                    <h2 className={`text-3xl md:text-4xl font-black ${titleAccentColor}`}>
+                      {title}
+                    </h2>
+                    <p className="text-sm md:text-base text-neutral-600 mt-1">
+                      {subtitle}
+                    </p>
+                  </div>
+                </div>
+                <Link
+                  to={`/collections/special/${categoryHandle}`}
+                  className="hidden md:flex items-center gap-2 px-6 py-3 bg-underla-500 hover:bg-underla-600 text-white font-bold rounded-full transition-all duration-300 hover:scale-105 shadow-lg hover:shadow-xl"
+                >
+                  Ver todo
+                  <ChevronRight className="w-5 h-5" />
+                </Link>
+              </div>
+            );
+          }}
+        </Await>
+      </Suspense>
+      
+      <Suspense fallback={<CategorySkeleton />}>
+        <Await resolve={products}>
+          {(response: CollectionProductsResult | null) => {
+            if (!response || !response.collection || response.collection.products.nodes.length === 0) return null;
+            
+            const categoryProducts = response.collection.products.nodes;
+
+            return (
+              <div className='relative group/carousel'>
+                {/* Left Arrow */}
+                {showLeftArrow && (
+                  <button
+                    onClick={() => scroll('left')}
+                    className='absolute left-0 top-1/2 -translate-y-1/2 z-20 bg-white hover:bg-neutral-50 shadow-xl rounded-full p-3 transition-all duration-300 opacity-0 group-hover/carousel:opacity-100 hover:scale-110'
+                    aria-label="Scroll left"
+                  >
+                    <ChevronLeft className='w-6 h-6 text-neutral-800' />
+                  </button>
+                )}
+
+                {/* Right Arrow */}
+                {showRightArrow && (
+                  <button
+                    onClick={() => scroll('right')}
+                    className='absolute right-0 top-1/2 -translate-y-1/2 z-20 bg-white hover:bg-neutral-50 shadow-xl rounded-full p-3 transition-all duration-300 opacity-0 group-hover/carousel:opacity-100 hover:scale-110'
+                    aria-label="Scroll right"
+                  >
+                    <ChevronRight className='w-6 h-6 text-neutral-800' />
+                  </button>
+                )}
+
+                {/* Products Container */}
+                <div className='relative'>
+                  <div 
+                    ref={scrollContainerRef}
+                    onScroll={handleScroll}
+                    className='flex gap-4 md:gap-6 overflow-x-auto scrollbar-hide scroll-smooth pb-4'
+                    style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
+                  >
+                    {categoryProducts.map((product) => {
+                      return (
+                        <Link
+                          key={product.id}
+                          to={`/products/${product.handle}`}
+                          className="group shrink-0 w-[200px] md:w-[280px] bg-gray-100 rounded-2xl overflow-hidden transition-all duration-300 hover:shadow-lg"
+                        >
+                          {/* Image Container */}
+                          <div className="relative aspect-square overflow-hidden p-3 md:p-4">
+                            {product.images.nodes[0] && (
+                              <div className="w-full h-full bg-white rounded-2xl overflow-hidden">
+                                <Image
+                                  data={product.images.nodes[0]}
+                                  className='w-full h-full object-contain p-3 md:p-4 transition-transform duration-500 group-hover:scale-110'
+                                  sizes="(max-width: 768px) 200px, 280px"
+                                />
+                              </div>
+                            )}
+                          </div>
+
+                          {/* Product Info */}
+                          <div className="p-3 md:p-5 space-y-2 md:space-y-3">
+                            <h3 className="font-bold text-neutral-900 text-sm md:text-base line-clamp-2 leading-tight min-h-[2rem] md:min-h-[2.5rem]">
+                              {product.title}
+                            </h3>
+                            <div className="flex items-center gap-3">
+                              <Money
+                                data={product.priceRange.minVariantPrice}
+                                className="font-black text-lg md:text-xl text-underla-500"
+                              />
+                            </div>
+                          </div>
+                        </Link>
+                      );
+                    })}
+                    {/* Spacer */}
+                    <div className='shrink-0 w-1'></div>
+                  </div>
+                </div>
+              </div>
+            );
+          }}
+        </Await>
+      </Suspense>
+
+      {/* Mobile CTA */}
+      <div className="mt-8 md:hidden flex justify-center">
+        <Link
+          to={`/collections/special/${categoryHandle}`}
+          className="flex items-center gap-2 px-8 py-3 bg-underla-500 hover:bg-underla-600 text-white font-bold rounded-full transition-all duration-300 hover:scale-105 shadow-lg"
+        >
+          Ver toda la colección
+          <ChevronRight className="w-5 h-5" />
+        </Link>
+      </div>
+    </div>
+  );
+}
+
+function CategorySkeleton() {
+  const skeletonItems = Array.from({ length: 4 }, (_, i) => i);
+  
+  return (
+    <div className='flex overflow-x-auto gap-6 pb-4'>
+      {skeletonItems.map((index) => (
+        <div key={index} className='shrink-0 w-[280px] bg-white rounded-2xl overflow-hidden shadow-md'>
+          <div className="aspect-square bg-gray-200 animate-pulse"></div>
+          <div className="p-5 space-y-3">
+            <div className="h-4 bg-gray-200 rounded animate-pulse"></div>
+            <div className="h-4 bg-gray-200 rounded w-2/3 animate-pulse"></div>
+            <div className="h-6 bg-gray-200 rounded w-1/3 animate-pulse"></div>
+          </div>
+        </div>
+      ))}
+    </div>
+  );
+}

@@ -4,7 +4,8 @@ import type { HeaderQuery, CartApiQueryFragment } from 'storefrontapi.generated'
 import { useAside } from '~/components/Aside';
 import { SearchFormPredictive } from '~/components/SearchFormPredictive';
 import { SearchResultsPredictive } from '~/components/SearchResultsPredictive';
-import logo from "../assets/underla_logo.svg";
+//import logo from "../assets/underla_logo.svg";
+import logo from "../assets/logo_navidad.svg";
 import menu from "../assets/menu.svg";
 import { ShoppingCart, User, UserCheck, UserX } from 'lucide-react';
 
@@ -88,7 +89,7 @@ export function Header({
   const queriesDatalistId = useId();
   
   // Check if we're on a special route that should have transparent header with white text
-  const isSpecialRoute = location.pathname.includes('/collections/special/') && !location.pathname.includes('/v2');
+  const isSpecialRoute = location.pathname.includes('/collections/special/');
 
   useEffect(() => {
     const handleScroll = () => {
@@ -107,13 +108,11 @@ export function Header({
   }, [])
 
   // Determine header classes based on route and scroll state
-  const headerClasses = isSpecialRoute 
-    ? `header w-full mb-8 md:mb-10 ${isScrolled ? 'bg-white/90 backdrop-blur-md' : 'bg-transparent'} border-b-0 transition-all duration-300`
-    : `header w-full mb-8 md:mb-10 ${isScrolled ? 'bg-white/90 backdrop-blur-md' : 'bg-white'} border-b-0 transition-all duration-300`;
+  const headerClasses = `header w-full ${isSpecialRoute && !isScrolled ? 'bg-transparent' : 'bg-white/95 backdrop-blur-lg'} ${isScrolled ? 'shadow-sm' : ''} border-b-0 transition-all duration-500 ease-out sticky top-0 z-[9999] mb-8`;
 
     
   // Determine text/icon color classes based on route and scroll state
-  const textColorClasses = (isSpecialRoute && !isScrolled) ? 'text-white' : 'text-neutral-800';
+  const textColorClasses = isSpecialRoute && !isScrolled ? 'text-neutral-800' : 'text-neutral-800';
 
   // No need for toggle as search is always expanded
 
@@ -330,7 +329,7 @@ export function HeaderMenu({
   return (
     <nav className={className}>
       {viewport === 'desktop' &&
-        (menu || FALLBACK_HEADER_MENU).items.map((item: any) => {
+        (menu || FALLBACK_HEADER_MENU).items.map((item) => {
           if (!item.url) return null;
           // if the url is internal, we strip the domain
           const url =

@@ -70,11 +70,11 @@ export function PromotionCarousel({ promotions }: PromotionCarouselProps) {
   const currentPromotion = promotions[currentIndex];
 
   return (
-    <div className="w-full mb-4 pt-6 pb-2">
-      <div className="relative max-w-7xl mx-4 md:mx-auto">
+    <div className="w-full">
+      <div className="container-app">
         {/* Main Carousel Container */}
         <div
-          className={`relative h-[75px] md:h-[85px] rounded-[20px] text-white overflow-hidden shadow-lg transform transition-all duration-700 ease-in-out ${
+          className={`relative h-[220px] rounded-2xl text-white overflow-hidden shadow-lg transform transition-all duration-700 ease-in-out ${
             isLoaded ? "translate-y-0 opacity-100" : "translate-y-[-20px] opacity-0"
           }`}
         >
@@ -99,34 +99,36 @@ export function PromotionCarousel({ promotions }: PromotionCarouselProps) {
                   className="relative block h-full"
                 >
                   <div 
-                    className="px-4 py-3 sm:px-6 lg:px-8 h-full flex w-full"
+                    className="px-6 py-6 md:px-12 md:py-8 h-full flex w-full"
                     style={{
-                      background: `linear-gradient(to right, rgba(0,0,0,0.7) 0%, rgba(0,0,0,0) 50%)`
+                      background: `linear-gradient(to right, rgba(0,0,0,0.75) 0%, rgba(0,0,0,0.3) 50%, rgba(0,0,0,0) 70%)`
                     }}
                   >
-                    <div className="w-full flex items-center justify-between flex-wrap">
-                      <div className="flex-1 flex items-center h-full justify-center md:justify-start">
-                        <div className="ml-3 font-medium truncate flex flex-col gap-2">
-                          <span 
-                            className="inline md:hidden"
+                    <div className="w-full flex items-center">
+                      <div className="flex-1 flex flex-col justify-center gap-4 max-w-3xl">
+                        <div className="space-y-2">
+                          <h2 
+                            className="text-3xl md:text-5xl font-black tracking-tight leading-tight drop-shadow-lg"
                             style={{ color: promotion.text_color }}
                           >
                             {promotion.title}
-                          </span>
-                          <span 
-                            className="hidden md:inline text-lg font-bold tracking-tight"
-                            style={{ color: promotion.text_color }}
-                          >
-                            {promotion.title}
-                          </span>
-                          <div className="hidden md:block">
-                            <button 
-                              className="cursor-pointer flex items-center justify-center px-3 py-1.5 text-sm font-medium rounded-lg bg-gradient-to-r from-[#6644ff] via-[#4D2DDA] to-[#3620a0] text-white hover:shadow-[0_4px_12px_-2px_rgba(77,45,218,0.6)] transition-all duration-300 ease-out transform hover:scale-[1.02] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#4D2DDA] shadow-md"
+                          </h2>
+                          {promotion.description && (
+                            <p 
+                              className="text-base md:text-xl font-medium opacity-95 line-clamp-2 leading-relaxed drop-shadow-md"
+                              style={{ color: promotion.text_color }}
                             >
-                              {promotion.button_text || 'Ver promoción'}
-                              <ShoppingCart className='h-4 w-4 ml-1.5' />
-                            </button>
-                          </div>
+                              {promotion.description}
+                            </p>
+                          )}
+                        </div>
+                        <div className="flex items-center gap-4 mt-2">
+                          <button 
+                            className="group relative inline-flex items-center justify-center gap-2.5 px-8 py-3.5 md:px-10 md:py-4 text-base md:text-lg font-bold rounded-full bg-white text-neutral-900 hover:bg-neutral-50 transition-all duration-300 ease-out transform hover:scale-105 shadow-xl hover:shadow-2xl"
+                          >
+                            <span>{promotion.button_text || 'Comprar ahora'}</span>
+                            <ChevronRight className='h-5 w-5 md:h-6 md:w-6 transition-transform group-hover:translate-x-1.5' strokeWidth={3} />
+                          </button>
                         </div>
                       </div>
                     </div>
@@ -141,17 +143,17 @@ export function PromotionCarousel({ promotions }: PromotionCarouselProps) {
             <>
               <button
                 onClick={() => handleManualNavigation('prev')}
-                className="absolute left-2 top-1/2 -translate-y-1/2 z-30 bg-black/20 hover:bg-black/40 backdrop-blur-sm rounded-full p-2 transition-all duration-200 hover:scale-110"
+                className="absolute left-4 top-1/2 -translate-y-1/2 z-30 bg-black/30 hover:bg-black/50 backdrop-blur-sm rounded-full p-3 transition-all duration-200 hover:scale-110"
                 aria-label="Previous promotion"
               >
-                <ChevronLeft className="h-4 w-4 text-white" />
+                <ChevronLeft className="h-6 w-6 text-white" />
               </button>
               <button
                 onClick={() => handleManualNavigation('next')}
-                className="absolute right-2 top-1/2 -translate-y-1/2 z-30 bg-black/20 hover:bg-black/40 backdrop-blur-sm rounded-full p-2 transition-all duration-200 hover:scale-110"
+                className="absolute right-4 top-1/2 -translate-y-1/2 z-30 bg-black/30 hover:bg-black/50 backdrop-blur-sm rounded-full p-3 transition-all duration-200 hover:scale-110"
                 aria-label="Next promotion"
               >
-                <ChevronRight className="h-4 w-4 text-white" />
+                <ChevronRight className="h-6 w-6 text-white" />
               </button>
             </>
           )}

@@ -23,6 +23,7 @@ export function HorizontalScroll({
   const [canScrollLeft, setCanScrollLeft] = useState(false);
   const [canScrollRight, setCanScrollRight] = useState(false);
   const [shouldCenter, setShouldCenter] = useState(false);
+  const [isLoaded, setIsLoaded] = useState(false);
 
   const checkScrollPosition = useCallback(() => {
     if (!scrollRef.current) return;
@@ -62,6 +63,14 @@ export function HorizontalScroll({
   };
 
   useEffect(() => {
+    const timer = setTimeout(() => {
+      setIsLoaded(true);
+    }, 200); // Slight delay for smooth enter
+
+    return () => clearTimeout(timer);
+  }, []);
+
+  useEffect(() => {
     const scrollElement = scrollRef.current;
     if (!scrollElement) return;
     
@@ -76,11 +85,11 @@ export function HorizontalScroll({
       {/* Placeholder to maintain layout space */}
       <div
         ref={containerRef}
-        className={`relative h-[240px] w-screen ${className}`}
+        className={`relative h-[180px] md:h-[240px] w-screen ${className}`}
       />
 
       {/* Floating scroll container */}
-      <div className="absolute left-0 right-0 h-[240px] z-[1000] pointer-events-none">
+      <div className="absolute left-0 right-0 h-[180px] md:h-[240px] z-0 pointer-events-none">
         
         {/* Left Arrow - Simple and clean */}
         {showArrows && canScrollLeft && (
@@ -108,10 +117,12 @@ export function HorizontalScroll({
           ref={scrollRef}
           className={`
             w-full pointer-events-auto
-            flex gap-4 overflow-x-auto scroll-smooth pl-4 md:pl-8 xl:pl-0
-            backdrop-blur-xl rounded-2xl border border-white/20
+            flex gap-4 overflow-x-auto scroll-smooth pl-4 pr-4 md:pl-8 md:pr-8 xl:pl-0 xl:pr-0
+            rounded-2xl
             scrollbar-hide
             ${shouldCenter ? 'justify-center' : ''}
+            transition-all duration-500 ease-out
+            ${isLoaded ? 'translate-x-0 opacity-100' : 'translate-x-4 opacity-0'}
           `}
           style={{
             scrollbarWidth: 'none',

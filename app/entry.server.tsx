@@ -13,14 +13,14 @@ export default async function handleRequest(
 ) {
   const { nonce, header, NonceProvider } = createContentSecurityPolicy({
     shop: {
-      checkoutDomain: context.env.PUBLIC_CHECKOUT_DOMAIN,
-      storeDomain: context.env.PUBLIC_STORE_DOMAIN,
+      checkoutDomain: context.env.PUBLIC_CHECKOUT_DOMAIN?.replace(/^https?:\/\//, ''),
+      storeDomain: context.env.PUBLIC_STORE_DOMAIN?.replace(/^https?:\/\//, ''),
     },
     fontSrc: ["'self'", 'https://fonts.gstatic.com'],
     styleSrc: ["'self'", 'https://fonts.googleapis.com', "'unsafe-inline'"],
     defaultSrc: ["'self'", 'https://cdn.shopify.com', 'https://shopify.com', 'nonce-550972a1de313ef2c81bf5ab065f96ef'],
-    imgSrc: ["'self'", 'https://cdn.shopify.com', 'https://shopify.com', 'https://vvdxlmnopqkikvevuedb.supabase.co'],
-    mediaSrc: ["'self'", 'https://cdn.shopify.com', 'https://shopify.com', 'https://xq66ct-0b.myshopify.com'], 
+    imgSrc: ["'self'", 'https://cdn.shopify.com', 'https://shopify.com', 'https://vvdxlmnopqkikvevuedb.supabase.co', 'https://images.unsplash.com'],
+    mediaSrc: ["'self'", 'https://cdn.shopify.com', 'https://shopify.com', 'https://xq66ct-0b.myshopify.com', 'https://vvdxlmnopqkikvevuedb.supabase.co', 'https://assets.mixkit.co'], 
     connectSrc: [
       "'self'",
       'https://dashboard.underla.store/',

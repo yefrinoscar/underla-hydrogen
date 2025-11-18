@@ -1,4 +1,4 @@
-import { Link, useNavigate, useLocation } from 'react-router';
+import { Link, useNavigate, useLocation, type NavLinkProps } from 'react-router';
 import type { CollectionFragment, CollectionQuery, ProductItemFragment } from 'storefrontapi.generated';
 import { useEffect, useState, useRef, useCallback } from 'react';
 import { useInView } from 'react-intersection-observer';
@@ -9,6 +9,13 @@ import { CategoryTextImage } from '~/components/CategoryTextImage';
 import { Collection } from '@shopify/hydrogen/storefront-api-types';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { getCollectionUrl } from '~/utils/special-collections';
+
+// Extract types for pagination state
+type PaginationState = {
+  pageBy: number;
+  startCursor: string | null;
+  endCursor: string | null;
+};
 
 // Container animation variants
 export const containerVariants = {
@@ -210,13 +217,15 @@ export function InfiniteProductGrid({
   hasNextPage,
   nextPageUrl,
   state,
-  NextLink
+  NextLink,
+  whiteBackground = false
 }: {
   products: ProductItemFragment[];
   hasNextPage: boolean;
   nextPageUrl: string;
-  state: any;
-  NextLink: any;
+  state: PaginationState;
+  NextLink: React.ComponentType<Partial<NavLinkProps>>;
+  whiteBackground?: boolean;
 }) {
   const navigate = useNavigate();
   const [isLoading, setIsLoading] = useState(false);
@@ -295,7 +304,7 @@ export function InfiniteProductGrid({
               ease: "easeOut" 
             }}
           >
-            <ProductItem product={product} />
+            <ProductItem product={product} whiteBackground={whiteBackground} />
           </motion.div>
         ))}
       </AnimatePresence>

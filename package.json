@@ -31,7 +31,7 @@
   },
   "devDependencies": {
     "@graphql-codegen/cli": "5.0.2",
-    "@shopify/cli": "^3.85.4",
+    "@shopify/cli": "^3.87.4",
     "@shopify/hydrogen-codegen": "^0.3.3",
     "@shopify/mini-oxygen": "^4.0.0",
     "@shopify/oxygen-workers-types": "^4.1.6",
